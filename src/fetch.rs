@@ -2,11 +2,11 @@
 // // data from an iterable-style or map-style dataset. This logic is shared in both
 // // single- and multi-processing data loading.
 
-use crate::collate::default_collate::DefaultCollector;
+use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 
-pub trait Fetcher<D, C = DefaultCollector>
+pub trait Fetcher<D, C = DefaultCollator>
 where
     D: Dataset<C>,
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
@@ -25,7 +25,7 @@ where
 //     pub dataset: D,
 //     pub collecate_fn: F,
 // }
-pub struct MapDatasetFetcher<D: Dataset<C>, C = DefaultCollector>
+pub struct MapDatasetFetcher<D: Dataset<C>, C = DefaultCollator>
 where
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {

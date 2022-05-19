@@ -1,4 +1,4 @@
-use crate::collate::default_collate::DefaultCollector;
+use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 use crate::fetch::{Fetcher, MapDatasetFetcher};
@@ -6,7 +6,7 @@ use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
 use crate::sampler::Sampler;
 
-pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollector>
+pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -24,7 +24,7 @@ where
     collate_fn: C,
 }
 // combinaison de _BaseDataLoaderIter et _SingleProcessDataLoaderIter
-pub struct SingleProcessDataLoaderIter<'a, D, S = DefaultSampler, C = DefaultCollector>
+pub struct SingleProcessDataLoaderIter<'a, D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -115,7 +115,7 @@ where
 }
 
 // builder pour construire des dataloader. Doit rester dans le même mod car accède au membre privée.
-pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollector>
+pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -208,7 +208,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::collate::NoOpCollector;
+    use crate::collate::NoOpCollator;
     use crate::dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
@@ -262,9 +262,9 @@ mod tests {
     #[test]
     fn test_collector() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader: DataLoader<_, SequentialSampler, NoOpCollector> =
+        let dataloader: DataLoader<_, SequentialSampler, NoOpCollator> =
             DataLoaderBuilder::new(dataset)
-                .with_collate_fn(NoOpCollector)
+                .with_collate_fn(NoOpCollator)
                 .with_batch_size(2)
                 .build();
         let mut iter = dataloader.iter();

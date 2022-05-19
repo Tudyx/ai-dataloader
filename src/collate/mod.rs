@@ -8,9 +8,9 @@ pub trait Collate<T>: Default {
     fn collate(batch: T) -> Self::Output;
 }
 #[derive(Default)]
-pub struct NoOpCollector;
+pub struct NoOpCollator;
 
-impl<T> Collate<T> for NoOpCollector {
+impl<T> Collate<T> for NoOpCollator {
     type Output = T;
     fn collate(batch: T) -> Self::Output {
         batch
@@ -24,6 +24,6 @@ mod tests {
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollector::collate(array![1, 2]), array![1, 2]);
+        assert_eq!(NoOpCollator::collate(array![1, 2]), array![1, 2]);
     }
 }
