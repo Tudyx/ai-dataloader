@@ -45,7 +45,7 @@ impl RandomSamplerIter {
             let mut vec: Vec<usize> = (0..data_source_len).collect();
             vec.shuffle(&mut thread_rng());
             RandomSamplerIter {
-                data_source_len: data_source_len,
+                data_source_len,
                 indexes: vec,
                 idx: 0,
             }
@@ -57,7 +57,7 @@ impl Iterator for RandomSamplerIter {
     fn next(&mut self) -> Option<Self::Item> {
         if self.idx < self.data_source_len {
             self.idx += 1;
-            return Some(self.indexes[self.idx - 1]);
+            Some(self.indexes[self.idx - 1])
         } else {
             None
         }

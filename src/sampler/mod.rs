@@ -8,6 +8,9 @@ pub type DefaultSampler = SequentialSampler;
 
 pub trait HasLength {
     fn len(&self) -> usize;
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 pub trait Sampler: HasLength + IntoIterator<Item = usize> + Copy {

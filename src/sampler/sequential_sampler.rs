@@ -21,8 +21,7 @@ impl IntoIterator for SequentialSampler {
     type IntoIter = Range<usize>;
     type Item = usize;
     fn into_iter(self) -> Self::IntoIter {
-        println!("Create a vec of len {}", self.data_source_len);
-        (0..self.data_source_len).into_iter()
+        0..self.data_source_len
     }
 }
 

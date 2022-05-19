@@ -11,7 +11,7 @@ pub trait Collect<T>: Default {
     // retour : ndarray ou vector de ndarray
     fn collect(batch: T) -> Self::Output;
 }
-
+#[derive(Default)]
 pub struct NoOpCollector;
 
 impl<T> Collect<T> for NoOpCollector {
@@ -20,11 +20,7 @@ impl<T> Collect<T> for NoOpCollector {
         batch
     }
 }
-impl Default for NoOpCollector {
-    fn default() -> Self {
-        NoOpCollector {}
-    }
-}
+#[derive(Default)]
 pub struct DefaultCollector;
 
 macro_rules! impl_vec_collect {
@@ -62,11 +58,6 @@ impl_array_collect!(usize u8 u16 u32 u64 u128
         f32 f64
         bool char);
 
-impl Default for DefaultCollector {
-    fn default() -> Self {
-        DefaultCollector {}
-    }
-}
 /////////////////////////// case that require specialization ///////////////////////////
 impl Collect<Vec<String>> for DefaultCollector {
     type Output = Vec<String>;
@@ -220,7 +211,7 @@ impl<'a> Collect<Vec<HashMap<&'a str, i32>>> for DefaultCollector {
         for key in batch[0].keys() {
             let mut vec = Vec::new();
             for d in &batch {
-                vec.push(d[key].clone());
+                vec.push(d[key]);
             }
             res.insert(*key, DefaultCollector::collect(vec));
         }

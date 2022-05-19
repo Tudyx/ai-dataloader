@@ -67,7 +67,7 @@ impl GetItem<usize> for CustomDataset {
 }
 impl HasLength for CustomDataset {
     fn len(&self) -> usize {
-        return self.content.len();
+        self.content.len()
     }
 }
 impl Clone for CustomDataset {
@@ -148,7 +148,7 @@ where
     D2: Dimension,
 {
     fn len(&self) -> usize {
-        return self.ndarrays.0.len();
+        self.ndarrays.0.len()
     }
 }
 impl<A1, A2, D1, D2> GetItem<usize> for NdarrayDataset<A1, A2, D1, D2>
@@ -163,6 +163,8 @@ where
     type Output = (A1, A2);
     fn get_item(&self, index: usize) -> Self::Output {
         (
+            // TODO : exampand this to the dimension of the array
+            // self.ndarrays.0.slice(s![0, .., ..]),
             self.ndarrays.0[index].clone(),
             self.ndarrays.1[index].clone(),
         )

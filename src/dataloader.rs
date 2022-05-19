@@ -57,8 +57,8 @@ where
     }
     fn next_data(&mut self) -> Option<C::Output> {
         let index = self.next_index();
-        if index.is_some() {
-            let data = self.data_fetcher.fetch(index.unwrap());
+        if let Some(index) = index {
+            let data = self.data_fetcher.fetch(index);
             return Some(data);
         }
         None
@@ -79,9 +79,10 @@ where
     // type Item = Vec<Collect<Vec<<D as GetItem<usize>>::Output>>>;
     fn next(&mut self) -> Option<Self::Item> {
         let data = self.next_data();
-        if data.is_some() {
+
+        if let Some(data) = data {
             self.num_yielded += 1;
-            return Some(data.unwrap());
+            return Some(data);
         }
         None
     }
@@ -97,7 +98,7 @@ where
     // type Item = <DefaultCollector as Collect<Vec<D::Output>>>::Output;
     type IntoIter = SingleProcessDataLoaderIter<'a, D, S, C>;
     fn into_iter(self) -> Self::IntoIter {
-        SingleProcessDataLoaderIter::new(&self)
+        SingleProcessDataLoaderIter::new(self)
     }
 }
 
@@ -108,7 +109,7 @@ where
     C: Collect<Vec<<D as GetItem<usize>>::Output>>,
 {
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
-        SingleProcessDataLoaderIter::new(&self)
+        SingleProcessDataLoaderIter::new(self)
     }
 }
 
@@ -135,7 +136,7 @@ where
 {
     pub fn new(dataset: D) -> Self {
         Self {
-            dataset: dataset,
+            dataset,
             batch_size: 1,
             sampler: None,
             batch_sampler: None,
@@ -162,12 +163,14 @@ where
     }
 
     pub fn build(mut self) -> DataLoader<D, S, C> {
-        if self.batch_sampler.is_some() {
-            if self.batch_size != 0 || self.sampler.is_some() || self.drop_last {
-                panic!("batch_sampler option is mutually exclusive with batch_size,  sampler, and drop_last'")
-            }
+        if self.batch_sampler.is_some() && self.batch_size != 0
+            || self.sampler.is_some()
+            || self.drop_last
+        {
+            panic!("batch_sampler option is mutually exclusive with batch_size,  sampler, and drop_last'")
         }
-        let sampler = self.sampler.unwrap_or(S::new(self.dataset.len()));
+
+        let sampler = self.sampler.unwrap_or_else(|| S::new(self.dataset.len()));
 
         if self.batch_sampler.is_none() {
             self.batch_sampler = Some(BatchSampler {
@@ -179,12 +182,12 @@ where
         DataLoader {
             dataset: self.dataset,
             batch_size: self.batch_size,
-            sampler: sampler,
+            sampler,
             batch_sampler: self.batch_sampler.unwrap(),
             num_worker: self.num_worker,
             drop_last: self.drop_last,
             current_index: 0,
-            collate_fn: self.collate_fn.unwrap_or(C::default()),
+            collate_fn: self.collate_fn.unwrap_or_default(),
         }
     }
 }

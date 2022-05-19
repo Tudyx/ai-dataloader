@@ -55,7 +55,7 @@ where
             }
             current_idx = self.sampler.next();
         }
-        if batch.len() > 0 && !self.drop_last {
+        if !batch.is_empty() && !self.drop_last {
             return Some(batch);
         }
         None
