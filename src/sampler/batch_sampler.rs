@@ -43,7 +43,7 @@ where
 {
     type Item = Vec<usize>;
     fn next(&mut self) -> Option<Self::Item> {
-        let mut batch = Vec::new();
+        let mut batch = Vec::with_capacity(self.batch_size);
 
         // We can't use a classic for loop here because it will
         // try to move the &mut

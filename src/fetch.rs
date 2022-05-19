@@ -39,7 +39,7 @@ where
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
-        let mut data = Vec::new();
+        let mut data = Vec::with_capacity(possibly_batched_index.len());
         for idx in possibly_batched_index {
             data.push(self.dataset.get_item(idx));
         }
