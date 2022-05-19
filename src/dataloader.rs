@@ -1,5 +1,5 @@
 use crate::collate::default_collate::DefaultCollector;
-use crate::collate::Collect;
+use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
@@ -10,7 +10,7 @@ pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollector>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     dataset: D,
     // how many sample to launch per batch
@@ -28,7 +28,7 @@ pub struct SingleProcessDataLoaderIter<'a, D, S = DefaultSampler, C = DefaultCol
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     dataset: &'a D,
     sampler_iter: BatchIterator<S::IntoIter>,
@@ -40,7 +40,7 @@ impl<'a, D, S, C> SingleProcessDataLoaderIter<'a, D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     fn new(loader: &'a DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<'a, D, S, C> {
         SingleProcessDataLoaderIter {
@@ -74,7 +74,7 @@ impl<'a, D, S, C> Iterator for SingleProcessDataLoaderIter<'a, D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     type Item = C::Output;
     // type Item = Vec<Collect<Vec<<D as GetItem<usize>>::Output>>>;
@@ -92,7 +92,7 @@ impl<'a, D, S, C> IntoIterator for &'a DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     type Item = C::Output;
 
@@ -107,7 +107,7 @@ impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter::new(self)
@@ -119,7 +119,7 @@ pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollector>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     dataset: D,
     batch_size: usize,
@@ -133,7 +133,7 @@ impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     pub fn new(dataset: D) -> Self {
         Self {

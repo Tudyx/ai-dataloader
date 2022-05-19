@@ -3,13 +3,13 @@
 // // single- and multi-processing data loading.
 
 use crate::collate::default_collate::DefaultCollector;
-use crate::collate::Collect;
+use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 
 pub trait Fetcher<D, C = DefaultCollector>
 where
     D: Dataset<C>,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
@@ -27,7 +27,7 @@ where
 // }
 pub struct MapDatasetFetcher<D: Dataset<C>, C = DefaultCollector>
 where
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     pub dataset: D,
     pub collate_fn: C,
@@ -36,13 +36,13 @@ where
 impl<D, C> Fetcher<D, C> for MapDatasetFetcher<D, C>
 where
     D: Dataset<C>,
-    C: Collect<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
         let mut data = Vec::new();
         for idx in possibly_batched_index {
             data.push(self.dataset.get_item(idx));
         }
-        C::collect(data)
+        C::collate(data)
     }
 }

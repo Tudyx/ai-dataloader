@@ -3,16 +3,16 @@ pub mod default_collate;
 // collate rassemble les éléments du batch ensemble
 // un numpy array <=> ndarray est just converti en tensor
 
-pub trait Collect<T>: Default {
+pub trait Collate<T>: Default {
     type Output;
-    fn collect(batch: T) -> Self::Output;
+    fn collate(batch: T) -> Self::Output;
 }
 #[derive(Default)]
 pub struct NoOpCollector;
 
-impl<T> Collect<T> for NoOpCollector {
+impl<T> Collate<T> for NoOpCollector {
     type Output = T;
-    fn collect(batch: T) -> Self::Output {
+    fn collate(batch: T) -> Self::Output {
         batch
     }
 }
@@ -24,6 +24,6 @@ mod tests {
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollector::collect(array![1, 2]), array![1, 2]);
+        assert_eq!(NoOpCollector::collate(array![1, 2]), array![1, 2]);
     }
 }

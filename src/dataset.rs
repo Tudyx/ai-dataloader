@@ -1,6 +1,6 @@
 use ndarray::{Array, Axis, Dimension, NdIndex, RemoveAxis};
 
-use crate::collate::Collect;
+use crate::collate::Collate;
 use crate::sampler::HasLength;
 
 // TODO: remove the clone trait
@@ -17,7 +17,7 @@ use crate::sampler::HasLength;
 
 pub trait Dataset<T>: HasLength + GetItem<usize> + Clone
 where
-    T: Collect<Vec<Self::Output>>,
+    T: Collate<Vec<Self::Output>>,
 {
 }
 
@@ -51,7 +51,7 @@ pub trait GetItem2<Idx: Sized = usize> {
 struct CustomDataset {
     pub content: Vec<i32>,
 }
-impl<T> Dataset<T> for CustomDataset where T: Collect<Vec<Self::Output>> {}
+impl<T> Dataset<T> for CustomDataset where T: Collate<Vec<Self::Output>> {}
 
 // impl Index<usize> for CustomDataset {
 //     type Output = i32;
@@ -77,7 +77,7 @@ impl Clone for CustomDataset {
         }
     }
 }
-impl<T: Clone, U> Dataset<U> for Vec<T> where U: Collect<Vec<Self::Output>> {}
+impl<T: Clone, U> Dataset<U> for Vec<T> where U: Collate<Vec<Self::Output>> {}
 
 impl<T: Clone> GetItem<usize> for Vec<T> {
     type Output = T;
@@ -120,7 +120,7 @@ where
     A2: Clone,
     D1: Dimension + RemoveAxis,
     D2: Dimension + RemoveAxis,
-    T: Collect<Vec<Self::Output>>,
+    T: Collate<Vec<Self::Output>>,
 {
 }
 
