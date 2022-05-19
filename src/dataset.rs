@@ -1,4 +1,4 @@
-use ndarray::{Array, Dimension, NdIndex};
+use ndarray::{Array, Axis, Dimension, NdIndex, RemoveAxis};
 
 use crate::collate::Collect;
 use crate::sampler::HasLength;
@@ -109,8 +109,8 @@ pub struct NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
-    D1: Dimension,
-    D2: Dimension,
+    D1: Dimension + RemoveAxis,
+    D2: Dimension + RemoveAxis,
 {
     pub ndarrays: (Array<A1, D1>, Array<A2, D2>),
 }
@@ -118,10 +118,8 @@ impl<A1, A2, D1, D2, T> Dataset<T> for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
-    D1: Dimension,
-    D2: Dimension,
-    usize: NdIndex<D1>,
-    usize: NdIndex<D2>,
+    D1: Dimension + RemoveAxis,
+    D2: Dimension + RemoveAxis,
     T: Collect<Vec<Self::Output>>,
 {
 }
@@ -130,8 +128,8 @@ impl<A1, A2, D1, D2> Clone for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
-    D1: Dimension,
-    D2: Dimension,
+    D1: Dimension + RemoveAxis,
+    D2: Dimension + RemoveAxis,
 {
     fn clone(&self) -> Self {
         NdarrayDataset {
@@ -144,8 +142,8 @@ impl<A1, A2, D1, D2> HasLength for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
-    D1: Dimension,
-    D2: Dimension,
+    D1: Dimension + RemoveAxis,
+    D2: Dimension + RemoveAxis,
 {
     fn len(&self) -> usize {
         self.ndarrays.0.len()
@@ -153,20 +151,19 @@ where
 }
 impl<A1, A2, D1, D2> GetItem<usize> for NdarrayDataset<A1, A2, D1, D2>
 where
-    usize: NdIndex<D1>,
-    usize: NdIndex<D2>,
     A1: Clone,
     A2: Clone,
-    D1: Dimension,
-    D2: Dimension,
+    D1: Dimension + RemoveAxis,
+    D2: Dimension + RemoveAxis,
 {
-    type Output = (A1, A2);
+    type Output = (
+        Array<A1, <D1 as Dimension>::Smaller>,
+        Array<A2, <D2 as Dimension>::Smaller>,
+    );
     fn get_item(&self, index: usize) -> Self::Output {
         (
-            // TODO : exampand this to the dimension of the array
-            // self.ndarrays.0.slice(s![0, .., ..]),
-            self.ndarrays.0[index].clone(),
-            self.ndarrays.1[index].clone(),
+            self.ndarrays.0.index_axis(Axis(0), index).into_owned(),
+            self.ndarrays.1.index_axis(Axis(0), index).into_owned(),
         )
     }
 }
