@@ -297,12 +297,11 @@ mod tests {
         let dataset = NdarrayDataset {
             ndarrays: (data, label),
         };
-        let b = vec![1, 2, 3, 4];
-        let c = b.iter();
-        // let loader = DataLoaderBuilder::from(dataset);
-        // for (idx, (sample, target)) in &loader {
-
-        // }
+        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
+        // for (idx, (sample, target)) in loader.iter().enumerate() {}
+        for el in loader.iter().take(1) {
+            println!("{el:?}");
+        }
     }
     #[test]
     fn test_random() {

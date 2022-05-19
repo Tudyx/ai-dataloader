@@ -3,7 +3,7 @@
 A rust port of pytorch dataloader library.
 
 
-For now support only single threaded map style dataset
+For now support only single threaded map style dataset.
 
 ## TODO:
 - ajout de TU (copier _test_squential de test_dataloader)

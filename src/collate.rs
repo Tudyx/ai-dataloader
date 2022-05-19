@@ -2,7 +2,7 @@
 // un numpy array <=> ndarray est just converti en tensor
 
 use itertools::izip;
-use ndarray::{array, Array, Array1, Dimension, Ix1};
+use ndarray::{array, Array, Array1, Array3, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
 use std::collections::HashMap;
 
 pub trait Collect<T>: Default {
@@ -59,9 +59,23 @@ impl_array_collect!(usize u8 u16 u32 u64 u128
         bool char);
 
 /////////////////////////// case that require specialization ///////////////////////////
+//  byte and string are a no op for default collector
+impl Collect<String> for DefaultCollector {
+    type Output = String;
+    fn collect(batch: String) -> Self::Output {
+        batch
+    }
+}
 impl Collect<Vec<String>> for DefaultCollector {
     type Output = Vec<String>;
     fn collect(batch: Vec<String>) -> Vec<String> {
+        batch
+    }
+}
+
+impl Collect<(String, String)> for DefaultCollector {
+    type Output = (String, String);
+    fn collect(batch: (String, String)) -> Self::Output {
         batch
     }
 }
@@ -98,21 +112,34 @@ impl Collect<(f64, f64)> for DefaultCollector {
         array![batch.0, batch.1]
     }
 }
+impl Collect<(f64, f64, f64)> for DefaultCollector {
+    type Output = Array<f64, Ix1>;
+    fn collect(batch: (f64, f64, f64)) -> Self::Output {
+        array![batch.0, batch.1, batch.2]
+    }
+}
 impl Collect<Vec<(f64, f64)>> for DefaultCollector {
     type Output = Vec<Array<f64, Ix1>>;
     fn collect(batch: Vec<(f64, f64)>) -> Self::Output {
         let mut res = Vec::new();
         if batch.len() == 1 {
-            res.push(DefaultCollector::collect(batch[0].clone()))
+            res.push(DefaultCollector::collect([batch[0].0.clone()]));
+            res.push(DefaultCollector::collect([batch[0].1.clone()]));
         } else if batch.len() == 2 {
             let tuple = (batch[0].0.clone(), batch[1].0.clone());
             res.push(DefaultCollector::collect(tuple));
             let tuple = (batch[0].1.clone(), batch[1].1.clone());
             res.push(DefaultCollector::collect(tuple));
+        } else if batch.len() == 3 {
+            let tuple = (batch[0].0.clone(), batch[1].0.clone(), batch[2].0.clone());
+            res.push(DefaultCollector::collect(tuple));
+            let tuple = (batch[0].1.clone(), batch[1].1.clone(), batch[2].1.clone());
+            res.push(DefaultCollector::collect(tuple));
         }
         res
     }
 }
+
 // impl Collect<(f64, i32)> for DefaultCollector {
 //     type Output = Array<i32, Ix1>;
 //     fn collect(batch: (i32, i32)) -> Array<i32, Ix1> {
@@ -219,6 +246,34 @@ impl<'a> Collect<Vec<HashMap<&'a str, i32>>> for DefaultCollector {
     }
 }
 
+impl
+    Collect<
+        Vec<(
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
+        )>,
+    > for DefaultCollector
+{
+    type Output = ArrayBase<
+        OwnedRepr<(
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
+        )>,
+        Dim<[usize; 1]>,
+    >;
+
+    fn collect(
+        batch: Vec<(
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
+            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
+        )>,
+    ) -> Self::Output {
+        // let res = vec![];
+        // for (data, label) in batch {}
+        Array::from_vec(batch)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -255,23 +310,45 @@ mod tests {
         assert_eq!(DefaultCollector::collect(vec![map1, map2]), expected_result);
     }
 
+    // [tensor([1, 3]), tensor([2, 4])]
+    #[test]
+    fn default_collate_tuple() {
+        assert_eq!(DefaultCollector::collect((1.0, 2.0)), array![1.0, 2.0]);
+
+        assert_eq!(
+            DefaultCollector::collect(vec![(1.0, 2.0)]),
+            vec![array![1.0], array![2.0]]
+        );
+        assert_eq!(
+            DefaultCollector::collect(vec![(1.0, 2.0), (3.0, 4.0)]),
+            vec![array![1.0, 3.0], array![2.0, 4.0]]
+        );
+        assert_eq!(
+            DefaultCollector::collect(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
+            vec![array![1.0, 3.0, 5.0], array![2.0, 4.0, 6.0]]
+        );
+    }
+
     #[test]
     fn default_collect_specialized() {
         // case that require specialization (string and bytes):
         assert_eq!(
+            DefaultCollector::collect(String::from("foo")),
+            String::from("foo")
+        );
+        assert_eq!(
             DefaultCollector::collect(vec![String::from("a"), String::from("b")]),
             vec![String::from("a"), String::from("b")]
         );
-        //TODO ?
-        // assert_eq!(
-        //     DefaultCollector::collect(vec![0..2, 0..2]), vec![!array![0,0], array![1,1]]
-        // );
-
-        // let array2 = array![[0., 1.], [2., 3.]];
-        // assert_eq!(array2.default_collate(), array![[0., 2.], [1., 3.]]);
-        // let array2 = array![["a", "b"], ["c", "d"]];
-        // assert_eq!(array2.default_collate(), array![["a", "c"], ["b", "d"]]);
+        assert_eq!(
+            DefaultCollector::collect((String::from("a"), String::from("b"))),
+            (String::from("a"), String::from("b"))
+        );
     }
+    //TODO ?yq
+    // assert_eq!(
+    //     DefaultCollector::collect(vec![0..2, 0..2]), vec![!array![0,0], array![1,1]]
+    // );
     #[test]
     fn default_collate_multi_dimensional() {
         assert_eq!(

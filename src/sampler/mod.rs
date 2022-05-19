@@ -13,6 +13,7 @@ pub trait HasLength {
     }
 }
 
+// maybe copy is too restrictive and should be replaced by Clone
 pub trait Sampler: HasLength + IntoIterator<Item = usize> + Copy {
     fn new(data_source_len: usize) -> Self;
 }
