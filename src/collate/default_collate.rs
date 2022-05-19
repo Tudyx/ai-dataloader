@@ -1,25 +1,9 @@
-// collate rassemble les éléments du batch ensemble
-// un numpy array <=> ndarray est just converti en tensor
+use super::Collect;
 
 use itertools::izip;
-use ndarray::{array, Array, Array1, Array3, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
+use ndarray::{array, Array, Array1, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
 use std::collections::HashMap;
 
-pub trait Collect<T>: Default {
-    type Output;
-    // entrée, un vec du résultat du get_item du dataset
-    // retour : ndarray ou vector de ndarray
-    fn collect(batch: T) -> Self::Output;
-}
-#[derive(Default)]
-pub struct NoOpCollector;
-
-impl<T> Collect<T> for NoOpCollector {
-    type Output = T;
-    fn collect(batch: T) -> Self::Output {
-        batch
-    }
-}
 #[derive(Default)]
 pub struct DefaultCollector;
 
@@ -79,6 +63,19 @@ impl Collect<(String, String)> for DefaultCollector {
         batch
     }
 }
+impl Collect<(String, String, String)> for DefaultCollector {
+    type Output = (String, String, String);
+    fn collect(batch: (String, String, String)) -> (String, String, String) {
+        batch
+    }
+}
+
+impl Collect<Vec<(String, String)>> for DefaultCollector {
+    type Output = Vec<(String, String)>;
+    fn collect(batch: Vec<(String, String)>) -> Vec<(String, String)> {
+        todo!()
+    }
+}
 
 // implémentation pour n'importe quelle dimension on fait rien ndarray -> ndarray
 impl<T, I: Dimension> Collect<Array<T, I>> for DefaultCollector {
@@ -91,12 +88,6 @@ impl Collect<(i32, i32, i32)> for DefaultCollector {
     type Output = Array<i32, Ix1>;
     fn collect(batch: (i32, i32, i32)) -> Array<i32, Ix1> {
         array![batch.0, batch.1, batch.2]
-    }
-}
-impl Collect<(String, String, String)> for DefaultCollector {
-    type Output = (String, String, String);
-    fn collect(batch: (String, String, String)) -> (String, String, String) {
-        batch
     }
 }
 
@@ -123,8 +114,8 @@ impl Collect<Vec<(f64, f64)>> for DefaultCollector {
     fn collect(batch: Vec<(f64, f64)>) -> Self::Output {
         let mut res = Vec::new();
         if batch.len() == 1 {
-            res.push(DefaultCollector::collect([batch[0].0.clone()]));
-            res.push(DefaultCollector::collect([batch[0].1.clone()]));
+            res.push(array![batch[0].0.clone()]);
+            res.push(array![batch[0].1.clone()]);
         } else if batch.len() == 2 {
             let tuple = (batch[0].0.clone(), batch[1].0.clone());
             res.push(DefaultCollector::collect(tuple));
@@ -155,9 +146,8 @@ impl Collect<Vec<(f64, f64)>> for DefaultCollector {
 // }
 impl Collect<Vec<Vec<i32>>> for DefaultCollector {
     type Output = Vec<Array<i32, Ix1>>;
-    fn collect(batch: Vec<Vec<i32>>) -> Vec<Array<i32, Ix1>> {
-        let mut it = batch.iter();
-        let elem_size = it.next().unwrap().len();
+    fn collect(batch: Vec<Vec<i32>>) -> Self::Output {
+        let elem_size = batch.iter().next().unwrap().len();
         if !batch.iter().all(|vec| vec.len() == elem_size) {
             panic!("each element in list of batch should be of equal size");
         }
@@ -179,13 +169,41 @@ impl Collect<Vec<Vec<i32>>> for DefaultCollector {
         res
     }
 }
+
+// comme pour les string sont transformé en tuple pour les strings il peut y avoir plusieurs type de retour..
+// Cela retourne un tuple de la taille du vec.
+impl Collect<Vec<Vec<String>>> for DefaultCollector {
+    type Output = Vec<(String, String)>;
+    fn collect(batch: Vec<Vec<String>>) -> Self::Output {
+        let elem_size = batch.iter().next().unwrap().len();
+        if !batch.iter().all(|vec| vec.len() == elem_size) {
+            panic!("each element in list of batch should be of equal size");
+        }
+        let mut res = Vec::new();
+
+        // I don't find a way to unpack a vec of vec.
+        // Maybe i can turn this into a macro
+        if batch.len() == 1 {
+            // res.push(DefaultCollector::collect(batch[0].clone()));
+        } else if batch.len() == 2 {
+            for samples in izip!(batch[0].clone(), batch[1].clone()) {
+                res.push(DefaultCollector::collect(samples));
+            }
+        } else if batch.len() == 3 {
+            for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
+                // res.push(DefaultCollector::collect(samples));
+            }
+        }
+        res
+    }
+}
 // impl<T> Collect<Vec<Vec<T>>> for DefaultCollector
-// where DefaultCollector: Collect<Vec<T>>
+// where
+//     DefaultCollector: Collect<Vec<T>>,
 // {
 //     type Output = <DefaultCollector as Collect<Vec<T>>>::Output;
 //     fn collect(batch: Vec<Vec<T>>) -> Self::Output {
-//         let mut it = batch.iter();
-//         let elem_size = it.next().unwrap().len();
+//         let elem_size = batch.iter().next().unwrap().len();
 //         if !batch.iter().all(|vec| vec.len() == elem_size) {
 //             panic!("each element in list of batch should be of equal size");
 //         }
@@ -344,6 +362,30 @@ mod tests {
             DefaultCollector::collect((String::from("a"), String::from("b"))),
             (String::from("a"), String::from("b"))
         );
+
+        // TODO
+        assert_eq!(
+            DefaultCollector::collect(vec![
+                vec![String::from("a"), String::from("b")],
+                vec![String::from("c"), String::from("d")]
+            ]),
+            vec![
+                (String::from('a'), String::from('c')),
+                (String::from('b'), String::from('d')),
+            ]
+        );
+
+        // TODO
+        // assert_eq!(
+        //     DefaultCollector::collect(vec![
+        //         (String::from("a"), String::from("b")),
+        //         (String::from("c"), String::from("d"))
+        //     ]),
+        //     vec![
+        //         (String::from('a'), String::from('c')),
+        //         (String::from('b'), String::from('d'))
+        //     ]
+        // );
     }
     //TODO ?yq
     // assert_eq!(
@@ -378,10 +420,5 @@ mod tests {
         //     DefaultCollector::collect(vec![[1., 2.], [3., 4.], [5., 6.]]),
         //     vec![array![1., 3., 5.], array![2., 4., 6.]]
         // );
-    }
-
-    #[test]
-    fn no_op_collate() {
-        assert_eq!(NoOpCollector::collect(array![1, 2]), array![1, 2]);
     }
 }

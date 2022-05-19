@@ -2,7 +2,8 @@
 // // data from an iterable-style or map-style dataset. This logic is shared in both
 // // single- and multi-processing data loading.
 
-use crate::collate::{Collect, DefaultCollector};
+use crate::collate::default_collate::DefaultCollector;
+use crate::collate::Collect;
 use crate::dataset::{Dataset, GetItem};
 
 pub trait Fetcher<D, C = DefaultCollector>

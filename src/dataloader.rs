@@ -1,4 +1,5 @@
-use crate::collate::{Collect, DefaultCollector};
+use crate::collate::default_collate::DefaultCollector;
+use crate::collate::Collect;
 use crate::dataset::{Dataset, GetItem};
 use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
