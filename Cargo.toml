@@ -1,0 +1,13 @@
+[package]
+name = "dataloader_rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = "0.15.4"
+ndarray-rand = "0.14.0"
+num = "0.4.0"
+itertools = "0.10.3"
+rand = "0.8.5"
