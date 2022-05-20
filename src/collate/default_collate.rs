@@ -42,6 +42,57 @@ impl_array_collect!(usize u8 u16 u32 u64 u128
         f32 f64
         bool char);
 
+macro_rules! impl_tuple_collect {
+            ($($t:ty)*) => {
+                $(
+                impl Collate<($t,)> for DefaultCollator {
+                    type Output = Array<$t, Ix1>;
+                    fn collate(batch: ($t,)) -> Self::Output {
+                        array![batch.0]
+                    }
+                }
+            )*
+            };
+        }
+impl_tuple_collect!(usize u8 u16 u32 u64 u128
+            isize i8 i16 i32 i64 i128
+            f32 f64
+            bool char);
+
+macro_rules! impl_tuple_collect2 {
+                ($($t:ty)*) => {
+                    $(
+                    impl Collate<($t,$t)> for DefaultCollator {
+                        type Output = Array<$t, Ix1>;
+                        fn collate(batch: ($t,$t)) -> Self::Output {
+                            array![batch.0, batch.1]
+                        }
+                    }
+                )*
+                };
+            }
+impl_tuple_collect2!(usize u8 u16 u32 u64 u128
+                isize i8 i16 i32 i64 i128
+                f32 f64
+                bool char);
+
+macro_rules! impl_tuple_collect3 {
+                    ($($t:ty)*) => {
+                        $(
+                        impl Collate<($t,$t,$t)> for DefaultCollator {
+                            type Output = Array<$t, Ix1>;
+                            fn collate(batch: ($t,$t,$t)) -> Self::Output {
+                                array![batch.0, batch.1, batch.2]
+                            }
+                        }
+                    )*
+                    };
+                }
+impl_tuple_collect3!(usize u8 u16 u32 u64 u128
+                    isize i8 i16 i32 i64 i128
+                    f32 f64
+                    bool char);
+
 /////////////////////////// case that require specialization ///////////////////////////
 //  byte and string are a no op for default collector
 impl Collate<String> for DefaultCollator {
@@ -77,59 +128,35 @@ impl Collate<Vec<(String, String)>> for DefaultCollator {
     }
 }
 
-// implémentation pour n'importe quelle dimension on fait rien ndarray -> ndarray
+// implémentation pour n'importe quelle dimension on fait rien ndarray -> ndarray FAUX (ndarray of a ndarray)
 impl<T, I: Dimension> Collate<Array<T, I>> for DefaultCollator {
     type Output = Array<T, I>;
     fn collate(batch: Array<T, I>) -> Array<T, I> {
         batch
     }
 }
-impl Collate<(i32, i32, i32)> for DefaultCollator {
-    type Output = Array<i32, Ix1>;
-    fn collate(batch: (i32, i32, i32)) -> Array<i32, Ix1> {
-        array![batch.0, batch.1, batch.2]
-    }
-}
 
-impl Collate<(i32, i32)> for DefaultCollator {
-    type Output = Array<i32, Ix1>;
-    fn collate(batch: (i32, i32)) -> Array<i32, Ix1> {
-        array![batch.0, batch.1]
-    }
-}
-impl Collate<(f64, f64)> for DefaultCollator {
-    type Output = Array<f64, Ix1>;
-    fn collate(batch: (f64, f64)) -> Self::Output {
-        array![batch.0, batch.1]
-    }
-}
-impl Collate<(f64, f64, f64)> for DefaultCollator {
-    type Output = Array<f64, Ix1>;
-    fn collate(batch: (f64, f64, f64)) -> Self::Output {
-        array![batch.0, batch.1, batch.2]
-    }
-}
-impl Collate<Vec<(f64, f64)>> for DefaultCollator {
-    type Output = Vec<Array<f64, Ix1>>;
-    fn collate(batch: Vec<(f64, f64)>) -> Self::Output {
-        let mut res = Vec::new();
-        if batch.len() == 1 {
-            res.push(array![batch[0].0.clone()]);
-            res.push(array![batch[0].1.clone()]);
-        } else if batch.len() == 2 {
-            let tuple = (batch[0].0.clone(), batch[1].0.clone());
-            res.push(DefaultCollator::collate(tuple));
-            let tuple = (batch[0].1.clone(), batch[1].1.clone());
-            res.push(DefaultCollator::collate(tuple));
-        } else if batch.len() == 3 {
-            let tuple = (batch[0].0.clone(), batch[1].0.clone(), batch[2].0.clone());
-            res.push(DefaultCollator::collate(tuple));
-            let tuple = (batch[0].1.clone(), batch[1].1.clone(), batch[2].1.clone());
-            res.push(DefaultCollator::collate(tuple));
-        }
-        res
-    }
-}
+// impl Collate<Vec<(f64, f64)>> for DefaultCollator {
+//     type Output = Vec<Array<f64, Ix1>>;
+//     fn collate(batch: Vec<(f64, f64)>) -> Self::Output {
+//         let mut res = Vec::new();
+//         if batch.len() == 1 {
+//             res.push(array![batch[0].0.clone()]);
+//             res.push(array![batch[0].1.clone()]);
+//         } else if batch.len() == 2 {
+//             let tuple = (batch[0].0.clone(), batch[1].0.clone());
+//             res.push(DefaultCollator::collate(tuple));
+//             let tuple = (batch[0].1.clone(), batch[1].1.clone());
+//             res.push(DefaultCollator::collate(tuple));
+//         } else if batch.len() == 3 {
+//             let tuple = (batch[0].0.clone(), batch[1].0.clone(), batch[2].0.clone());
+//             res.push(DefaultCollator::collate(tuple));
+//             let tuple = (batch[0].1.clone(), batch[1].1.clone(), batch[2].1.clone());
+//             res.push(DefaultCollator::collate(tuple));
+//         }
+//         res
+//     }
+// }
 
 // impl Collect<(f64, i32)> for DefaultCollector {
 //     type Output = Array<i32, Ix1>;
@@ -292,6 +319,57 @@ impl
     }
 }
 
+// build seems to never ends when we uncomment this
+// impl<T> Collate<((T, T), (T, T))> for DefaultCollator
+// where
+//     T: Clone,
+//     DefaultCollator: Collate<(T, T), Output = Array<T, Ix1>>,
+// {
+//     type Output = Vec<Array<T, Ix1>>;
+//     fn collate(batch: ((T, T), (T, T))) -> Self::Output {
+//         // This tuple is homogeneous, convert it into an array to be iterable
+//         let a = [batch.0 .0, batch.0 .1];
+//         let b = [batch.1 .0, batch.1 .1];
+
+//         let mut res = vec![];
+//         for samples in izip!(a, b) {
+//             res.push(DefaultCollator::collate(samples));
+//         }
+//         res
+//     }
+// }
+
+impl<T> Collate<Vec<(T, T)>> for DefaultCollator
+where
+    T: Clone,
+    DefaultCollator: Collate<(T,), Output = Array<T, Ix1>>,
+    DefaultCollator: Collate<(T, T), Output = Array<T, Ix1>>,
+    DefaultCollator: Collate<(T, T, T), Output = Array<T, Ix1>>,
+{
+    type Output = Vec<Array<T, Ix1>>;
+    fn collate(batch: Vec<(T, T)>) -> Self::Output {
+        // tuple aren't iterable, even in the case they are homogeneous. That's why we put it into an array
+        // TODO: replace this by a call of DefaultCollator<Vec<[]>> when implemented
+        let batch: Vec<_> = batch.iter().map(|x| [x.0.clone(), x.1.clone()]).collect();
+        let mut res = Vec::new();
+
+        if batch.len() == 1 {
+            for samples in izip!(batch[0].clone()) {
+                res.push(DefaultCollator::collate((samples,)));
+            }
+        } else if batch.len() == 2 {
+            for samples in izip!(batch[0].clone(), batch[1].clone()) {
+                res.push(DefaultCollator::collate(samples));
+            }
+        } else if batch.len() == 3 {
+            for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
+                res.push(DefaultCollator::collate(samples));
+            }
+        }
+        res
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -326,7 +404,28 @@ mod tests {
 
     #[test]
     fn tuple() {
+        // TODO: macro testing
+        // (T,)
+        assert_eq!(DefaultCollator::collate((1,)), array![1]);
+        assert_eq!(DefaultCollator::collate((-1,)), array![-1]);
+        assert_eq!(DefaultCollator::collate((1.0,)), array![1.0]);
+        assert_eq!(DefaultCollator::collate((true,)), array![true]);
+        // (T, T)
+        assert_eq!(DefaultCollator::collate((1, 2)), array![1, 2]);
+        assert_eq!(DefaultCollator::collate((-1, 2)), array![-1, 2]);
         assert_eq!(DefaultCollator::collate((1.0, 2.0)), array![1.0, 2.0]);
+        assert_eq!(DefaultCollator::collate((true, false)), array![true, false]);
+        // (T, T, T)
+        assert_eq!(DefaultCollator::collate((1, 2, 3)), array![1, 2, 3]);
+        assert_eq!(DefaultCollator::collate((-1, 2, 3)), array![-1, 2, 3]);
+        assert_eq!(
+            DefaultCollator::collate((1.0, 2.0, 3.0)),
+            array![1.0, 2.0, 3.0]
+        );
+        assert_eq!(
+            DefaultCollator::collate((true, false, true)),
+            array![true, false, true]
+        );
     }
 
     #[test]
@@ -343,8 +442,20 @@ mod tests {
     #[test]
     fn vec_of_tuple() {
         assert_eq!(
+            DefaultCollator::collate(vec![(1, 2)]),
+            vec![array![1], array![2]]
+        );
+        assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0)]),
             vec![array![1.0, 3.0], array![2.0, 4.0]]
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2), (3, 4)]),
+            vec![array![1, 3], array![2, 4]]
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(-1, 2), (3, 4)]),
+            vec![array![-1, 3], array![2, 4]]
         );
         assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
