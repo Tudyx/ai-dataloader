@@ -159,7 +159,7 @@ impl Collate<Vec<Vec<i32>>> for DefaultCollator {
             res.push(DefaultCollator::collate(batch[0].clone()));
         } else if batch.len() == 2 {
             for samples in izip!(batch[0].clone(), batch[1].clone()) {
-                res.push(DefaultCollator::collate(samples))
+                res.push(DefaultCollator::collate(samples));
             }
         } else if batch.len() == 3 {
             for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
@@ -199,7 +199,7 @@ impl Collate<Vec<Vec<String>>> for DefaultCollator {
 }
 // impl<T> Collect<Vec<Vec<T>>> for DefaultCollector
 // where
-//     DefaultCollector: Collect<Vec<T>>,
+//     DefaultCollector: Collate<Vec<T>>,
 // {
 //     type Output = <DefaultCollector as Collect<Vec<T>>>::Output;
 //     fn collect(batch: Vec<Vec<T>>) -> Self::Output {
@@ -295,9 +295,10 @@ impl
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ndarray::array;
 
     #[test]
-    fn default_collate_primitive_type() {
+    fn primitive_type() {
         assert_eq!(
             DefaultCollator::collate(vec![0, 1, 2, 3, 4, 5]),
             array![0, 1, 2, 3, 4, 5]
@@ -313,7 +314,10 @@ mod tests {
             DefaultCollator::collate([true, false, true]),
             array![true, false, true]
         );
-        // should be a no op
+    }
+    #[test]
+    fn ndarray() {
+        // should be a no op for primitive type
         assert_eq!(
             DefaultCollator::collate(array![1, 2, 3, 4]),
             array![1, 2, 3, 4]
@@ -321,22 +325,23 @@ mod tests {
     }
 
     #[test]
-    fn default_collect_map() {
-        let map1 = HashMap::from([("A", 0), ("B", 1)]);
-        let map2 = HashMap::from([("A", 100), ("B", 100)]);
-        let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+    fn tuple() {
+        assert_eq!(DefaultCollator::collate((1.0, 2.0)), array![1.0, 2.0]);
     }
 
-    // [tensor([1, 3]), tensor([2, 4])]
     #[test]
-    fn default_collate_tuple() {
-        assert_eq!(DefaultCollator::collate((1.0, 2.0)), array![1.0, 2.0]);
-
-        assert_eq!(
-            DefaultCollator::collate(vec![(1.0, 2.0)]),
-            vec![array![1.0], array![2.0]]
-        );
+    fn tuple_of_tuple() {
+        // assert_eq!(
+        //     DefaultCollator::collate(((1, 2), (3, 4))),
+        //     vec![array![1, 3], array![2, 4]]
+        // );
+        // assert_eq!(
+        //     DefaultCollator::collate(((1.0, 2.0), (3.0, 4.0))),
+        //     vec![array![1.0, 3.0], array![2.0, 4.0]]
+        // );
+    }
+    #[test]
+    fn vec_of_tuple() {
         assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0)]),
             vec![array![1.0, 3.0], array![2.0, 4.0]]
@@ -344,6 +349,46 @@ mod tests {
         assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
             vec![array![1.0, 3.0, 5.0], array![2.0, 4.0, 6.0]]
+        );
+    }
+
+    #[test]
+    fn vec_of_vec() {
+        assert_eq!(DefaultCollator::collate(vec![vec![1]]), vec![array![1]]);
+        assert_eq!(
+            DefaultCollator::collate(vec![vec![1, 2], vec![3, 4]]),
+            vec![array![1, 3], array![2, 4]]
+        );
+
+        assert_eq!(
+            DefaultCollator::collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
+            vec![array![1, 4], array![2, 5], array![3, 6]]
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
+            vec![array![1, 3, 5], array![2, 4, 6]]
+        );
+    }
+    #[test]
+    fn vec_of_array() {
+        assert_eq!(
+            DefaultCollator::collate(vec![[1, 2], [3, 4], [5, 6]]),
+            vec![array![1, 3, 5], array![2, 4, 6]]
+        );
+    }
+
+    #[test]
+    fn vec_of_map() {
+        let map1 = HashMap::from([("A", 0), ("B", 1)]);
+        let map2 = HashMap::from([("A", 100), ("B", 100)]);
+        let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
+        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+    }
+    #[test]
+    fn ndarray_of_array() {
+        assert_eq!(
+            DefaultCollator::collate(array![[0., 2.], [1., 3.]]),
+            array![[0., 2.], [1., 3.]]
         );
     }
 
@@ -374,51 +419,5 @@ mod tests {
                 (String::from('b'), String::from('d')),
             ]
         );
-
-        // TODO
-        // assert_eq!(
-        //     DefaultCollector::collect(vec![
-        //         (String::from("a"), String::from("b")),
-        //         (String::from("c"), String::from("d"))
-        //     ]),
-        //     vec![
-        //         (String::from('a'), String::from('c')),
-        //         (String::from('b'), String::from('d'))
-        //     ]
-        // );
-    }
-    //TODO ?yq
-    // assert_eq!(
-    //     DefaultCollector::collect(vec![0..2, 0..2]), vec![!array![0,0], array![1,1]]
-    // );
-    #[test]
-    fn default_collate_multi_dimensional() {
-        assert_eq!(
-            DefaultCollator::collate(array![[0., 2.], [1., 3.]]),
-            array![[0., 2.], [1., 3.]]
-        );
-        assert_eq!(
-            DefaultCollator::collate(vec![vec![1, 2], vec![3, 4]]),
-            vec![array![1, 3], array![2, 4]]
-        );
-
-        assert_eq!(
-            DefaultCollator::collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
-            vec![array![1, 4], array![2, 5], array![3, 6]]
-        );
-        assert_eq!(
-            DefaultCollator::collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
-            vec![array![1, 3, 5], array![2, 4, 6]]
-        );
-        assert_eq!(
-            DefaultCollator::collate(vec![[1, 2], [3, 4], [5, 6]]),
-            vec![array![1, 3, 5], array![2, 4, 6]]
-        );
-
-        // assert_eq!(DefaultCollector::collect(HashMap::from([("A", 0), ("B",1)])))
-        // assert_eq!(
-        //     DefaultCollector::collect(vec![[1., 2.], [3., 4.], [5., 6.]]),
-        //     vec![array![1., 3., 5.], array![2., 4., 6.]]
-        // );
     }
 }
