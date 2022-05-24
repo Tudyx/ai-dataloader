@@ -1,7 +1,8 @@
 use super::Collate;
 
 use itertools::izip;
-use ndarray::{array, Array, Array1, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
+use itertools::Itertools;
+use ndarray::{array, Array, Array1, Array3, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
 use std::collections::HashMap;
 
 #[derive(Default)]
@@ -93,77 +94,38 @@ impl_tuple_collect3!(usize u8 u16 u32 u64 u128
                     f32 f64
                     bool char);
 
-/////////////////////////// case that require specialization ///////////////////////////
-//  byte and string are a no op for default collector
-impl Collate<String> for DefaultCollator {
-    type Output = String;
-    fn collate(batch: String) -> Self::Output {
-        batch
+// TODO: concatenante the ndarray as it's done for tensor
+// Probleme it won't give an Array1<T> like the other
+impl_tuple_collect!(Array1<f64>);
+impl_tuple_collect2!(Array1<f64>);
+impl_tuple_collect3!(Array1<f64>);
+
+impl<A> Collate<Vec<(A,)>> for DefaultCollator {
+    type Output = (Array1<A>,);
+    fn collate(batch: Vec<(A,)>) -> Self::Output {
+        let (vec_a,) = batch.into_iter().multiunzip();
+        (Array1::from_vec(vec_a),)
     }
 }
-impl Collate<Vec<String>> for DefaultCollator {
-    type Output = Vec<String>;
-    fn collate(batch: Vec<String>) -> Vec<String> {
-        batch
+impl<A, B> Collate<Vec<(A, B)>> for DefaultCollator {
+    type Output = (Array1<A>, Array1<B>);
+    fn collate(batch: Vec<(A, B)>) -> Self::Output {
+        let (vec_a, vec_b) = batch.into_iter().multiunzip();
+        (Array1::from_vec(vec_a), Array1::from_vec(vec_b))
     }
 }
 
-impl Collate<(String, String)> for DefaultCollator {
-    type Output = (String, String);
-    fn collate(batch: (String, String)) -> Self::Output {
-        batch
+impl<A, B, C> Collate<Vec<(A, B, C)>> for DefaultCollator {
+    type Output = (Array1<A>, Array1<B>, Array1<C>);
+    fn collate(batch: Vec<(A, B, C)>) -> Self::Output {
+        let (vec_a, vec_b, vec_c) = batch.into_iter().multiunzip();
+        (
+            Array1::from_vec(vec_a),
+            Array1::from_vec(vec_b),
+            Array1::from_vec(vec_c),
+        )
     }
 }
-impl Collate<(String, String, String)> for DefaultCollator {
-    type Output = (String, String, String);
-    fn collate(batch: (String, String, String)) -> (String, String, String) {
-        batch
-    }
-}
-
-impl Collate<Vec<(String, String)>> for DefaultCollator {
-    type Output = Vec<(String, String)>;
-    fn collate(batch: Vec<(String, String)>) -> Vec<(String, String)> {
-        todo!()
-    }
-}
-
-// implémentation pour n'importe quelle dimension on fait rien ndarray -> ndarray FAUX (ndarray of a ndarray)
-impl<T, I: Dimension> Collate<Array<T, I>> for DefaultCollator {
-    type Output = Array<T, I>;
-    fn collate(batch: Array<T, I>) -> Array<T, I> {
-        batch
-    }
-}
-
-// impl Collate<Vec<(f64, f64)>> for DefaultCollator {
-//     type Output = Vec<Array<f64, Ix1>>;
-//     fn collate(batch: Vec<(f64, f64)>) -> Self::Output {
-//         let mut res = Vec::new();
-//         if batch.len() == 1 {
-//             res.push(array![batch[0].0.clone()]);
-//             res.push(array![batch[0].1.clone()]);
-//         } else if batch.len() == 2 {
-//             let tuple = (batch[0].0.clone(), batch[1].0.clone());
-//             res.push(DefaultCollator::collate(tuple));
-//             let tuple = (batch[0].1.clone(), batch[1].1.clone());
-//             res.push(DefaultCollator::collate(tuple));
-//         } else if batch.len() == 3 {
-//             let tuple = (batch[0].0.clone(), batch[1].0.clone(), batch[2].0.clone());
-//             res.push(DefaultCollator::collate(tuple));
-//             let tuple = (batch[0].1.clone(), batch[1].1.clone(), batch[2].1.clone());
-//             res.push(DefaultCollator::collate(tuple));
-//         }
-//         res
-//     }
-// }
-
-// impl Collect<(f64, i32)> for DefaultCollector {
-//     type Output = Array<i32, Ix1>;
-//     fn collect(batch: (i32, i32)) -> Array<i32, Ix1> {
-//         array![batch.0, batch.1]
-//     }
-// }
 
 // Todo macro for unpacking the vec
 // macro_rules! unpack_vec {
@@ -291,34 +253,6 @@ impl<'a> Collate<Vec<HashMap<&'a str, i32>>> for DefaultCollator {
     }
 }
 
-impl
-    Collate<
-        Vec<(
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
-        )>,
-    > for DefaultCollator
-{
-    type Output = ArrayBase<
-        OwnedRepr<(
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
-        )>,
-        Dim<[usize; 1]>,
-    >;
-
-    fn collate(
-        batch: Vec<(
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
-            ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>,
-        )>,
-    ) -> Self::Output {
-        // let res = vec![];
-        // for (data, label) in batch {}
-        Array::from_vec(batch)
-    }
-}
-
 // build seems to never ends when we uncomment this
 // impl<T> Collate<((T, T), (T, T))> for DefaultCollator
 // where
@@ -338,42 +272,52 @@ impl
 //         res
 //     }
 // }
+// impl Collate<Vec<(String, String)>> for DefaultCollator {
+//     type Output = Vec<(String, String)>;
+//     fn collate(batch: Vec<(String, String)>) -> Vec<(String, String)> {
+//         batch
+//     }
+// }
 
-impl<T> Collate<Vec<(T, T)>> for DefaultCollator
-where
-    T: Clone,
-    DefaultCollator: Collate<(T,), Output = Array<T, Ix1>>,
-    DefaultCollator: Collate<(T, T), Output = Array<T, Ix1>>,
-    DefaultCollator: Collate<(T, T, T), Output = Array<T, Ix1>>,
-{
-    type Output = Vec<Array<T, Ix1>>;
-    fn collate(batch: Vec<(T, T)>) -> Self::Output {
-        // tuple aren't iterable, even in the case they are homogeneous. That's why we put it into an array
-        // TODO: replace this by a call of DefaultCollator<Vec<[]>> when implemented
-        let batch: Vec<_> = batch.iter().map(|x| [x.0.clone(), x.1.clone()]).collect();
-        let mut res = Vec::new();
-
-        if batch.len() == 1 {
-            for samples in izip!(batch[0].clone()) {
-                res.push(DefaultCollator::collate((samples,)));
-            }
-        } else if batch.len() == 2 {
-            for samples in izip!(batch[0].clone(), batch[1].clone()) {
-                res.push(DefaultCollator::collate(samples));
-            }
-        } else if batch.len() == 3 {
-            for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
-                res.push(DefaultCollator::collate(samples));
-            }
-        }
-        res
+/////////////////////////// case that require specialization ///////////////////////////
+//  byte and string are a no op for default collector
+impl Collate<String> for DefaultCollator {
+    type Output = String;
+    fn collate(batch: String) -> Self::Output {
+        batch
+    }
+}
+impl Collate<Vec<String>> for DefaultCollator {
+    type Output = Vec<String>;
+    fn collate(batch: Vec<String>) -> Vec<String> {
+        batch
     }
 }
 
+impl Collate<(String, String)> for DefaultCollator {
+    type Output = (String, String);
+    fn collate(batch: (String, String)) -> Self::Output {
+        batch
+    }
+}
+impl Collate<(String, String, String)> for DefaultCollator {
+    type Output = (String, String, String);
+    fn collate(batch: (String, String, String)) -> (String, String, String) {
+        batch
+    }
+}
+
+// implémentation pour n'importe quelle dimension on fait rien ndarray -> ndarray FAUX (ndarray of a ndarray)
+impl<T, I: Dimension> Collate<Array<T, I>> for DefaultCollator {
+    type Output = Array<T, I>;
+    fn collate(batch: Array<T, I>) -> Array<T, I> {
+        batch
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+    use ndarray::{array, Array3};
 
     #[test]
     fn primitive_type() {
@@ -440,26 +384,89 @@ mod tests {
         // );
     }
     #[test]
+    fn tuple_of_array() {
+        // Warning! in the python version this return a tensor de shape [2,2]
+        assert_eq!(
+            DefaultCollator::collate((array![1.0, 2.0], array![3.0, 4.0])),
+            array![array![1.0, 2.0], array![3.0, 4.0]]
+        );
+    }
+    #[test]
     fn vec_of_tuple() {
         assert_eq!(
             DefaultCollator::collate(vec![(1, 2)]),
-            vec![array![1], array![2]]
+            (array![1], array![2])
         );
         assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0)]),
-            vec![array![1.0, 3.0], array![2.0, 4.0]]
+            (array![1.0, 3.0], array![2.0, 4.0])
         );
         assert_eq!(
             DefaultCollator::collate(vec![(1, 2), (3, 4)]),
-            vec![array![1, 3], array![2, 4]]
+            (array![1, 3], array![2, 4])
         );
         assert_eq!(
             DefaultCollator::collate(vec![(-1, 2), (3, 4)]),
-            vec![array![-1, 3], array![2, 4]]
+            (array![-1, 3], array![2, 4])
         );
         assert_eq!(
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
-            vec![array![1.0, 3.0, 5.0], array![2.0, 4.0, 6.0]]
+            (array![1.0, 3.0, 5.0], array![2.0, 4.0, 6.0])
+        );
+        let a1: Array3<f64> = array![[[1.0], [2.0]], [[3.0], [4.0]]];
+        let tuple = (a1, array![1.0, 2.0]);
+        //  ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
+        //             ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>
+        // DefaultCollator::collate(vec![tuple.clone(), tuple.clone()]);
+    }
+    #[test]
+    fn vec_of_tuple_with_len_1() {
+        assert_eq!(DefaultCollator::collate(vec![(1,)]), (array![1],));
+    }
+    // En python
+    // default_collate([(1, 2.0), (3, 4.0)]) == [tensor([1, 3]), tensor([2., 4.], dtype=torch.float64)]
+    // Mais une list peut avoir des élémenst de type différents en python
+    // C'est pourquoi j'essaye de remplacer par un tuple
+    #[test]
+    fn vec_of_tuple_with_len_2() {
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0)]),
+            (array![1], array![2.0])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0), (3, 4.0)]),
+            (array![1, 3], array![2.0, 4.0])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(-1, true), (-3, false)]),
+            (array![-1, -3], array![true, false])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(-1, true), (3, false)]),
+            (array![-1, 3], array![true, false])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),
+            (array![1, 3, 5], array![2.0, 4.0, 6.0])
+        );
+    }
+    #[test]
+    fn vec_of_tuple_with_len_3() {
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0, true)]),
+            (array![1], array![2.0], array![true])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0, true), (3, 4.0, true)]),
+            (array![1, 3], array![2.0, 4.0], array![true, true])
+        );
+        assert_eq!(
+            DefaultCollator::collate(vec![(1, 2.0, true), (3, 4.0, false), (5, 6.0, true)]),
+            (
+                array![1, 3, 5],
+                array![2.0, 4.0, 6.0],
+                array![true, false, true]
+            )
         );
     }
 
