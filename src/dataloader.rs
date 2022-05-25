@@ -19,8 +19,6 @@ where
     batch_sampler: BatchSampler<S>,
     num_worker: u32,
     drop_last: bool,
-    // Change it to private to see the changes
-    current_index: usize,
     collate_fn: C,
 }
 
@@ -198,7 +196,6 @@ where
             batch_sampler: self.batch_sampler.unwrap(),
             num_worker: self.num_worker,
             drop_last: self.drop_last,
-            current_index: 0,
             collate_fn: self.collate_fn.unwrap_or_default(),
         }
     }
@@ -343,7 +340,7 @@ mod tests {
 
         let mut current_i = 0;
 
-        for (i, (_sample, label)) in loader.iter().enumerate() {
+        for (i, (sample, label)) in loader.iter().enumerate() {
             let idx = i * batch_size;
             println!("{}", label);
             println!(
@@ -351,17 +348,20 @@ mod tests {
                 labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
             // Even if the display on the console are the same we can compare them due to mismatch type (Array0<f64> and f64), hence the convertion
+            // It seems to be that tensor/numpy do a elementwise comparison, producing an array of bool and ndarray produce the equivalebt of (a == b).all()
             let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
             assert_eq!(
                 label,
                 labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
-            // TODO: convert also the sample which is more difficult because of dim > 1
-            // let sample: Array<_, _> = sample.iter().map(|x| x.clone().into_scalar()).collect();
-            // assert_eq!(
-            //     sample,
-            //     data_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
-            // );
+            // elementwise comparison (which is not the default unlike numpy where elementwise is invoked when "a == b")
+            let vec: Vec<_> = sample
+                .iter()
+                .flatten()
+                .zip(data_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size)))
+                .map(|x| x.0 == x.1)
+                .collect();
+            assert!(vec.iter().all(|x| *x == true));
             current_i = i;
         }
         assert_eq!(current_i, (dataset_copy.len() - 1) / batch_size);
@@ -398,6 +398,7 @@ mod tests {
                     break;
                 }
             }
+
             assert_eq!(
                 label[0],
                 labels_copy.index_axis(Axis(0), current_data_point_idx)
@@ -407,6 +408,16 @@ mod tests {
             assert_eq!(found_labels.values().sum::<usize>(), i + 1);
         }
         assert_eq!(current_i, dataset_copy.len() - 1)
+    }
+
+    #[test]
+    fn shuffle_batch() {
+        // TODO
+        // label
+        //     .iter()
+        //     .flatten()
+        //     .zip(labels_copy.index_axis(Axis(0), current_data_point_idx))
+        //     .map(|x| x.0 == x.1);
     }
 
     #[test]

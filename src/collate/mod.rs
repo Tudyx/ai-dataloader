@@ -1,7 +1,4 @@
 pub mod default_collate;
-pub mod generic_default_collate;
-pub mod multiple_output_collate;
-pub mod tuple_collate;
 // collate rassemble les éléments du batch ensemble
 // un numpy array <=> ndarray est just converti en tensor
 
