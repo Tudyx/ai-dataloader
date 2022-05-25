@@ -219,6 +219,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::collate::NoOpCollator;
     use crate::dataset::ndarray_dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
@@ -227,8 +228,7 @@ mod tests {
     use ndarray::{array, Array, Axis, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
-
-    use super::*;
+    use std::collections::HashMap;
 
     #[test]
     fn one_dimension_basic() {
@@ -313,7 +313,6 @@ mod tests {
             ndarrays: (data, labels),
         };
         let dataset_copy = dataset.clone();
-
         let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
 
         let mut current_idx = 0;
@@ -325,6 +324,7 @@ mod tests {
         }
         assert_eq!(current_idx, dataset_copy.len() - 1);
     }
+
     #[test]
     fn sequential_batch() {
         let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
@@ -343,7 +343,7 @@ mod tests {
 
         let mut current_i = 0;
 
-        for (i, (sample, label)) in loader.iter().enumerate() {
+        for (i, (_sample, label)) in loader.iter().enumerate() {
             let idx = i * batch_size;
             println!("{}", label);
             println!(
@@ -365,6 +365,48 @@ mod tests {
             current_i = i;
         }
         assert_eq!(current_i, (dataset_copy.len() - 1) / batch_size);
+    }
+
+    #[test]
+    fn shuffle_non_batch() {
+        // setup
+        let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
+        let data = Array::random((100, 2, 3, 5), normal);
+        let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
+        let data_copy = data.clone();
+        let labels_copy = labels.clone();
+        let dataset = NdarrayDataset {
+            ndarrays: (data, labels),
+        };
+        let dataset_copy = dataset.clone();
+        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
+
+        let mut found_data: HashMap<_, _> =
+            (0..data_copy.len()).zip(vec![0; data_copy.len()]).collect();
+        let mut found_labels: HashMap<_, _> = (0..labels_copy.len())
+            .zip(vec![0; labels_copy.len()])
+            .collect();
+        let mut current_i = 0;
+        for (i, (sample, label)) in loader.iter().enumerate() {
+            current_i = i;
+            let mut current_data_point_idx = 0;
+            for (data_point_idx, data_point) in data_copy.outer_iter().enumerate() {
+                current_data_point_idx = data_point_idx;
+                if data_point == sample[0] {
+                    assert_eq!(found_data[&data_point_idx], 0);
+                    *found_data.get_mut(&data_point_idx).unwrap() += 1;
+                    break;
+                }
+            }
+            assert_eq!(
+                label[0],
+                labels_copy.index_axis(Axis(0), current_data_point_idx)
+            );
+            *found_labels.get_mut(&current_data_point_idx).unwrap() += 1;
+            assert_eq!(found_data.values().sum::<usize>(), i + 1);
+            assert_eq!(found_labels.values().sum::<usize>(), i + 1);
+        }
+        assert_eq!(current_i, dataset_copy.len() - 1)
     }
 
     #[test]
