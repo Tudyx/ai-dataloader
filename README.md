@@ -5,8 +5,11 @@
 
 A rust port of pytorch dataloader library.
 
+## limitation 
 
 For now support only single threaded map style dataset.
+Random samler n'a pas de version avec replacement.
+
 
 ## TODO:
 - ajout de TU (copier _test_squential de test_dataloader)
@@ -18,3 +21,4 @@ For now support only single threaded map style dataset.
 - macro default collect pour unpack les vec de vec/slice
 - default collect pour les tuple et hasmap
 - multithreading
+- guide for pytorch user (comme le guide pour numpy user de ndarray)

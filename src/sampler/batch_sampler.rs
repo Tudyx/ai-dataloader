@@ -66,6 +66,25 @@ mod tests {
     use super::*;
     use crate::sampler::sequential_sampler::SequentialSampler;
 
+    // def _test_batch_sampler(self, **kwargs):
+    // # [(0, 1), (2, 3, 4), (5, 6), (7, 8, 9), ...]
+    // batches = []  # using a regular iterable
+    // for i in range(0, 20, 5):
+    //     batches.append(tuple(range(i, i + 2)))
+    //     batches.append(tuple(range(i + 2, i + 5)))
+
+    // dl = self._get_data_loader(self.dataset, batch_sampler=batches, **kwargs)
+    // self.assertEqual(len(dl), 8)
+    // for i, (input, _target) in enumerate(dl):
+    //     if i % 2 == 0:
+    //         offset = i * 5 // 2
+    //         self.assertEqual(len(input), 2)
+    //         self.assertEqual(input, self.data[offset:offset + 2])
+    //     else:
+    //         offset = i * 5 // 2
+    //         self.assertEqual(len(input), 3)
+    //         self.assertEqual(input, self.data[offset:offset + 3])
+
     #[test]
     fn basics() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -83,11 +102,14 @@ mod tests {
         assert_eq!(iter.next(), Some(vec![0, 1, 2]));
         assert_eq!(iter.next(), Some(vec![3, 4, 5]));
         assert_eq!(iter.next(), Some(vec![6, 7, 8]));
-        let mut vec = Vec::new();
+    }
+    #[test]
+    fn batch_sampler() {
+        // TODO : test from pytorch, need to support custom batch sampler
+        let mut batches = Vec::new();
         for i in (0..20).step_by(5) {
-            vec.push(vec![i..i + 2]);
-            vec.push(vec![i + 2..i + 5]);
-            // println!("{}", i);
+            batches.push([i..i + 2]);
+            batches.push([i + 2..i + 5]);
         }
     }
     #[test]

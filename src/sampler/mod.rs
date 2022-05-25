@@ -24,3 +24,26 @@ impl<T> HasLength for Vec<T> {
         self.len()
     }
 }
+
+#[derive(Clone, Copy)]
+pub struct DumbSampler;
+
+impl Sampler for DumbSampler {
+    fn new(data_source_len: usize) -> Self {
+        DumbSampler {}
+    }
+}
+
+impl IntoIterator for DumbSampler {
+    type Item = usize;
+    type IntoIter = std::ops::Range<usize>;
+    fn into_iter(self) -> Self::IntoIter {
+        2..12
+    }
+}
+
+impl HasLength for DumbSampler {
+    fn len(&self) -> usize {
+        (2..12).len()
+    }
+}
