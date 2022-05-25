@@ -212,7 +212,8 @@ mod tests {
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
     use crate::sampler::HasLength;
-    use ndarray::{array, Array, Array0, ArrayView, Axis, Slice};
+    use itertools::Itertools;
+    use ndarray::{arr0, array, Array, Array0, Axis, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
 
@@ -338,14 +339,14 @@ mod tests {
                 "{}",
                 labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
-            // TODO: even if the printed are the same we can compare them due to mismatch type
-            let vec: Vec<f64> = label.iter().map(|x| x.clone().into_raw_vec()[0]).collect();
-            let labels = Array::from_vec(vec);
-
+            // Even if the printed are the same we can compare them due to mismatch type, hence the convertion
+            let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
             assert_eq!(
-                labels,
+                label,
                 labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
+            // TODO: convert also the sample which is more difficult because of dim > 1
+            // let sample: Array<_, _> = sample.iter().map(|x| x.clone().into_scalar()).collect();
             // assert_eq!(
             //     sample,
             //     data_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
