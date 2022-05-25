@@ -5,7 +5,6 @@ use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
 use crate::sampler::Sampler;
-
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -212,7 +211,8 @@ mod tests {
     use crate::dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
-    use ndarray::{array, Array, Array2, ArrayBase};
+    use crate::sampler::HasLength;
+    use ndarray::{array, Array, Array0, ArrayView, Axis, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
 
@@ -289,19 +289,99 @@ mod tests {
     //         self.assertEqual(sample, self.data[idx:idx + batch_size])
     //         self.assertEqual(target, self.labels[idx:idx + batch_size])
     //     self.assertEqual(i, math.floor((len(self.dataset) - 1) / batch_size))
-
     #[test]
-    fn test_sequential() {
+    fn sequential_non_batch() {
+        // setup
         let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
         let data = Array::random((100, 2, 3, 5), normal);
-        let label = Array::random((1, 100), Uniform::<f64>::new(0., 50.));
+        let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
+        let data_copy = data.clone();
+        let labels_copy = labels.clone();
         let dataset = NdarrayDataset {
-            ndarrays: (data, label),
+            ndarrays: (data, labels),
         };
+        let dataset_copy = dataset.clone();
+
         let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
-        // for (idx, (sample, target)) in loader.iter().enumerate() {}
-        for el in loader.iter().take(1) {
-            println!("{el:?}");
+
+        let mut current_idx = 0;
+
+        for (idx, (sample, label)) in loader.iter().enumerate() {
+            assert_eq!(sample[0], data_copy.index_axis(Axis(0), idx));
+            assert_eq!(label[0], labels_copy.index_axis(Axis(0), idx));
+            current_idx = idx;
+        }
+        assert_eq!(current_idx, dataset_copy.len() - 1);
+    }
+    #[test]
+    fn sequential_batch() {
+        let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
+        let data = Array::random((100, 2, 3, 5), normal);
+        let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
+        let data_copy = data.clone();
+        let labels_copy = labels.clone();
+        let dataset = NdarrayDataset {
+            ndarrays: (data, labels),
+        };
+        let dataset_copy = dataset.clone();
+        let batch_size = 2;
+        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset)
+            .with_batch_size(batch_size)
+            .build();
+
+        let mut current_i = 0;
+
+        for (i, (sample, label)) in loader.iter().enumerate() {
+            let idx = i * batch_size;
+            println!("{}", label);
+            println!(
+                "{}",
+                labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            );
+            // TODO: even if the printed are the same we can compare them due to mismatch type
+            let vec: Vec<f64> = label.iter().map(|x| x.clone().into_raw_vec()[0]).collect();
+            let labels = Array::from_vec(vec);
+
+            assert_eq!(
+                labels,
+                labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            );
+            // assert_eq!(
+            //     sample,
+            //     data_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            // );
+            current_i = i;
+        }
+        assert_eq!(current_i, (dataset_copy.len() - 1) / batch_size);
+    }
+
+    #[test]
+    fn text_classification() {
+        let dataset = vec![
+            (0, "I'm happy"),
+            (1, "i'm sad"),
+            (0, "it feel goo"),
+            (0, "Let's go!"),
+        ];
+        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
+        for (label, text) in loader.iter() {
+            println!("label {label}");
+            println!("text {text}");
+        }
+    }
+
+    #[test]
+    fn text_classification_batch() {
+        let dataset = vec![
+            (0, "I'm happy"),
+            (1, "i'm sad"),
+            (0, "it feel goo"),
+            (0, "Let's go!"),
+        ];
+        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
+        for (label, text) in loader.iter() {
+            println!("label {label}");
+            println!("text {text}");
         }
     }
     #[test]
