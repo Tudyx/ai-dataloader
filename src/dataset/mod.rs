@@ -1,4 +1,6 @@
-use ndarray::{Array, Axis, Dimension, NdIndex, RemoveAxis};
+pub mod ndarray_dataset;
+
+use ndarray::{Array, ArrayBase, Axis, Dimension, NdIndex, RemoveAxis};
 
 use crate::collate::Collate;
 use crate::sampler::HasLength;
@@ -37,7 +39,6 @@ pub trait GetItem<Idx: Sized = usize> {
     fn get_item(&self, index: Idx) -> Self::Output;
     // where Collect<Vec<Self::Output>>;
 }
-pub trait VecCollectable {}
 pub trait GetItem2<Idx: Sized = usize> {
     type Output: Sized;
     // real one
@@ -86,93 +87,8 @@ impl<T: Clone> GetItem<usize> for Vec<T> {
     }
 }
 
-// class TensorDataset(Dataset[Tuple[Tensor, ...]]):
-//     r"""Dataset wrapping tensors.
-
-//     Each sample will be retrieved by indexing tensors along the first dimension.
-
-//     Args:
-//         *tensors (Tensor): tensors that have the same size of the first dimension.
-//     """
-//     tensors: Tuple[Tensor, ...]
-
-//     def __init__(self, *tensors: Tensor) -> None:
-//         assert all(tensors[0].size(0) == tensor.size(0) for tensor in tensors), "Size mismatch between tensors"
-//         self.tensors = tensors
-
-//     def __getitem__(self, index):
-//         return tuple(tensor[index] for tensor in self.tensors)
-
-//     def __len__(self):
-//         return self.tensors[0].size(0)
-pub struct NdarrayDataset<A1, A2, D1, D2>
-where
-    A1: Clone,
-    A2: Clone,
-    D1: Dimension + RemoveAxis,
-    D2: Dimension + RemoveAxis,
-{
-    pub ndarrays: (Array<A1, D1>, Array<A2, D2>),
-}
-impl<A1, A2, D1, D2, T> Dataset<T> for NdarrayDataset<A1, A2, D1, D2>
-where
-    A1: Clone,
-    A2: Clone,
-    D1: Dimension + RemoveAxis,
-    D2: Dimension + RemoveAxis,
-    T: Collate<Vec<Self::Output>>,
-{
-}
-
-impl<A1, A2, D1, D2> Clone for NdarrayDataset<A1, A2, D1, D2>
-where
-    A1: Clone,
-    A2: Clone,
-    D1: Dimension + RemoveAxis,
-    D2: Dimension + RemoveAxis,
-{
-    fn clone(&self) -> Self {
-        NdarrayDataset {
-            ndarrays: self.ndarrays.clone(),
-        }
-    }
-}
-
-impl<A1, A2, D1, D2> HasLength for NdarrayDataset<A1, A2, D1, D2>
-where
-    A1: Clone,
-    A2: Clone,
-    D1: Dimension + RemoveAxis,
-    D2: Dimension + RemoveAxis,
-{
-    fn len(&self) -> usize {
-        self.ndarrays.0.len()
-    }
-}
-impl<A1, A2, D1, D2> GetItem<usize> for NdarrayDataset<A1, A2, D1, D2>
-where
-    A1: Clone,
-    A2: Clone,
-    D1: Dimension + RemoveAxis,
-    D2: Dimension + RemoveAxis,
-{
-    type Output = (
-        Array<A1, <D1 as Dimension>::Smaller>,
-        Array<A2, <D2 as Dimension>::Smaller>,
-    );
-    fn get_item(&self, index: usize) -> Self::Output {
-        (
-            self.ndarrays.0.index_axis(Axis(0), index).into_owned(),
-            self.ndarrays.1.index_axis(Axis(0), index).into_owned(),
-        )
-    }
-}
-
 #[cfg(test)]
 mod tests {
-
-    use ndarray::array;
-
     use super::*;
 
     #[test]
@@ -182,13 +98,5 @@ mod tests {
         };
         println!("{}", dataset.get_item(1));
         println!("{}", dataset.len());
-    }
-    #[test]
-    fn ndarray_dataset() {
-        let dataset = NdarrayDataset {
-            ndarrays: (array![1, 2], array![3, 4]),
-        };
-        let sample = dataset.get_item(1);
-        println!("{sample:?}");
     }
 }

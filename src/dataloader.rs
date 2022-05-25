@@ -4,6 +4,7 @@ use crate::dataset::{Dataset, GetItem};
 use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
+use crate::sampler::HasLength;
 use crate::sampler::Sampler;
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
@@ -21,6 +22,17 @@ where
     // Change it to private to see the changes
     current_index: usize,
     collate_fn: C,
+}
+
+impl<D, S, C> DataLoader<D, S, C>
+where
+    D: Dataset<C>,
+    S: Sampler,
+    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+{
+    fn len(&self) -> usize {
+        self.batch_sampler.len()
+    }
 }
 // combinaison de _BaseDataLoaderIter et _SingleProcessDataLoaderIter
 pub struct SingleProcessDataLoaderIter<'a, D, S = DefaultSampler, C = DefaultCollator>
@@ -208,12 +220,11 @@ where
 #[cfg(test)]
 mod tests {
     use crate::collate::NoOpCollator;
-    use crate::dataset::NdarrayDataset;
+    use crate::dataset::ndarray_dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
     use crate::sampler::HasLength;
-    use itertools::Itertools;
-    use ndarray::{arr0, array, Array, Array0, Axis, Slice};
+    use ndarray::{array, Array, Axis, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
 
@@ -261,7 +272,7 @@ mod tests {
         assert_eq!(iter.next(), None);
     }
     #[test]
-    fn test_collector() {
+    fn test_collator() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let dataloader: DataLoader<_, SequentialSampler, NoOpCollator> =
             DataLoaderBuilder::new(dataset)
@@ -339,7 +350,7 @@ mod tests {
                 "{}",
                 labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
-            // Even if the printed are the same we can compare them due to mismatch type, hence the convertion
+            // Even if the display on the console are the same we can compare them due to mismatch type (Array0<f64> and f64), hence the convertion
             let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
             assert_eq!(
                 label,
