@@ -1,3 +1,5 @@
+[![Rust](https://github.com/Tudyx/dataloader_rs/actions/workflows/rust.yml/badge.svg)](https://github.com/Tudyx/dataloader_rs/actions/workflows/rust.yml)
+
 # dataloader_rs
 
 A rust port of pytorch dataloader library.
