@@ -2,8 +2,6 @@ pub mod ndarray_dataset;
 use crate::collate::Collate;
 use crate::sampler::HasLength;
 
-// TODO: remove the clone trait?
-
 /// A dataset is just something that has a length and is indexable
 ///
 /// We use a custom [GetItem] trait instead of `std::ops::Index` because
@@ -13,7 +11,7 @@ use crate::sampler::HasLength;
 /// use dataloader_rs::collate::Collate;
 /// use dataloader_rs::sampler::HasLength;
 ///
-/// pub trait Dataset<T>: HasLength + std::ops::Index<usize> + Clone
+/// pub trait Dataset<T>: HasLength + std::ops::Index<usize>
 /// where
 /// T: Collate<Vec<Self::Output>>,
 /// Self::Output: Sized,
@@ -29,13 +27,13 @@ use crate::sampler::HasLength;
 /// }
 /// ```
 /// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
-pub trait Dataset<T>: HasLength + GetItem + Clone
+pub trait Dataset<T>: HasLength + GetItem
 where
     T: Collate<Vec<Self::Output>>,
 {
 }
 
-pub trait Dataset3<F>: HasLength + GetItem + Clone
+pub trait Dataset3<F>: HasLength + GetItem
 where
     F: Fn(Vec<Self::Output>) -> Self::CollateOutput,
 {
