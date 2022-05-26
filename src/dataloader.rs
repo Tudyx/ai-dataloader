@@ -222,7 +222,7 @@ mod tests {
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
     use crate::sampler::HasLength;
-    use ndarray::{array, Array, Axis, Slice};
+    use ndarray::{array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
     use std::collections::HashMap;
@@ -285,22 +285,17 @@ mod tests {
         assert_eq!(iter.next(), Some(vec![9, 10]));
         assert_eq!(iter.next(), None);
     }
-    // def _test_sequential(self, loader):
-    // batch_size = loader.batch_size
-    // if batch_size is None:
-    //     for idx, (sample, target) in enumerate(loader):
-    //         self.assertEqual(sample, self.data[idx])
-    //         self.assertEqual(target, self.labels[idx])
-    //     self.assertEqual(idx, len(self.dataset) - 1)
-    // else:
-    //     for i, (sample, target) in enumerate(loader):
-    //         idx = i * batch_size
-    //         self.assertEqual(sample, self.data[idx:idx + batch_size])
-    //         self.assertEqual(target, self.labels[idx:idx + batch_size])
-    //     self.assertEqual(i, math.floor((len(self.dataset) - 1) / batch_size))
-    #[test]
-    fn sequential_non_batch() {
-        // setup
+    struct TestDataLoader<S: Sampler> {
+        loader: DataLoader<NdarrayDataset<f64, f64, Ix4, Ix1>, S>,
+        data: Array4<f64>,
+        labels: Array1<f64>,
+        dataset: NdarrayDataset<f64, f64, Ix4, Ix1>,
+    }
+    enum TestDataLoaderData {
+        Sequential(TestDataLoader<SequentialSampler>),
+        Random(TestDataLoader<RandomSampler>),
+    }
+    fn get_loader_with_dummy_data(batch_size: usize, shuffle: bool) -> TestDataLoaderData {
         let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
         let data = Array::random((100, 2, 3, 5), normal);
         let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
@@ -310,87 +305,118 @@ mod tests {
             ndarrays: (data, labels),
         };
         let dataset_copy = dataset.clone();
-        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
 
+        if shuffle {
+            let loader: DataLoader<_, RandomSampler> = DataLoaderBuilder::new(dataset)
+                .with_batch_size(batch_size)
+                .build();
+            TestDataLoaderData::Random(TestDataLoader {
+                loader,
+                data: data_copy,
+                labels: labels_copy,
+                dataset: dataset_copy,
+            })
+        } else {
+            let loader: DataLoader<_, SequentialSampler> = DataLoaderBuilder::new(dataset)
+                .with_batch_size(batch_size)
+                .build();
+            TestDataLoaderData::Sequential(TestDataLoader {
+                loader,
+                data: data_copy,
+                labels: labels_copy,
+                dataset: dataset_copy,
+            })
+        }
+    }
+
+    #[test]
+    fn sequential_non_batch() {
+        let test_dataloader_data = tests::get_loader_with_dummy_data(1, false).into();
+        let test_data;
+        if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
+            test_data = test_dataloader_data;
+        } else {
+            panic!("Excpected a Sequential loader")
+        }
         let mut current_idx = 0;
 
-        for (idx, (sample, label)) in loader.iter().enumerate() {
-            assert_eq!(sample[0], data_copy.index_axis(Axis(0), idx));
-            assert_eq!(label[0], labels_copy.index_axis(Axis(0), idx));
+        for (idx, (sample, label)) in test_data.loader.iter().enumerate() {
+            assert_eq!(sample[0], test_data.data.index_axis(Axis(0), idx));
+            assert_eq!(label[0], test_data.labels.index_axis(Axis(0), idx));
             current_idx = idx;
         }
-        assert_eq!(current_idx, dataset_copy.len() - 1);
+        assert_eq!(current_idx, test_data.dataset.len() - 1);
     }
 
     #[test]
     fn sequential_batch() {
-        let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
-        let data = Array::random((100, 2, 3, 5), normal);
-        let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
-        let data_copy = data.clone();
-        let labels_copy = labels.clone();
-        let dataset = NdarrayDataset {
-            ndarrays: (data, labels),
-        };
-        let dataset_copy = dataset.clone();
         let batch_size = 2;
-        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset)
-            .with_batch_size(batch_size)
-            .build();
+        let test_dataloader_data = tests::get_loader_with_dummy_data(2, false).into();
+        let test_data;
+        if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
+            test_data = test_dataloader_data;
+        } else {
+            panic!("Expected a sequential loader")
+        }
 
         let mut current_i = 0;
 
-        for (i, (sample, label)) in loader.iter().enumerate() {
+        for (i, (sample, label)) in test_data.loader.iter().enumerate() {
             let idx = i * batch_size;
             println!("{}", label);
             println!(
                 "{}",
-                labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+                test_data
+                    .labels
+                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
             // Even if the display on the console are the same we can compare them due to mismatch type (Array0<f64> and f64), hence the convertion
-            // It seems to be that tensor/numpy do a elementwise comparison, producing an array of bool and ndarray produce the equivalebt of (a == b).all()
+            // (work out of the box with numpy)
             let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
             assert_eq!(
                 label,
-                labels_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+                test_data
+                    .labels
+                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
+            // It seems to be that tensor/numpy do a elementwise comparison, producing an array of bool and ndarray produce the equivalent of (a == b).all()
             // elementwise comparison (which is not the default unlike numpy where elementwise is invoked when "a == b")
             let vec: Vec<_> = sample
                 .iter()
                 .flatten()
-                .zip(data_copy.slice_axis(Axis(0), Slice::from(idx..idx + batch_size)))
+                .zip(
+                    test_data
+                        .data
+                        .slice_axis(Axis(0), Slice::from(idx..idx + batch_size)),
+                )
                 .map(|x| x.0 == x.1)
                 .collect();
             assert!(vec.iter().all(|x| *x == true));
             current_i = i;
         }
-        assert_eq!(current_i, (dataset_copy.len() - 1) / batch_size);
+        assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size);
     }
 
     #[test]
     fn shuffle_non_batch() {
-        // setup
-        let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
-        let data = Array::random((100, 2, 3, 5), normal);
-        let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
-        let data_copy = data.clone();
-        let labels_copy = labels.clone();
-        let dataset = NdarrayDataset {
-            ndarrays: (data, labels),
-        };
-        let dataset_copy = dataset.clone();
-        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
-
-        let mut found_data: HashMap<_, _> =
-            (0..data_copy.len()).zip(vec![0; data_copy.len()]).collect();
-        let mut found_labels: HashMap<_, _> = (0..labels_copy.len())
-            .zip(vec![0; labels_copy.len()])
+        let test_dataloader_data = tests::get_loader_with_dummy_data(1, true).into();
+        let test_data;
+        if let TestDataLoaderData::Random(test_dataloader_data) = test_dataloader_data {
+            test_data = test_dataloader_data;
+        } else {
+            panic!("Expected a random loader")
+        }
+        let mut found_data: HashMap<_, _> = (0..test_data.data.len())
+            .zip(vec![0; test_data.data.len()])
+            .collect();
+        let mut found_labels: HashMap<_, _> = (0..test_data.labels.len())
+            .zip(vec![0; test_data.labels.len()])
             .collect();
         let mut current_i = 0;
-        for (i, (sample, label)) in loader.iter().enumerate() {
+        for (i, (sample, label)) in test_data.loader.iter().enumerate() {
             current_i = i;
             let mut current_data_point_idx = 0;
-            for (data_point_idx, data_point) in data_copy.outer_iter().enumerate() {
+            for (data_point_idx, data_point) in test_data.data.outer_iter().enumerate() {
                 current_data_point_idx = data_point_idx;
                 if data_point == sample[0] {
                     assert_eq!(found_data[&data_point_idx], 0);
@@ -401,13 +427,13 @@ mod tests {
 
             assert_eq!(
                 label[0],
-                labels_copy.index_axis(Axis(0), current_data_point_idx)
+                test_data.labels.index_axis(Axis(0), current_data_point_idx)
             );
             *found_labels.get_mut(&current_data_point_idx).unwrap() += 1;
             assert_eq!(found_data.values().sum::<usize>(), i + 1);
             assert_eq!(found_labels.values().sum::<usize>(), i + 1);
         }
-        assert_eq!(current_i, dataset_copy.len() - 1)
+        assert_eq!(current_i, test_data.dataset.len() - 1)
     }
 
     #[test]
@@ -449,30 +475,4 @@ mod tests {
             println!("text {text}");
         }
     }
-    #[test]
-    fn test_random() {
-        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let loader: DataLoader<_, RandomSampler> =
-            DataLoaderBuilder::new(dataset).with_batch_size(3).build();
-
-        for samples in loader.iter() {
-            println!("{samples}");
-        }
-
-        // This seems to be equivalent (and less verbose)
-        // let loader: DataLoader<_, DefaultCollector, RandomSampler> =
-        //     DataLoaderBuilder::new(dataset).build();
-    }
-
-    // helper that will be used by other test
-    // fn test_sequential<D: Dataset>(mut loader: DataLoader<D>)
-    // where
-    //     DefaultCollector: Collect<Vec<<D as GetItem<usize>>::Output>>,
-    // {
-    //     let batch_size = loader.batch_size;
-    //     for (i, (sample, target)) in &loader.enumerate(){
-    //         let mut idx = i * batch_size;
-    //     }
-
-    // }
 }
