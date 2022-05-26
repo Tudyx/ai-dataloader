@@ -33,7 +33,7 @@ where
     }
 }
 // combinaison de _BaseDataLoaderIter et _SingleProcessDataLoaderIter
-pub struct SingleProcessDataLoaderIter<D, S = DefaultSampler, C = DefaultCollator>
+pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -41,10 +41,10 @@ where
 {
     sampler_iter: BatchIterator<S::IntoIter>,
     num_yielded: u64,
-    data_fetcher: MapDatasetFetcher<D, C>,
+    data_fetcher: MapDatasetFetcher<'dataset, D, C>,
 }
 
-impl<D, S, C> SingleProcessDataLoaderIter<D, S, C>
+impl<'dataset, D, S, C> SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -55,7 +55,7 @@ where
             sampler_iter: loader.batch_sampler.iter(),
             num_yielded: 0,
             data_fetcher: MapDatasetFetcher {
-                dataset: loader.dataset.clone(),
+                dataset: &loader.dataset,
                 collate_fn: C::default(),
             },
         }
@@ -77,7 +77,7 @@ where
         // self.sampler_iter = loader.batch_sampler.iter();
     }
 }
-impl<D, S, C> Iterator for SingleProcessDataLoaderIter<D, S, C>
+impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -95,7 +95,7 @@ where
         None
     }
 }
-impl<'a, D, S, C> IntoIterator for &'a DataLoader<D, S, C>
+impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -104,7 +104,7 @@ where
     type Item = C::Output;
 
     // type Item = <DefaultCollector as Collect<Vec<D::Output>>>::Output;
-    type IntoIter = SingleProcessDataLoaderIter<D, S, C>;
+    type IntoIter = SingleProcessDataLoaderIter<'dataset, D, S, C>;
     fn into_iter(self) -> Self::IntoIter {
         SingleProcessDataLoaderIter::new(self)
     }

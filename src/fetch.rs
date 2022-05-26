@@ -25,15 +25,15 @@ where
 //     pub dataset: D,
 //     pub collecate_fn: F,
 // }
-pub struct MapDatasetFetcher<D: Dataset<C>, C = DefaultCollator>
+pub struct MapDatasetFetcher<'dataset, D: Dataset<C>, C = DefaultCollator>
 where
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
-    pub dataset: D,
+    pub dataset: &'dataset D,
     pub collate_fn: C,
 }
 
-impl<D, C> Fetcher<D, C> for MapDatasetFetcher<D, C>
+impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
 where
     D: Dataset<C>,
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
