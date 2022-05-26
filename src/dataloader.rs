@@ -297,32 +297,29 @@ mod tests {
         let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
         let data = Array::random((100, 2, 3, 5), normal);
         let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
-        let data_copy = data.clone();
-        let labels_copy = labels.clone();
         let dataset = NdarrayDataset {
-            ndarrays: (data, labels),
+            ndarrays: (data.clone(), labels.clone()),
         };
-        let dataset_copy = dataset.clone();
 
         if shuffle {
-            let loader: DataLoader<_, RandomSampler> = DataLoaderBuilder::new(dataset)
+            let loader: DataLoader<_, RandomSampler> = DataLoaderBuilder::new(dataset.clone())
                 .with_batch_size(batch_size)
                 .build();
             TestDataLoaderData::Random(TestDataLoader {
                 loader,
-                data: data_copy,
-                labels: labels_copy,
-                dataset: dataset_copy,
+                data,
+                labels,
+                dataset,
             })
         } else {
-            let loader: DataLoader<_, SequentialSampler> = DataLoaderBuilder::new(dataset)
+            let loader: DataLoader<_, SequentialSampler> = DataLoaderBuilder::new(dataset.clone())
                 .with_batch_size(batch_size)
                 .build();
             TestDataLoaderData::Sequential(TestDataLoader {
                 loader,
-                data: data_copy,
-                labels: labels_copy,
-                dataset: dataset_copy,
+                data,
+                labels,
+                dataset,
             })
         }
     }
