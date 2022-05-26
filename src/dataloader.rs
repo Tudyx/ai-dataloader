@@ -28,7 +28,8 @@ where
     S: Sampler,
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
-    fn len(&self) -> usize {
+    /// Return the number of batch that contain the dataloader
+    pub fn len(&self) -> usize {
         self.batch_sampler.len()
     }
 }
@@ -224,6 +225,14 @@ mod tests {
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
     use std::collections::HashMap;
+
+    #[test]
+    fn len() {
+        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
+        assert_eq!(dataloader.len(), dataloader.batch_sampler.len());
+        assert_eq!(dataloader.len(), 5);
+    }
 
     #[test]
     fn one_dimension_basic() {
