@@ -1,15 +1,45 @@
 use super::{DefaultSampler, HasLength, Sampler};
 
+/// Wraps another sampler to yield a mini-batch of indices.
+/// # Arguments
+///
+/// * `sampler` - Base sampler.
+/// * `batch_size` - Size of mini-batch.
+/// * `drop_last` - If `true`, the sampler will drop the last batch if its size would be less than `batch_size`
+///
+///
+/// # Examples:
+/// ```
+/// use dataloader_rs::sampler::sequential_sampler::SequentialSampler;
+/// use dataloader_rs::sampler::batch_sampler::BatchSampler;
+///
+/// let dataset = vec![0, 1, 2, 3];
+/// let batch_sampler = BatchSampler {
+///     sampler: SequentialSampler {
+///     data_source_len: dataset.len(),
+///     },
+///     batch_size: 2,
+///     drop_last: false,
+/// };
+/// let mut iter = batch_sampler.iter();
+/// assert_eq!(iter.next(), Some(vec![0, 1]));
+/// assert_eq!(iter.next(), Some(vec![2, 3]));
+/// ```
 #[derive(Debug, Clone)]
 pub struct BatchSampler<S: Sampler = DefaultSampler> {
+    /// Base sampler
     pub sampler: S,
+    /// Size of mini batch
     pub batch_size: usize,
+    /// If `true`, the sampler will drop the last batch if
+    /// its size would be less than ``batch_size``
     pub drop_last: bool,
 }
 
 impl<S: Sampler> HasLength for BatchSampler<S> {
-    // return the number of batch
-    // if drop_last is set to false, even an incomplete batch will be counted
+    /// Return the number of batch
+    ///
+    /// If drop_last is set to false, even an incomplete batch will be counted
     fn len(&self) -> usize {
         if self.drop_last {
             self.sampler.len() / self.batch_size

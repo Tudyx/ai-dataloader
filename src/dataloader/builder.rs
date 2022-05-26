@@ -3,8 +3,7 @@ use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 use crate::sampler::batch_sampler::BatchSampler;
-use crate::sampler::DefaultSampler;
-use crate::sampler::Sampler;
+use crate::sampler::{DefaultSampler, Sampler};
 
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where

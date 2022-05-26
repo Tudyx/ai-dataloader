@@ -2,8 +2,10 @@ use std::ops::Range;
 
 use super::{HasLength, Sampler};
 
+/// Yield index from 0 to `data_source_len` in ascending order
 #[derive(Debug, Clone, Copy)]
 pub struct SequentialSampler {
+    /// The length of the dataset that will be sampled
     pub data_source_len: usize,
 }
 impl Sampler for SequentialSampler {

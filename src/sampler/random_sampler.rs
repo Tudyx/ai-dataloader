@@ -3,11 +3,12 @@ use rand::thread_rng;
 
 use super::{HasLength, Sampler};
 
+/// Sampler that return random index between 0 and `data_source_len`
 #[derive(Debug, Clone, Copy)]
 pub struct RandomSampler {
     data_source_len: usize,
-    // whether the sample is replace or not
-    // If it replace, we can have 2 times the same sample
+    /// Whether the sample is replace or not
+    /// If it replace, we can have 2 times the same sample
     replacement: bool,
 }
 
@@ -31,6 +32,7 @@ impl IntoIterator for RandomSampler {
         RandomSamplerIter::new(self.data_source_len, self.replacement)
     }
 }
+/// Iterator that redurn random index between 0 and `data_source_len`
 pub struct RandomSamplerIter {
     data_source_len: usize,
     indexes: Vec<usize>,
@@ -38,6 +40,12 @@ pub struct RandomSamplerIter {
 }
 
 impl RandomSamplerIter {
+    /// Create a new `RandomSamplerIter`
+    ///
+    /// # Arguments
+    ///
+    /// * `data_source_len` - The len of the dataset.
+    /// * `replacement` - Weither we can have the same sample twice over one iteration or not
     fn new(data_source_len: usize, replacement: bool) -> RandomSamplerIter {
         if replacement {
             todo!()

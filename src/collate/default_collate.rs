@@ -5,6 +5,7 @@ use itertools::Itertools;
 use ndarray::{array, Array, Array1, Array3, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
 use std::collections::HashMap;
 
+/// Basic collator that mimic the default collate function from PyTorch
 #[derive(Default)]
 pub struct DefaultCollator;
 
