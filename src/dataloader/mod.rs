@@ -76,7 +76,6 @@ where
     C: Collate<Vec<D::Output>>,
 {
     type Item = C::Output;
-    // type Item = Vec<Collect<Vec<<D as GetItem<usize>>::Output>>>;
     fn next(&mut self) -> Option<Self::Item> {
         let data = self.next_data();
 

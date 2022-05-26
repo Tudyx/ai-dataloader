@@ -29,13 +29,13 @@ use crate::sampler::HasLength;
 /// }
 /// ```
 /// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
-pub trait Dataset<T>: HasLength + GetItem<usize> + Clone
+pub trait Dataset<T>: HasLength + GetItem + Clone
 where
     T: Collate<Vec<Self::Output>>,
 {
 }
 
-pub trait Dataset3<F>: HasLength + GetItem<usize> + Clone
+pub trait Dataset3<F>: HasLength + GetItem + Clone
 where
     F: Fn(Vec<Self::Output>) -> Self::CollateOutput,
 {
@@ -43,11 +43,11 @@ where
 }
 
 /// Return an item of the dataset
-pub trait GetItem<Idx = usize> {
+pub trait GetItem {
     /// Dataset sample type
     type Output: Sized;
     /// Return the dataset element corresponding to the index
-    fn get_item(&self, index: Idx) -> Self::Output;
+    fn get_item(&self, index: usize) -> Self::Output;
 }
 pub trait GetItem2<Idx: Sized = usize> {
     type Output: Sized;
@@ -70,7 +70,7 @@ impl<T> Dataset<T> for CustomDataset where T: Collate<Vec<Self::Output>> {}
 //         &self.content[index]
 //     }
 // }
-impl GetItem<usize> for CustomDataset {
+impl GetItem for CustomDataset {
     type Output = i32;
     fn get_item(&self, index: usize) -> Self::Output {
         self.content[index]
@@ -90,7 +90,7 @@ impl Clone for CustomDataset {
 }
 impl<T: Clone, U> Dataset<U> for Vec<T> where U: Collate<Vec<Self::Output>> {}
 
-impl<T: Clone> GetItem<usize> for Vec<T> {
+impl<T: Clone> GetItem for Vec<T> {
     type Output = T;
     fn get_item(&self, index: usize) -> Self::Output {
         self[index].clone()

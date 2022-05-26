@@ -49,7 +49,7 @@ where
         self.ndarrays.0.shape()[0]
     }
 }
-impl<A1, A2, D1, D2> GetItem<usize> for NdarrayDataset<A1, A2, D1, D2>
+impl<A1, A2, D1, D2> GetItem for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
