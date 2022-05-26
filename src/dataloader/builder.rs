@@ -4,6 +4,7 @@ use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 use crate::sampler::batch_sampler::BatchSampler;
 use crate::sampler::{DefaultSampler, Sampler};
+use std::marker::PhantomData;
 
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where
@@ -74,12 +75,8 @@ where
         }
         DataLoader {
             dataset: self.dataset,
-            batch_size: self.batch_size,
-            sampler,
             batch_sampler: self.batch_sampler.unwrap(),
-            num_worker: self.num_worker,
-            drop_last: self.drop_last,
-            collate_fn: self.collate_fn.unwrap_or_default(),
+            phantom: PhantomData,
         }
     }
 }

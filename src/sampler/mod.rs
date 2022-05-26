@@ -37,6 +37,7 @@ impl<T> HasLength for Vec<T> {
 pub struct DumbSampler;
 
 impl Sampler for DumbSampler {
+    #[allow(unused_variables)]
     fn new(data_source_len: usize) -> Self {
         DumbSampler {}
     }

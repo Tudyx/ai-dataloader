@@ -7,6 +7,7 @@ use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
 use crate::sampler::HasLength;
 use crate::sampler::Sampler;
+use std::marker::PhantomData;
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -14,13 +15,8 @@ where
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     dataset: D,
-    // how many sample to launch per batch
-    batch_size: usize,
-    sampler: S,
     batch_sampler: BatchSampler<S>,
-    num_worker: u32,
-    drop_last: bool,
-    collate_fn: C,
+    phantom: PhantomData<C>,
 }
 
 impl<D, S, C> DataLoader<D, S, C>
@@ -72,11 +68,6 @@ where
             return Some(data);
         }
         None
-    }
-    fn reset(&mut self) {
-        self.num_yielded = 0;
-        // TODO: store the batch sampler to be able to make a new iter
-        // self.sampler_iter = loader.batch_sampler.iter();
     }
 }
 impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
