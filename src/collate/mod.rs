@@ -1,11 +1,14 @@
 pub mod default_collate;
-// collate rassemble les éléments du batch ensemble
-// un numpy array <=> ndarray est just converti en tensor
 
+/// Any collate gather sample from a batch together
 pub trait Collate<T>: Default {
+    /// The type of the collate function's output
     type Output;
+    /// Take a batch of samples and collate them
     fn collate(batch: T) -> Self::Output;
 }
+
+/// Simple collator that doesn't change the batch of samples
 #[derive(Default)]
 pub struct NoOpCollator;
 

@@ -11,7 +11,9 @@ where
     S: Sampler,
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
+    /// The dataset from which the loader will yield the data
     dataset: D,
+    /// Number of element in a batch
     batch_size: usize,
     sampler: Option<S>,
     batch_sampler: Option<BatchSampler<S>>,

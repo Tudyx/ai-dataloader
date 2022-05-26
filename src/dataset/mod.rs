@@ -1,22 +1,10 @@
 pub mod ndarray_dataset;
-
-use ndarray::{Array, ArrayBase, Axis, Dimension, NdIndex, RemoveAxis};
-
 use crate::collate::Collate;
 use crate::sampler::HasLength;
 
-// TODO: remove the clone trait
-// pub trait Dataset: HasLength + Index<usize> + Clone {type SampleType;}
+// TODO: remove the clone trait?
 
-// version du trait générique ou T est le type d'élement retourner par
-// l'indexation du dataset. Par exemple T peut-être un tuple (str, Vec<i32>)
-
-// require associated type bound :
-// pub trait Dataset: HasLength + Index<usize, Output : Sized> + Clone
-// where
-//     DefaultCollector: Collect<Vec<Self::Output>>
-// {}
-
+/// A dataset is just something that has a length and is indexable
 pub trait Dataset<T>: HasLength + GetItem<usize> + Clone
 where
     T: Collate<Vec<Self::Output>>,
@@ -30,14 +18,12 @@ where
     type CollateOutput;
 }
 
-// alternative au trait index mais où l'output est forcé d'avoir
-// une size connu au compile time
+/// Alternative to standard `Index` trait but where the Ouput is contrain to have a size known at compile time
 pub trait GetItem<Idx: Sized = usize> {
+    /// Dataset sample type
     type Output: Sized;
-    // real one
-    // fn get_item(&self, index: Idx) -> &Self::Output;
+    /// Return the dataset element corresponding to the index
     fn get_item(&self, index: Idx) -> Self::Output;
-    // where Collect<Vec<Self::Output>>;
 }
 pub trait GetItem2<Idx: Sized = usize> {
     type Output: Sized;

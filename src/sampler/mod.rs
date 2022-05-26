@@ -7,17 +7,22 @@ pub mod sequential_sampler;
 pub type DefaultSampler = SequentialSampler;
 
 /// Basic trait for anything that could have a length.
-/// Even if a lot of struc have a `len()` methode in the standard library,
+/// Even if a lot of struc have a `len()` method in the standard library,
 /// to my knowledge this function is not included into any standard trait.
 pub trait HasLength {
+    /// Returns the number of elements in the collection, also referred to
+    /// as its 'length'.
     fn len(&self) -> usize;
+    /// Return `true` if the collection has no element
     fn is_empty(&self) -> bool {
         self.len() == 0
     }
 }
 
-// maybe copy is too restrictive and should be replaced by Clone
+// TODO: maybe copy is too restrictive and should be replaced by Clone?
+/// Every Sampler is iterable and has a length
 pub trait Sampler: HasLength + IntoIterator<Item = usize> + Copy {
+    /// Create a new sampler form the dataset length
     fn new(data_source_len: usize) -> Self;
 }
 // Even if vector have it, we should do it.

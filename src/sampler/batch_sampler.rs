@@ -39,7 +39,7 @@ pub struct BatchSampler<S: Sampler = DefaultSampler> {
 impl<S: Sampler> HasLength for BatchSampler<S> {
     /// Return the number of batch
     ///
-    /// If drop_last is set to false, even an incomplete batch will be counted
+    /// If `drop_last` is set to false, even an incomplete batch will be counted
     fn len(&self) -> usize {
         if self.drop_last {
             self.sampler.len() / self.batch_size

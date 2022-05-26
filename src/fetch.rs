@@ -6,6 +6,7 @@ use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
 
+/// A Fetcher will fetch data from the dataset
 pub trait Fetcher<D, C = DefaultCollator>
 where
     D: Dataset<C>,
