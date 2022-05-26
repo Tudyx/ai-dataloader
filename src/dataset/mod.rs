@@ -5,6 +5,30 @@ use crate::sampler::HasLength;
 // TODO: remove the clone trait?
 
 /// A dataset is just something that has a length and is indexable
+///
+/// We use a custom [GetItem] trait instead of `std::ops::Index` because
+/// it provides more flexibility.
+/// Indeed we could have provide this implementation:
+/// ```
+/// use dataloader_rs::collate::Collate;
+/// use dataloader_rs::sampler::HasLength;
+///
+/// pub trait Dataset<T>: HasLength + std::ops::Index<usize> + Clone
+/// where
+/// T: Collate<Vec<Self::Output>>,
+/// Self::Output: Sized,
+/// {
+/// }
+/// ```
+/// But as `Index::Output` must refer as something exist, it will not cover most of our use cases.
+/// For instance if the dataset is something like that:
+/// ```
+/// struct Dataset {
+///     labels: Vec<i32>,
+///     texts: Vec<String>,
+/// }
+/// ```
+/// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
 pub trait Dataset<T>: HasLength + GetItem<usize> + Clone
 where
     T: Collate<Vec<Self::Output>>,
@@ -18,8 +42,8 @@ where
     type CollateOutput;
 }
 
-/// Alternative to standard `Index` trait but where the `Output` is constrain to have a size known at compile time
-pub trait GetItem<Idx: Sized = usize> {
+/// Return an item of the dataset
+pub trait GetItem<Idx = usize> {
     /// Dataset sample type
     type Output: Sized;
     /// Return the dataset element corresponding to the index
