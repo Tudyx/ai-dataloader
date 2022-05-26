@@ -68,7 +68,7 @@ where
 
         if self.batch_sampler.is_none() {
             self.batch_sampler = Some(BatchSampler {
-                sampler: sampler.clone(),
+                sampler, // because sampler implement the copy trait
                 batch_size: self.batch_size,
                 drop_last: self.drop_last,
             })

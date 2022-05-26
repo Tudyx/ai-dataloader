@@ -19,14 +19,14 @@ where
     phantom: PhantomData<C>,
 }
 
-impl<D, S, C> DataLoader<D, S, C>
+impl<D, S, C> HasLength for DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
     C: Collate<Vec<<D as GetItem<usize>>::Output>>,
 {
     /// Return the number of batch that contain the dataloader
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.batch_sampler.len()
     }
 }

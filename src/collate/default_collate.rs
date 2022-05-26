@@ -2,7 +2,7 @@ use super::Collate;
 
 use itertools::izip;
 use itertools::Itertools;
-use ndarray::{array, Array, Array1, Array3, ArrayBase, Dim, Dimension, Ix1, OwnedRepr};
+use ndarray::{array, Array, Array1, Dimension, Ix1};
 use std::collections::HashMap;
 
 /// Basic collator that mimic the default collate function from PyTorch
@@ -137,7 +137,7 @@ impl<A, B, C> Collate<Vec<(A, B, C)>> for DefaultCollator {
 impl Collate<Vec<Vec<i32>>> for DefaultCollator {
     type Output = Vec<Array<i32, Ix1>>;
     fn collate(batch: Vec<Vec<i32>>) -> Self::Output {
-        let elem_size = batch.iter().next().unwrap().len();
+        let elem_size = batch.get(0).unwrap().len();
         if !batch.iter().all(|vec| vec.len() == elem_size) {
             panic!("each element in list of batch should be of equal size");
         }
@@ -165,7 +165,7 @@ impl Collate<Vec<Vec<i32>>> for DefaultCollator {
 impl Collate<Vec<Vec<String>>> for DefaultCollator {
     type Output = Vec<(String, String)>;
     fn collate(batch: Vec<Vec<String>>) -> Self::Output {
-        let elem_size = batch.iter().next().unwrap().len();
+        let elem_size = batch.get(0).unwrap().len();
         if !batch.iter().all(|vec| vec.len() == elem_size) {
             panic!("each element in list of batch should be of equal size");
         }
@@ -180,9 +180,9 @@ impl Collate<Vec<Vec<String>>> for DefaultCollator {
                 res.push(DefaultCollator::collate(samples));
             }
         } else if batch.len() == 3 {
-            for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
-                // res.push(DefaultCollector::collect(samples));
-            }
+            //for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
+            // res.push(DefaultCollector::collect(samples));
+            //}
         }
         res
     }
@@ -225,13 +225,13 @@ impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollator {
         }
         let mut res = Vec::new();
         if batch.len() == 1 {
-            res.push(DefaultCollator::collate(batch[0].clone()));
+            res.push(DefaultCollator::collate(batch[0]));
         } else if batch.len() == 2 {
-            for samples in izip!(batch[0].clone(), batch[1].clone()) {
+            for samples in izip!(batch[0], batch[1]) {
                 res.push(DefaultCollator::collate(samples))
             }
         } else if batch.len() == 3 {
-            for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
+            for samples in izip!(batch[0], batch[1], batch[2]) {
                 res.push(DefaultCollator::collate(samples));
             }
         }
@@ -318,7 +318,7 @@ impl<T, I: Dimension> Collate<Array<T, I>> for DefaultCollator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::{array, Array3};
+    use ndarray::array;
 
     #[test]
     fn primitive_type() {
@@ -414,11 +414,6 @@ mod tests {
             DefaultCollator::collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
             (array![1.0, 3.0, 5.0], array![2.0, 4.0, 6.0])
         );
-        let a1: Array3<f64> = array![[[1.0], [2.0]], [[3.0], [4.0]]];
-        let tuple = (a1, array![1.0, 2.0]);
-        //  ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>,
-        //             ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>
-        // DefaultCollator::collate(vec![tuple.clone(), tuple.clone()]);
     }
     #[test]
     fn vec_of_tuple_with_len_1() {
