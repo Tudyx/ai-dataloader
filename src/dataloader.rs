@@ -331,7 +331,7 @@ mod tests {
 
     #[test]
     fn sequential_non_batch() {
-        let test_dataloader_data = tests::get_loader_with_dummy_data(1, false).into();
+        let test_dataloader_data = tests::get_loader_with_dummy_data(1, false);
         let test_data;
         if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
             test_data = test_dataloader_data;
@@ -351,7 +351,7 @@ mod tests {
     #[test]
     fn sequential_batch() {
         let batch_size = 2;
-        let test_dataloader_data = tests::get_loader_with_dummy_data(2, false).into();
+        let test_dataloader_data = tests::get_loader_with_dummy_data(2, false);
         let test_data;
         if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
             test_data = test_dataloader_data;
@@ -363,13 +363,6 @@ mod tests {
 
         for (i, (sample, label)) in test_data.loader.iter().enumerate() {
             let idx = i * batch_size;
-            println!("{}", label);
-            println!(
-                "{}",
-                test_data
-                    .labels
-                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
-            );
             // Even if the display on the console are the same we can compare them due to mismatch type (Array0<f64> and f64), hence the convertion
             // (work out of the box with numpy)
             let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
@@ -399,7 +392,7 @@ mod tests {
 
     #[test]
     fn shuffle_non_batch() {
-        let test_dataloader_data = tests::get_loader_with_dummy_data(1, true).into();
+        let test_dataloader_data = tests::get_loader_with_dummy_data(1, true);
         let test_data;
         if let TestDataLoaderData::Random(test_dataloader_data) = test_dataloader_data {
             test_data = test_dataloader_data;
@@ -438,12 +431,43 @@ mod tests {
 
     #[test]
     fn shuffle_batch() {
-        // TODO
-        // label
-        //     .iter()
-        //     .flatten()
-        //     .zip(labels_copy.index_axis(Axis(0), current_data_point_idx))
-        //     .map(|x| x.0 == x.1);
+        let batch_size = 2;
+        let test_dataloader_data = tests::get_loader_with_dummy_data(batch_size, true);
+        let test_data;
+        if let TestDataLoaderData::Random(test_dataloader_data) = test_dataloader_data {
+            test_data = test_dataloader_data;
+        } else {
+            panic!("Expected a random loader")
+        }
+        let mut found_data: HashMap<_, _> = (0..test_data.data.len())
+            .zip(vec![0; test_data.data.len()])
+            .collect();
+        let mut found_labels: HashMap<_, _> = (0..test_data.labels.len())
+            .zip(vec![0; test_data.labels.len()])
+            .collect();
+        let mut current_i = 0;
+        for (i, (batch_samples, batch_targets)) in test_data.loader.iter().enumerate() {
+            current_i = i;
+            for (sample, label) in batch_samples.iter().zip(batch_targets) {
+                let mut current_data_point_idx = 0;
+                for (data_point_idx, data_point) in test_data.data.outer_iter().enumerate() {
+                    current_data_point_idx = data_point_idx;
+                    if data_point == sample {
+                        assert_eq!(found_data[&data_point_idx], 0);
+                        *found_data.get_mut(&data_point_idx).unwrap() += 1;
+                        break;
+                    }
+                }
+                assert_eq!(
+                    label,
+                    test_data.labels.index_axis(Axis(0), current_data_point_idx)
+                );
+                *found_labels.get_mut(&current_data_point_idx).unwrap() += 1;
+            }
+            assert_eq!(found_data.values().sum::<usize>(), (i + 1) * batch_size);
+            assert_eq!(found_labels.values().sum::<usize>(), (i + 1) * batch_size);
+        }
+        assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size)
     }
 
     #[test]
