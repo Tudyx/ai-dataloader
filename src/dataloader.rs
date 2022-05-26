@@ -464,34 +464,4 @@ mod tests {
         }
         assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size)
     }
-
-    #[test]
-    fn text_classification() {
-        let dataset = vec![
-            (0, "I'm happy"),
-            (1, "i'm sad"),
-            (0, "it feel goo"),
-            (0, "Let's go!"),
-        ];
-        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
-        for (label, text) in loader.iter() {
-            println!("label {label}");
-            println!("text {text}");
-        }
-    }
-
-    #[test]
-    fn text_classification_batch() {
-        let dataset = vec![
-            (0, "I'm happy"),
-            (1, "i'm sad"),
-            (0, "it feel goo"),
-            (0, "Let's go!"),
-        ];
-        let loader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
-        for (label, text) in loader.iter() {
-            println!("label {label}");
-            println!("text {text}");
-        }
-    }
 }
