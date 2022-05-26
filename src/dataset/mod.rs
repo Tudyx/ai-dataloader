@@ -33,7 +33,9 @@ where
 {
 }
 
-pub trait Dataset3<F>: HasLength + GetItem
+/// Dataset could become something like that when functor trait will be available
+#[doc(hidden)]
+trait FunctorDataset<F>: HasLength + GetItem
 where
     F: Fn(Vec<Self::Output>) -> Self::CollateOutput,
 {
@@ -42,69 +44,19 @@ where
 
 /// Return an item of the dataset
 pub trait GetItem {
-    /// Dataset sample type
+    /// Type of one sample of the dataset
     type Output: Sized;
-    /// Return the dataset element corresponding to the index
+    /// Return the dataset sample corresponding to the index
     fn get_item(&self, index: usize) -> Self::Output;
 }
-pub trait GetItem2<Idx: Sized = usize> {
-    type Output: Sized;
-    // real one
-    // fn get_item(&self, index: Idx) -> &Self::Output;
-    fn get_item(&self, index: Idx) -> Self::Output;
-}
 
-// j'essaye d'ajouter une contrainte sur l'associade type de Index
-// pub trait DatasetPlus : Dataset + Index<usize, Index::Output: T>{}
-
-struct CustomDataset {
-    pub content: Vec<i32>,
-}
-impl<T> Dataset<T> for CustomDataset where T: Collate<Vec<Self::Output>> {}
-
-// impl Index<usize> for CustomDataset {
-//     type Output = i32;
-//     fn index(&self, index: usize) -> &Self::Output {
-//         &self.content[index]
-//     }
-// }
-impl GetItem for CustomDataset {
-    type Output = i32;
-    fn get_item(&self, index: usize) -> Self::Output {
-        self.content[index]
-    }
-}
-impl HasLength for CustomDataset {
-    fn len(&self) -> usize {
-        self.content.len()
-    }
-}
-impl Clone for CustomDataset {
-    fn clone(&self) -> Self {
-        CustomDataset {
-            content: self.content.clone(),
-        }
-    }
-}
+// TODO: Does a blanket implementation of Dataset for type that have implemented std::ops::Index
+// will work in that case?
 impl<T: Clone, U> Dataset<U> for Vec<T> where U: Collate<Vec<Self::Output>> {}
 
 impl<T: Clone> GetItem for Vec<T> {
     type Output = T;
     fn get_item(&self, index: usize) -> Self::Output {
         self[index].clone()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_custom_dataset() {
-        let dataset = CustomDataset {
-            content: vec![1, 2, 3, 4, 5],
-        };
-        println!("{}", dataset.get_item(1));
-        println!("{}", dataset.len());
     }
 }
