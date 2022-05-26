@@ -290,7 +290,7 @@ mod tests {
                 )
                 .map(|x| x.0 == x.1)
                 .collect();
-            assert!(vec.iter().all(|x| *x == true));
+            assert!(vec.iter().all(|x| *x));
             current_i = i;
         }
         assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size);
