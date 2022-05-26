@@ -7,7 +7,7 @@ pub mod sequential_sampler;
 pub type DefaultSampler = SequentialSampler;
 
 /// Basic trait for anything that could have a length.
-/// Even if a lot of struc have a `len()` method in the standard library,
+/// Even if a lot of struct have a `len()` method in the standard library,
 /// to my knowledge this function is not included into any standard trait.
 pub trait HasLength {
     /// Returns the number of elements in the collection, also referred to

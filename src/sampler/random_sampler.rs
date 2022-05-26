@@ -32,7 +32,7 @@ impl IntoIterator for RandomSampler {
         RandomSamplerIter::new(self.data_source_len, self.replacement)
     }
 }
-/// Iterator that redurn random index between 0 and `data_source_len`
+/// Iterator that return random index between 0 and `data_source_len`
 pub struct RandomSamplerIter {
     data_source_len: usize,
     indexes: Vec<usize>,
@@ -45,7 +45,7 @@ impl RandomSamplerIter {
     /// # Arguments
     ///
     /// * `data_source_len` - The len of the dataset.
-    /// * `replacement` - Weither we can have the same sample twice over one iteration or not
+    /// * `replacement` - Wether we can have the same sample twice over one iteration or not
     fn new(data_source_len: usize, replacement: bool) -> RandomSamplerIter {
         if replacement {
             todo!()

@@ -95,8 +95,8 @@ impl_tuple_collect3!(usize u8 u16 u32 u64 u128
                     f32 f64
                     bool char);
 
-// TODO: concatenante the ndarray as it's done for tensor
-// Probleme it won't give an Array1<T> like the other
+// TODO: concatenate the `ndarray` as it's done for tensor
+// problem :  it won't give an Array1<T> like the other
 impl_tuple_collect!(Array1<f64>);
 impl_tuple_collect2!(Array1<f64>);
 impl_tuple_collect3!(Array1<f64>);

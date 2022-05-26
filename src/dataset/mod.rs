@@ -18,7 +18,7 @@ where
     type CollateOutput;
 }
 
-/// Alternative to standard `Index` trait but where the Ouput is contrain to have a size known at compile time
+/// Alternative to standard `Index` trait but where the `Output` is constrain to have a size known at compile time
 pub trait GetItem<Idx: Sized = usize> {
     /// Dataset sample type
     type Output: Sized;

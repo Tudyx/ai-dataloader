@@ -30,7 +30,6 @@ where
         self.batch_sampler.len()
     }
 }
-// combinaison de _BaseDataLoaderIter et _SingleProcessDataLoaderIter
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -170,7 +169,7 @@ mod tests {
     #[test]
     fn one_dimension_basic_string() {
         let dataset = vec![String::from("a"), String::from("b")];
-        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(1).build();
+        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(vec![String::from("a")]));
