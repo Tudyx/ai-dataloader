@@ -1,3 +1,4 @@
+pub mod builder;
 use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::{Dataset, GetItem};
@@ -122,101 +123,11 @@ where
     }
 }
 
-// builder pour construire des dataloader. Doit rester dans le même mod car accède au membre privée.
-pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
-where
-    D: Dataset<C>,
-    S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
-{
-    dataset: D,
-    batch_size: usize,
-    sampler: Option<S>,
-    batch_sampler: Option<BatchSampler<S>>,
-    num_worker: u32,
-    drop_last: bool,
-    collate_fn: Option<C>,
-}
-impl<D, S, C> DataLoaderBuilder<D, S, C>
-where
-    D: Dataset<C>,
-    S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
-{
-    pub fn new(dataset: D) -> Self {
-        Self {
-            dataset,
-            batch_size: 1,
-            sampler: None,
-            batch_sampler: None,
-            num_worker: 0,
-            drop_last: false,
-            collate_fn: None,
-        }
-    }
-    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
-        self.batch_size = batch_size;
-        self
-    }
-    pub fn with_num_worker(mut self, num_worker: u32) -> Self {
-        self.num_worker = num_worker;
-        self
-    }
-    pub fn with_collate_fn(mut self, collate_fn: C) -> Self {
-        self.collate_fn = Some(collate_fn);
-        self
-    }
-    pub fn with_sampler(mut self, sampler: S) -> Self {
-        self.sampler = Some(sampler);
-        self
-    }
-
-    pub fn build(mut self) -> DataLoader<D, S, C> {
-        if self.batch_sampler.is_some() && self.batch_size != 0
-            || self.sampler.is_some()
-            || self.drop_last
-        {
-            panic!("batch_sampler option is mutually exclusive with batch_size,  sampler, and drop_last'")
-        }
-
-        let sampler = self.sampler.unwrap_or_else(|| S::new(self.dataset.len()));
-
-        if self.batch_sampler.is_none() {
-            self.batch_sampler = Some(BatchSampler {
-                sampler: sampler.clone(),
-                batch_size: self.batch_size,
-                drop_last: self.drop_last,
-            })
-        }
-        DataLoader {
-            dataset: self.dataset,
-            batch_size: self.batch_size,
-            sampler,
-            batch_sampler: self.batch_sampler.unwrap(),
-            num_worker: self.num_worker,
-            drop_last: self.drop_last,
-            collate_fn: self.collate_fn.unwrap_or_default(),
-        }
-    }
-}
-// fn create_hasmap_dataset() {
-//     let mut dataset = Vec::new();
-//     let mut sample = HashMap::new();
-//     sample.insert("label".to_string(), "1".to_string());
-//     sample.insert("text".to_string(), "first sample content".to_string());
-//     dataset.push(sample);
-//     let mut sample = HashMap::new();
-//     sample.insert("label".to_string(), "2".to_string());
-//     sample.insert("text".to_string(), "second sample content".to_string());
-//     dataset.push(sample);
-//     dataset.len();
-//     println!("{:?}", dataset);
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::collate::NoOpCollator;
+    use crate::dataloader::builder::DataLoaderBuilder;
     use crate::dataset::ndarray_dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
@@ -238,7 +149,7 @@ mod tests {
     fn one_dimension_basic() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        // why type annotation is required even with default genric type ?
+        // why type annotation is required even if we provide a dataset parameter?
         let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
 
         let mut iter = dataloader.iter();
