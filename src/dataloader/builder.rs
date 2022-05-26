@@ -1,7 +1,7 @@
 use super::DataLoader;
 use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
-use crate::dataset::{Dataset, GetItem};
+use crate::dataset::Dataset;
 use crate::sampler::batch_sampler::BatchSampler;
 use crate::sampler::{DefaultSampler, Sampler};
 use std::marker::PhantomData;
@@ -10,7 +10,7 @@ pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     /// The dataset from which the loader will yield the data
     dataset: D,
@@ -26,7 +26,7 @@ impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     pub fn new(dataset: D) -> Self {
         Self {

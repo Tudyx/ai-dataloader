@@ -1,7 +1,7 @@
 pub mod builder;
 use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
-use crate::dataset::{Dataset, GetItem};
+use crate::dataset::Dataset;
 use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
@@ -12,7 +12,7 @@ pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     dataset: D,
     batch_sampler: BatchSampler<S>,
@@ -23,7 +23,7 @@ impl<D, S, C> HasLength for DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     /// Return the number of batch that contain the dataloader
     fn len(&self) -> usize {
@@ -34,7 +34,7 @@ pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = Defa
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     sampler_iter: BatchIterator<S::IntoIter>,
     num_yielded: u64,
@@ -45,7 +45,7 @@ impl<'dataset, D, S, C> SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     fn new(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter {
@@ -73,7 +73,7 @@ impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S,
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     type Item = C::Output;
     // type Item = Vec<Collect<Vec<<D as GetItem<usize>>::Output>>>;
@@ -91,7 +91,7 @@ impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     type Item = C::Output;
 
@@ -106,7 +106,7 @@ impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset<C>,
     S: Sampler,
-    C: Collate<Vec<<D as GetItem<usize>>::Output>>,
+    C: Collate<Vec<D::Output>>,
 {
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter::new(self)
