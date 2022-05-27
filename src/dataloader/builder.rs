@@ -39,7 +39,7 @@ where
     //         collate_fn: None,
     //     }
     // }
-    pub fn new(dataset: D) -> DataLoaderBuilder<D, S, C> {
+    pub fn new(dataset: D) -> Self {
         Self {
             dataset,
             batch_size: 1,

@@ -1,4 +1,4 @@
-use dataloader_rs::{DataLoader, DataLoaderBuilder};
+use dataloader_rs::DataLoader;
 use ndarray::array;
 
 #[test]

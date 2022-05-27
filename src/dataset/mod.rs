@@ -1,8 +1,10 @@
 pub mod ndarray_dataset;
+use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::sampler::HasLength;
 
-/// A dataset is just something that has a length and is indexable
+/// A dataset is just something that has a length and is indexable.
+/// A vec of dataset collate output must also be collatable
 ///
 /// We use a custom [GetItem] trait instead of `std::ops::Index` because
 /// it provides more flexibility.
@@ -27,9 +29,9 @@ use crate::sampler::HasLength;
 /// }
 /// ```
 /// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
-pub trait Dataset<T>: HasLength + GetItem
+pub trait Dataset<C = DefaultCollator>: HasLength + GetItem
 where
-    T: Collate<Vec<Self::Output>>,
+    C: Collate<Vec<Self::Output>>,
 {
 }
 
@@ -52,7 +54,12 @@ pub trait GetItem {
 
 // TODO: Does a blanket implementation of Dataset for type that have implemented std::ops::Index
 // will work in that case?
-impl<T: Clone, U> Dataset<U> for Vec<T> where U: Collate<Vec<Self::Output>> {}
+impl<T, C> Dataset<C> for Vec<T>
+where
+    T: Clone,
+    C: Collate<Vec<Self::Output>>,
+{
+}
 
 impl<T: Clone> GetItem for Vec<T> {
     type Output = T;

@@ -133,7 +133,6 @@ where
 mod tests {
     use super::*;
     use crate::collate::NoOpCollator;
-    use crate::dataloader::builder::DataLoaderBuilder;
     use crate::dataset::ndarray_dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
