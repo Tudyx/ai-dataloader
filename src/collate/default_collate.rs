@@ -101,32 +101,33 @@ impl_tuple_collect!(Array1<f64>);
 impl_tuple_collect2!(Array1<f64>);
 impl_tuple_collect3!(Array1<f64>);
 
-impl<A> Collate<Vec<(A,)>> for DefaultCollator {
-    type Output = (Array1<A>,);
-    fn collate(batch: Vec<(A,)>) -> Self::Output {
-        let (vec_a,) = batch.into_iter().multiunzip();
-        (Array1::from_vec(vec_a),)
-    }
-}
-impl<A, B> Collate<Vec<(A, B)>> for DefaultCollator {
-    type Output = (Array1<A>, Array1<B>);
-    fn collate(batch: Vec<(A, B)>) -> Self::Output {
-        let (vec_a, vec_b) = batch.into_iter().multiunzip();
-        (Array1::from_vec(vec_a), Array1::from_vec(vec_b))
-    }
+macro_rules! impl_default_collate_vec_tuple {
+    ($($name:ident)+) => (
+        impl<$($name),+> Collate<Vec<($($name,)+)>> for DefaultCollator{
+            type Output = ($(Array1<$name>,)+);
+            #[allow(non_snake_case)]
+            fn collate(batch: Vec<($($name,)+)>) -> Self::Output {
+                let ($($name,)+) = batch.into_iter().multiunzip();
+                (
+                    $(Array1::from_vec($name),)+
+                )
+            }
+        }
+    );
 }
 
-impl<A, B, C> Collate<Vec<(A, B, C)>> for DefaultCollator {
-    type Output = (Array1<A>, Array1<B>, Array1<C>);
-    fn collate(batch: Vec<(A, B, C)>) -> Self::Output {
-        let (vec_a, vec_b, vec_c) = batch.into_iter().multiunzip();
-        (
-            Array1::from_vec(vec_a),
-            Array1::from_vec(vec_b),
-            Array1::from_vec(vec_c),
-        )
-    }
-}
+impl_default_collate_vec_tuple! { A }
+impl_default_collate_vec_tuple! { A B }
+impl_default_collate_vec_tuple! { A B C }
+impl_default_collate_vec_tuple! { A B C D }
+impl_default_collate_vec_tuple! { A B C D E }
+impl_default_collate_vec_tuple! { A B C D E F }
+impl_default_collate_vec_tuple! { A B C D E F G }
+impl_default_collate_vec_tuple! { A B C D E F G H }
+impl_default_collate_vec_tuple! { A B C D E F G H I }
+impl_default_collate_vec_tuple! { A B C D E F G H I J }
+impl_default_collate_vec_tuple! { A B C D E F G H I J K }
+impl_default_collate_vec_tuple! { A B C D E F G H I J K L }
 
 // Todo macro for unpacking the vec
 // macro_rules! unpack_vec {
