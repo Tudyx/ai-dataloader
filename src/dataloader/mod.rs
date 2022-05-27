@@ -7,7 +7,9 @@ use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
 use crate::sampler::HasLength;
 use crate::sampler::Sampler;
+use crate::DataLoaderBuilder;
 use std::marker::PhantomData;
+
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -17,6 +19,21 @@ where
     dataset: D,
     batch_sampler: BatchSampler<S>,
     phantom: PhantomData<C>,
+}
+
+impl<D, S, C> DataLoader<D, S, C>
+where
+    D: Dataset<C>,
+    S: Sampler,
+    C: Collate<Vec<D::Output>>,
+{
+    pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
+    where
+        D: Dataset<DefaultCollator>,
+        DefaultCollator: Collate<Vec<D::Output>>,
+    {
+        DataLoaderBuilder::new(dataset)
+    }
 }
 
 impl<D, S, C> HasLength for DataLoader<D, S, C>
@@ -129,7 +146,7 @@ mod tests {
     #[test]
     fn len() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
+        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
         assert_eq!(dataloader.len(), dataloader.batch_sampler.len());
         assert_eq!(dataloader.len(), 5);
     }
@@ -139,7 +156,7 @@ mod tests {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
         // why type annotation is required even if we provide a dataset parameter?
-        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
+        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(array![1, 2]));
@@ -153,7 +170,7 @@ mod tests {
     #[test]
     fn two_iteration() {
         let dataset = vec![1, 2, 3, 4];
-        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).with_batch_size(2).build();
+        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(array![1, 2]));
@@ -168,7 +185,7 @@ mod tests {
     #[test]
     fn one_dimension_basic_string() {
         let dataset = vec![String::from("a"), String::from("b")];
-        let dataloader: DataLoader<_> = DataLoaderBuilder::new(dataset).build();
+        let dataloader: DataLoader<_> = DataLoader::builder(dataset).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(vec![String::from("a")]));
@@ -179,7 +196,7 @@ mod tests {
     fn test_collator() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let dataloader: DataLoader<_, SequentialSampler, NoOpCollator> =
-            DataLoaderBuilder::new(dataset)
+            DataLoader::builder(dataset)
                 .with_collate_fn(NoOpCollator)
                 .with_batch_size(2)
                 .build();
@@ -211,7 +228,7 @@ mod tests {
         };
 
         if shuffle {
-            let loader: DataLoader<_, RandomSampler> = DataLoaderBuilder::new(dataset.clone())
+            let loader: DataLoader<_, RandomSampler> = DataLoader::builder(dataset.clone())
                 .with_batch_size(batch_size)
                 .build();
             TestDataLoaderData::Random(TestDataLoader {
@@ -221,7 +238,7 @@ mod tests {
                 dataset,
             })
         } else {
-            let loader: DataLoader<_, SequentialSampler> = DataLoaderBuilder::new(dataset.clone())
+            let loader: DataLoader<_, SequentialSampler> = DataLoader::builder(dataset.clone())
                 .with_batch_size(batch_size)
                 .build();
             TestDataLoaderData::Sequential(TestDataLoader {

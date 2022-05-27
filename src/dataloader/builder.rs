@@ -28,7 +28,18 @@ where
     S: Sampler,
     C: Collate<Vec<D::Output>>,
 {
-    pub fn new(dataset: D) -> Self {
+    // pub fn new(dataset: D) -> Self {
+    //     Self {
+    //         dataset,
+    //         batch_size: 1,
+    //         sampler: None,
+    //         batch_sampler: None,
+    //         num_worker: 0,
+    //         drop_last: false,
+    //         collate_fn: None,
+    //     }
+    // }
+    pub fn new(dataset: D) -> DataLoaderBuilder<D, S, C> {
         Self {
             dataset,
             batch_size: 1,

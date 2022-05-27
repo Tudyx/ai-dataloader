@@ -17,9 +17,9 @@
 //!
 //! PyTorch | `dataloader_rs` | Notes
 //! --------|-----------------|-------
-//! `DataLoader(dataset)` | `DataLoaderBuilder::new(dataset).build()` | Create a DataLoader with default parameter
-//! `DataLoader(dataset, batch_size=2)` | `DataLoaderBuilder::new(dataset).with_batch_size(2).build()` | Setup the batch size
-//! `DataLoader(dataset, shuffle=True)` | `let loader: DataLoader<_, RandomSampler> = DataLoaderBuilder::new(dataset).build()` | Shuffle the data
+//! `DataLoader(dataset)` | `DataLoader::builder(dataset).build()` | Create a DataLoader with default parameter
+//! `DataLoader(dataset, batch_size=2)` | `DataLoader::builder(dataset).with_batch_size(2).build()` | Setup the batch size
+//! `DataLoader(dataset, shuffle=True)` | `let loader: DataLoader<_, RandomSampler> = DataLoader::builder(dataset).build()` | Shuffle the data
 //!
 //! ### DataLoader iteration
 //!

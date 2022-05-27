@@ -71,13 +71,13 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+    use ndarray::{arr0, array};
     #[test]
     fn ndarray_dataset() {
         let dataset = NdarrayDataset {
             ndarrays: (array![1, 2], array![3, 4]),
         };
-        let sample = dataset.get_item(1);
-        println!("{sample:?}");
+        assert_eq!(dataset.get_item(0), (arr0(1), arr0(3)));
+        assert_eq!(dataset.get_item(1), (arr0(2), arr0(4)));
     }
 }
