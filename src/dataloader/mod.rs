@@ -28,6 +28,7 @@ where
     S: Sampler,
     C: Collate<Vec<D::Output>>,
 {
+    /// Convenience helper to return a builder
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
     where
         D: Dataset<DefaultCollator>,
@@ -48,6 +49,8 @@ where
         self.batch_sampler.len()
     }
 }
+
+/// Iterate over the dataloader with a single thread
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -125,6 +128,7 @@ where
     S: Sampler,
     C: Collate<Vec<D::Output>>,
 {
+    /// Return not owning iterator over tge dataloader
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter::new(self)
     }

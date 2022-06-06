@@ -6,6 +6,7 @@ use crate::sampler::batch_sampler::BatchSampler;
 use crate::sampler::{DefaultSampler, Sampler};
 use std::marker::PhantomData;
 
+/// Basic builder for creating dataloader
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
@@ -16,9 +17,13 @@ where
     dataset: D,
     /// Number of element in a batch
     batch_size: usize,
+    /// Used to sample the dataset (randomly or not)
     sampler: Option<S>,
+    /// The sampler userd to gather element of the batch together
     batch_sampler: Option<BatchSampler<S>>,
+    /// if we drop sample at the end that doesn't fullfill a whole batch
     drop_last: bool,
+    /// Used to collate the data together
     collate_fn: Option<C>,
 }
 impl<D, S, C> DataLoaderBuilder<D, S, C>

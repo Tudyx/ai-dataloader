@@ -1,17 +1,16 @@
-// // Contains definitions of the methods used by the _BaseDataLoaderIter to fetch
-// // data from an iterable-style or map-style dataset. This logic is shared in both
-// // single- and multi-processing data loading.
-
 use crate::collate::default_collate::DefaultCollator;
 use crate::collate::Collate;
 use crate::dataset::Dataset;
 
 /// A Fetcher will fetch data from the dataset
+/// Fetcher will be implemented for MapDataset (i.e. indexable dataset)
+/// and for iterable dataset
 pub trait Fetcher<D, C = DefaultCollator>
 where
     D: Dataset<C>,
     C: Collate<Vec<D::Output>>,
 {
+    /// Given a batch of index, return the result of the collate function on them
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
 
@@ -26,11 +25,15 @@ where
 //     pub dataset: D,
 //     pub collecate_fn: F,
 // }
+
+/// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
 pub struct MapDatasetFetcher<'dataset, D: Dataset<C>, C = DefaultCollator>
 where
     C: Collate<Vec<D::Output>>,
 {
+    /// The dataset data will be fetch from
     pub dataset: &'dataset D,
+    /// The function (generic struct) used to collate data together
     pub collate_fn: C,
 }
 
