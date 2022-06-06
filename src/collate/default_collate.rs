@@ -6,7 +6,7 @@ use ndarray::{array, Array, Array1, Dimension, Ix1};
 use std::collections::HashMap;
 
 /// Basic collator that mimic the default collate function from PyTorch
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct DefaultCollator;
 
 macro_rules! impl_vec_collect {

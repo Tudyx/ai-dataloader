@@ -18,7 +18,6 @@ where
     batch_size: usize,
     sampler: Option<S>,
     batch_sampler: Option<BatchSampler<S>>,
-    num_worker: u32,
     drop_last: bool,
     collate_fn: Option<C>,
 }
@@ -28,34 +27,18 @@ where
     S: Sampler,
     C: Collate<Vec<D::Output>>,
 {
-    // pub fn new(dataset: D) -> Self {
-    //     Self {
-    //         dataset,
-    //         batch_size: 1,
-    //         sampler: None,
-    //         batch_sampler: None,
-    //         num_worker: 0,
-    //         drop_last: false,
-    //         collate_fn: None,
-    //     }
-    // }
     pub fn new(dataset: D) -> Self {
         Self {
             dataset,
             batch_size: 1,
             sampler: None,
             batch_sampler: None,
-            num_worker: 0,
             drop_last: false,
             collate_fn: None,
         }
     }
     pub fn with_batch_size(mut self, batch_size: usize) -> Self {
         self.batch_size = batch_size;
-        self
-    }
-    pub fn with_num_worker(mut self, num_worker: u32) -> Self {
-        self.num_worker = num_worker;
         self
     }
     pub fn with_collate_fn(mut self, collate_fn: C) -> Self {

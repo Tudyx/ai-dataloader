@@ -10,6 +10,7 @@ use crate::sampler::Sampler;
 use crate::DataLoaderBuilder;
 use std::marker::PhantomData;
 
+#[derive(Debug)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,
