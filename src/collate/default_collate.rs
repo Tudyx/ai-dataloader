@@ -6,6 +6,20 @@ use ndarray::{array, Array, Array1, Dimension, Ix1};
 use std::collections::HashMap;
 
 /// Basic collator that mimic the default collate function from PyTorch
+/// As they are no such lib whith the same functionnality as PyTorch tensor in rust,
+/// data is collated inside ndarray. Ndarray is the rust equivalent of numpy.ndarray with
+/// almost the same capabilities. Nevertheless, they can't run on the GPU.
+/// This function is always call with a Vec of data but then can be called recursively
+///
+/// Basic transformation implemented for the default collator :
+/// ```md
+/// - Vec<Scalar> -> ndarray<scalar>
+/// - Vec<tuple> -> tuple(ndarray)
+/// - Vec<HashMap<Key, Value>> -> HasMap<Key, DefaultCollator::collate(Vec<Value>)
+/// - Vec<Array> -> ?
+/// - Vec<Vec> -> ?
+/// ```
+///
 #[derive(Default, Debug)]
 pub struct DefaultCollator;
 
@@ -143,7 +157,6 @@ impl Collate<Vec<Vec<i32>>> for DefaultCollator {
             panic!("each element in list of batch should be of equal size");
         }
         let mut res = Vec::new();
-
         // I don't find a way to unpack a vec of vec.
         // Maybe i can turn this into a macro
         if batch.len() == 1 {
@@ -240,20 +253,63 @@ impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollator {
     }
 }
 
-impl<'a> Collate<Vec<HashMap<&'a str, i32>>> for DefaultCollator {
-    type Output = HashMap<&'a str, Array1<i32>>;
-    fn collate(batch: Vec<HashMap<&'a str, i32>>) -> Self::Output {
-        let mut res = HashMap::new();
-        for key in batch[0].keys() {
-            let mut vec = Vec::new();
-            for d in &batch {
-                vec.push(d[key]);
+macro_rules! impl_default_collate_vec_hash_map {
+    ($($t:ty)*) => {
+        $(
+            /// HasMap implementation for default collate. We can only be generic over keys, see comment below.
+            impl<K> Collate<Vec<HashMap<K, $t>>> for DefaultCollator
+            where
+                K: std::cmp::Eq + std::hash::Hash + Clone,
+            {
+                type Output = HashMap<K, <DefaultCollator as Collate<Vec<$t>>>::Output>;
+
+                fn collate(batch: Vec<HashMap<K, $t>>) -> Self::Output {
+                    let mut res = HashMap::with_capacity(batch[0].keys().len());
+                    for key in batch[0].keys() {
+                        let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
+                        res.insert(key.clone(), DefaultCollator::collate(vec));
+                    }
+                    res
+                }
             }
-            res.insert(*key, DefaultCollator::collate(vec));
-        }
-        res
-    }
+        )*
+    };
 }
+
+impl_default_collate_vec_hash_map!(usize u8 u16 u32 u64 u128
+isize i8 i16 i32 i64 i128
+f32 f64
+bool char
+String
+);
+
+///
+/// The trait bound can't work because it's mean that if V is a HashMap we should also be able to
+/// collate it but were are defining here how to collate an HasMap
+/// ```ignore
+/// use std::collections::HashMap;
+/// use dataloader_rs::collate::Collate;
+/// use dataloader_rs::collate::default_collate::DefaultCollator;
+///
+/// impl<K, V> Collate<Vec<HashMap<K, V>>> for DefaultCollator
+/// where
+///     DefaultCollator: Collate<Vec<V>>,
+/// {
+///     type Output = HashMap<K, <DefaultCollator as Collate<Vec<V>>>::Output>;
+///
+///     fn collate(batch: Vec<HashMap<K, V>>) -> Self::Output {
+///         let mut res = HashMap::new();
+///         for key in batch[0].keys() {
+///             let mut vec = Vec::new();
+///             for d in &batch {
+///                 vec.push(d[key]);
+///             }
+///             res.insert(*key, DefaultCollator::collate(vec));
+///         }
+///         res
+///     }
+/// }
+/// ```
 
 // build seems to never ends when we uncomment this
 // impl<T> Collate<((T, T), (T, T))> for DefaultCollator
@@ -493,10 +549,21 @@ mod tests {
     }
 
     #[test]
-    fn vec_of_map() {
+    fn vec_of_hash_map() {
         let map1 = HashMap::from([("A", 0), ("B", 1)]);
         let map2 = HashMap::from([("A", 100), ("B", 100)]);
         let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
+        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+
+        // Same value type but different key
+        let map1 = HashMap::from([(1, 0), (2, 1)]);
+        let map2 = HashMap::from([(1, 100), (2, 100)]);
+        let expected_result = HashMap::from([(1, array![0, 100]), (2, array![1, 100])]);
+        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+
+        let map1 = HashMap::from([("A", 0.0), ("B", 1.0)]);
+        let map2 = HashMap::from([("A", 100.0), ("B", 100.0)]);
+        let expected_result = HashMap::from([("A", array![0.0, 100.0]), ("B", array![1.0, 100.0])]);
         assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
     }
     #[test]
@@ -534,5 +601,13 @@ mod tests {
                 (String::from('b'), String::from('d')),
             ]
         );
+
+        let map1 = HashMap::from([("A", String::from("0")), ("B", String::from("1"))]);
+        let map2 = HashMap::from([("A", String::from("100")), ("B", String::from("100"))]);
+        let expected_result = HashMap::from([
+            ("A", vec![String::from("0"), String::from("100")]),
+            ("B", vec![String::from("1"), String::from("100")]),
+        ]);
+        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
     }
 }
