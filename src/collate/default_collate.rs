@@ -283,6 +283,23 @@ bool char
 String
 );
 
+/// String slice require a specific implementation because of lifetime
+impl<'a, K> Collate<Vec<HashMap<K, &'a str>>> for DefaultCollator
+where
+    K: std::cmp::Eq + std::hash::Hash + Clone,
+{
+    type Output = HashMap<K, <DefaultCollator as Collate<Vec<&'a str>>>::Output>;
+
+    fn collate(batch: Vec<HashMap<K, &'a str>>) -> Self::Output {
+        let mut res = HashMap::with_capacity(batch[0].keys().len());
+        for key in batch[0].keys() {
+            let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
+            res.insert(key.clone(), DefaultCollator::collate(vec));
+        }
+        res
+    }
+}
+
 ///
 /// The trait bound can't work because it's mean that if V is a HashMap we should also be able to
 /// collate it but were are defining here how to collate an HasMap
@@ -347,7 +364,13 @@ impl Collate<String> for DefaultCollator {
 }
 impl Collate<Vec<String>> for DefaultCollator {
     type Output = Vec<String>;
-    fn collate(batch: Vec<String>) -> Vec<String> {
+    fn collate(batch: Vec<String>) -> Self::Output {
+        batch
+    }
+}
+impl<'a> Collate<Vec<&'a str>> for DefaultCollator {
+    type Output = Vec<&'a str>;
+    fn collate(batch: Vec<&'a str>) -> Self::Output {
         batch
     }
 }
@@ -585,6 +608,8 @@ mod tests {
             DefaultCollator::collate(vec![String::from("a"), String::from("b")]),
             vec![String::from("a"), String::from("b")]
         );
+
+        assert_eq!(DefaultCollator::collate(vec!["a", "b"]), vec!["a", "b"]);
         assert_eq!(
             DefaultCollator::collate((String::from("a"), String::from("b"))),
             (String::from("a"), String::from("b"))
@@ -608,6 +633,11 @@ mod tests {
             ("A", vec![String::from("0"), String::from("100")]),
             ("B", vec![String::from("1"), String::from("100")]),
         ]);
+        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+
+        let map1 = HashMap::from([("A", "0"), ("B", "1")]);
+        let map2 = HashMap::from([("A", "100"), ("B", "100")]);
+        let expected_result = HashMap::from([("A", vec!["0", "100"]), ("B", vec!["1", "100"])]);
         assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
     }
 }
