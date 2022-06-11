@@ -43,6 +43,8 @@ where
     C: Collate<Vec<D::Output>>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
+        // As the batch len can vary depending if the last element are drop or not, we can't use
+        // a fix sized array.
         let mut data = Vec::with_capacity(possibly_batched_index.len());
         for idx in possibly_batched_index {
             data.push(self.dataset.get_item(idx));

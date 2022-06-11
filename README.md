@@ -12,13 +12,18 @@ Random samler n'a pas de version avec replacement.
 
 
 ## TODO:
-- ajout de TU (copier _test_squential de test_dataloader)
-- ajout de TU default collect copier de test_dataloader (faire + macro + macro dans les test)
-- utilisation de Index au lieu de GetItem
-- RandomSampler avec replacement
+- cleanup le default collect de vector
+- voir si je converti les string ou pas
+- clarifier l'histoire de niveau de récursion autorisé
+- finir la doc
+- préparer le post sur reddit
+- publier
+
+## Low priority
+
 - trait for batchSampler
 - collect_fn comme closure -> unstable
-- macro default collect pour unpack les vec de vec/slice
-- default collect pour les tuple et hasmap
+- macro default collect pour unpack les vec de vec/slice -> faisable avec seulement une déclarative macro
+- RandomSampler avec replacement
 - multithreading
-- guide for pytorch user (comme le guide pour numpy user de ndarray)
+- iterable dataset
