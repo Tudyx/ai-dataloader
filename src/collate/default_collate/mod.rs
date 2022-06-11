@@ -24,5 +24,6 @@ pub struct DefaultCollator;
 pub mod array;
 pub mod hash_map;
 pub mod scalar;
+pub mod string;
 pub mod tuple;
 pub mod vector;

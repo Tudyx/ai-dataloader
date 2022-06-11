@@ -36,14 +36,4 @@ mod tests {
             array![0., 1., 2., 3., 4., 5.]
         );
     }
-
-    #[test]
-    fn specialized() {
-        assert_eq!(
-            DefaultCollator::collate(vec![String::from("a"), String::from("b")]),
-            vec![String::from("a"), String::from("b")]
-        );
-
-        assert_eq!(DefaultCollator::collate(vec!["a", "b"]), vec!["a", "b"]);
-    }
 }

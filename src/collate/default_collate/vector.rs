@@ -1,3 +1,4 @@
+/// Implementation for when the vec of batch conatins a vec
 use super::super::Collate;
 use super::DefaultCollator;
 use itertools::izip;
@@ -62,19 +63,6 @@ impl Collate<Vec<Vec<String>>> for DefaultCollator {
             //}
         }
         res
-    }
-}
-
-impl Collate<Vec<String>> for DefaultCollator {
-    type Output = Vec<String>;
-    fn collate(batch: Vec<String>) -> Self::Output {
-        batch
-    }
-}
-impl<'a> Collate<Vec<&'a str>> for DefaultCollator {
-    type Output = Vec<&'a str>;
-    fn collate(batch: Vec<&'a str>) -> Self::Output {
-        batch
     }
 }
 

@@ -56,7 +56,7 @@ mod tests {
             vec![array![1, 3, 5], array![2, 4, 6]]
         );
     }
-
+    #[test]
     fn scalar_type() {
         assert_eq!(DefaultCollator::collate([1, 2, 3]), array![1, 2, 3]);
         assert_eq!(DefaultCollator::collate([1, -2, 3]), array![1, -2, 3]);
