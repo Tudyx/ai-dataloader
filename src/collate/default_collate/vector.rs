@@ -20,7 +20,7 @@ macro_rules! impl_vec_vec {
                     if !batch.iter().all(|vec| vec.len() == elem_size) {
                         panic!("Each Vec in the batch should have equal size");
                     }
-                    let mut res = Vec::new();
+                    let mut res = Vec::with_capacity(batch.len());
 
                     for i in 0..batch[0].len() {
                         let vec: Vec<_> = batch.iter().map(|sample| sample[i]).collect();
