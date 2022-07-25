@@ -7,6 +7,7 @@ use crate::sampler::{DefaultSampler, Sampler};
 use std::marker::PhantomData;
 
 /// Basic builder for creating dataloader
+#[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
 where
     D: Dataset<C>,

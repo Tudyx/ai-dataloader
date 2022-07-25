@@ -25,7 +25,7 @@ use super::{DefaultSampler, HasLength, Sampler};
 /// assert_eq!(iter.next(), Some(vec![0, 1]));
 /// assert_eq!(iter.next(), Some(vec![2, 3]));
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct BatchSampler<S: Sampler = DefaultSampler> {
     /// Base sampler
     pub sampler: S,

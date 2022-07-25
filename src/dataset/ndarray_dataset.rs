@@ -4,6 +4,7 @@ use crate::sampler::HasLength;
 use ndarray::{Array, Axis, Dimension, RemoveAxis};
 
 /// Basic dataset than can contains 2 `ndarray` of any dimension
+#[derive(Debug, PartialEq, Hash, Eq)]
 pub struct NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
