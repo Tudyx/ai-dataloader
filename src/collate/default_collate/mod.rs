@@ -9,7 +9,7 @@
 /// ```md
 /// - Vec<Scalar> -> ndarray<scalar>
 /// - Vec<tuple> -> tuple(ndarray)
-/// - Vec<HashMap<Key, Value>> -> HasMap<Key, DefaultCollator::collate(Vec<Value>)
+/// - Vec<HashMap<Key, Value>> -> HasMap<Key, DefaultCollate::collate(Vec<Value>)
 /// - Vec<Array> -> ?
 /// - Vec[V1_i, V2_i, ...]` -> Vec[default_collate([V1_1, V1_2, ...]), default_collate([V2_1, V2_2, ...]), ...]
 ///
@@ -21,7 +21,7 @@
 /// ```
 ///
 #[derive(Default, Debug)]
-pub struct DefaultCollator;
+pub struct DefaultCollate;
 
 mod array;
 mod hash_map;

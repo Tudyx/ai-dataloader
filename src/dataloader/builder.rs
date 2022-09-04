@@ -1,5 +1,5 @@
 use super::DataLoader;
-use crate::collate::default_collate::DefaultCollator;
+use crate::collate::default_collate::DefaultCollate;
 use crate::collate::Collate;
 use crate::dataset::Dataset;
 use crate::sampler::batch_sampler::BatchSampler;
@@ -8,7 +8,7 @@ use std::marker::PhantomData;
 
 /// Basic builder for creating dataloader
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollator>
+pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset<C>,
     S: Sampler,

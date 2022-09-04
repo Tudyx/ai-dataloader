@@ -1,13 +1,13 @@
 use super::super::Collate;
-use super::DefaultCollator;
+use super::DefaultCollate;
 
-impl Collate<Vec<String>> for DefaultCollator {
+impl Collate<Vec<String>> for DefaultCollate {
     type Output = Vec<String>;
     fn collate(batch: Vec<String>) -> Self::Output {
         batch
     }
 }
-impl<'a> Collate<Vec<&'a str>> for DefaultCollator {
+impl<'a> Collate<Vec<&'a str>> for DefaultCollate {
     type Output = Vec<&'a str>;
     fn collate(batch: Vec<&'a str>) -> Self::Output {
         batch
@@ -21,10 +21,10 @@ mod tests {
     #[test]
     fn no_op() {
         assert_eq!(
-            DefaultCollator::collate(vec![String::from("a"), String::from("b")]),
+            DefaultCollate::collate(vec![String::from("a"), String::from("b")]),
             vec![String::from("a"), String::from("b")]
         );
 
-        assert_eq!(DefaultCollator::collate(vec!["a", "b"]), vec!["a", "b"]);
+        assert_eq!(DefaultCollate::collate(vec!["a", "b"]), vec!["a", "b"]);
     }
 }

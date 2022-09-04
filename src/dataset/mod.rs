@@ -1,5 +1,5 @@
 pub mod ndarray_dataset;
-use crate::collate::default_collate::DefaultCollator;
+use crate::collate::default_collate::DefaultCollate;
 use crate::collate::Collate;
 use crate::sampler::HasLength;
 
@@ -29,10 +29,11 @@ use crate::sampler::HasLength;
 /// }
 /// ```
 /// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
-pub trait Dataset<C = DefaultCollator>: HasLength + GetItem
+pub trait Dataset<C = DefaultCollate>: HasLength + GetItem
 where
     C: Collate<Vec<Self::Output>>,
 {
+    // it's kind of weird that the dataset is link to a collator, a dataset shouldn't even know that collator exist
 }
 
 /// Dataset could become something like that when functor trait will be available

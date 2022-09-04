@@ -1,12 +1,12 @@
 use super::super::Collate;
-use super::DefaultCollator;
+use super::DefaultCollate;
 
 use ndarray::{Array, Ix1};
 
 macro_rules! impl_vec_collect {
     ($($t:ty)*) => {
         $(
-            impl Collate<Vec<$t>> for DefaultCollator {
+            impl Collate<Vec<$t>> for DefaultCollate {
                 type Output = Array<$t, Ix1>;
                 fn collate(batch: Vec<$t>) -> Self::Output {
                     Array::from_vec(batch)
@@ -28,11 +28,11 @@ mod tests {
     #[test]
     fn scalar_type() {
         assert_eq!(
-            DefaultCollator::collate(vec![0, 1, 2, 3, 4, 5]),
+            DefaultCollate::collate(vec![0, 1, 2, 3, 4, 5]),
             array![0, 1, 2, 3, 4, 5]
         );
         assert_eq!(
-            DefaultCollator::collate(vec![0., 1., 2., 3., 4., 5.]),
+            DefaultCollate::collate(vec![0., 1., 2., 3., 4., 5.]),
             array![0., 1., 2., 3., 4., 5.]
         );
     }

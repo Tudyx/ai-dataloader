@@ -1,5 +1,5 @@
 pub mod builder;
-use crate::collate::default_collate::DefaultCollator;
+use crate::collate::default_collate::DefaultCollate;
 use crate::collate::Collate;
 use crate::dataset::Dataset;
 use crate::fetch::{Fetcher, MapDatasetFetcher};
@@ -11,7 +11,7 @@ use crate::DataLoaderBuilder;
 use std::marker::PhantomData;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollator>
+pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset<C>,
     S: Sampler,
@@ -31,8 +31,8 @@ where
     /// Convenience helper to return a builder
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
     where
-        D: Dataset<DefaultCollator>,
-        DefaultCollator: Collate<Vec<D::Output>>,
+        D: Dataset<DefaultCollate>,
+        DefaultCollate: Collate<Vec<D::Output>>,
     {
         DataLoaderBuilder::new(dataset)
     }
@@ -51,7 +51,7 @@ where
 }
 
 /// Iterate over the dataloader with a single thread
-pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollator>
+pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset<C>,
     S: Sampler,

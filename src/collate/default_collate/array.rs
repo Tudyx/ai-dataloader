@@ -1,9 +1,9 @@
 use super::super::Collate;
-use super::DefaultCollator;
+use super::DefaultCollate;
 use itertools::izip;
 use ndarray::Array1;
 
-impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollator {
+impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollate {
     type Output = Vec<Array1<i32>>;
     fn collate(batch: Vec<[i32; N]>) -> Vec<Array1<i32>> {
         let mut it = batch.iter();
@@ -13,14 +13,14 @@ impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollator {
         }
         let mut res = Vec::new();
         if batch.len() == 1 {
-            res.push(DefaultCollator::collate(batch[0]));
+            res.push(DefaultCollate::collate(batch[0]));
         } else if batch.len() == 2 {
             for samples in izip!(batch[0], batch[1]) {
-                res.push(DefaultCollator::collate(samples))
+                res.push(DefaultCollate::collate(samples))
             }
         } else if batch.len() == 3 {
             for samples in izip!(batch[0], batch[1], batch[2]) {
-                res.push(DefaultCollator::collate(samples));
+                res.push(DefaultCollate::collate(samples));
             }
         }
         res
@@ -30,7 +30,7 @@ impl<const N: usize> Collate<Vec<[i32; N]>> for DefaultCollator {
 macro_rules! impl_array_collect {
     ($($t:ty)*) => {
         $(
-            impl<const N: usize> Collate<[$t; N]> for DefaultCollator {
+            impl<const N: usize> Collate<[$t; N]> for DefaultCollate {
                 type Output = Array1<$t>;
                 fn collate(batch: [$t; N]) -> Self::Output {
                     Array1::from_vec(batch.to_vec())
@@ -52,17 +52,18 @@ mod tests {
     #[test]
     fn vec_of_array() {
         assert_eq!(
-            DefaultCollator::collate(vec![[1, 2], [3, 4], [5, 6]]),
+            DefaultCollate::collate(vec![[1, 2], [3, 4], [5, 6]]),
             vec![array![1, 3, 5], array![2, 4, 6]]
         );
     }
+
     #[test]
     fn scalar_type() {
-        assert_eq!(DefaultCollator::collate([1, 2, 3]), array![1, 2, 3]);
-        assert_eq!(DefaultCollator::collate([1, -2, 3]), array![1, -2, 3]);
-        assert_eq!(DefaultCollator::collate([1., 2., 3.]), array![1., 2., 3.]);
+        assert_eq!(DefaultCollate::collate([1, 2, 3]), array![1, 2, 3]);
+        assert_eq!(DefaultCollate::collate([1, -2, 3]), array![1, -2, 3]);
+        assert_eq!(DefaultCollate::collate([1., 2., 3.]), array![1., 2., 3.]);
         assert_eq!(
-            DefaultCollator::collate([true, false, true]),
+            DefaultCollate::collate([true, false, true]),
             array![true, false, true]
         );
     }

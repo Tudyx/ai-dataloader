@@ -1,22 +1,22 @@
 use super::super::Collate;
-use super::DefaultCollator;
+use super::DefaultCollate;
 use std::collections::HashMap;
 
 macro_rules! impl_default_collate_vec_hash_map {
     ($($t:ty)*) => {
         $(
             /// HasMap implementation for default collate. We can only be generic over keys, see comment below.
-            impl<K> Collate<Vec<HashMap<K, $t>>> for DefaultCollator
+            impl<K> Collate<Vec<HashMap<K, $t>>> for DefaultCollate
             where
                 K: std::cmp::Eq + std::hash::Hash + Clone,
             {
-                type Output = HashMap<K, <DefaultCollator as Collate<Vec<$t>>>::Output>;
+                type Output = HashMap<K, <DefaultCollate as Collate<Vec<$t>>>::Output>;
 
                 fn collate(batch: Vec<HashMap<K, $t>>) -> Self::Output {
                     let mut res = HashMap::with_capacity(batch[0].keys().len());
                     for key in batch[0].keys() {
                         let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-                        res.insert(key.clone(), DefaultCollator::collate(vec));
+                        res.insert(key.clone(), DefaultCollate::collate(vec));
                     }
                     res
                 }
@@ -33,17 +33,17 @@ String
 );
 
 /// String slice require a specific implementation because of lifetime
-impl<'a, K> Collate<Vec<HashMap<K, &'a str>>> for DefaultCollator
+impl<'a, K> Collate<Vec<HashMap<K, &'a str>>> for DefaultCollate
 where
     K: std::cmp::Eq + std::hash::Hash + Clone,
 {
-    type Output = HashMap<K, <DefaultCollator as Collate<Vec<&'a str>>>::Output>;
+    type Output = HashMap<K, <DefaultCollate as Collate<Vec<&'a str>>>::Output>;
 
     fn collate(batch: Vec<HashMap<K, &'a str>>) -> Self::Output {
         let mut res = HashMap::with_capacity(batch[0].keys().len());
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            res.insert(key.clone(), DefaultCollator::collate(vec));
+            res.insert(key.clone(), DefaultCollate::collate(vec));
         }
         res
     }
@@ -55,13 +55,13 @@ where
 /// ```ignore
 /// use std::collections::HashMap;
 /// use dataloader_rs::collate::Collate;
-/// use dataloader_rs::collate::default_collate::DefaultCollator;
+/// use dataloader_rs::collate::default_collate::DefaultCollate;
 ///
-/// impl<K, V> Collate<Vec<HashMap<K, V>>> for DefaultCollator
+/// impl<K, V> Collate<Vec<HashMap<K, V>>> for DefaultCollate
 /// where
-///     DefaultCollator: Collate<Vec<V>>,
+///     DefaultCollate: Collate<Vec<V>>,
 /// {
-///     type Output = HashMap<K, <DefaultCollator as Collate<Vec<V>>>::Output>;
+///     type Output = HashMap<K, <DefaultCollate as Collate<Vec<V>>>::Output>;
 ///
 ///     fn collate(batch: Vec<HashMap<K, V>>) -> Self::Output {
 ///         let mut res = HashMap::new();
@@ -70,7 +70,7 @@ where
 ///             for d in &batch {
 ///                 vec.push(d[key]);
 ///             }
-///             res.insert(*key, DefaultCollator::collate(vec));
+///             res.insert(*key, DefaultCollate::collate(vec));
 ///         }
 ///         res
 ///     }
@@ -88,18 +88,18 @@ mod tests {
         let map1 = HashMap::from([("A", 0), ("B", 1)]);
         let map2 = HashMap::from([("A", 100), ("B", 100)]);
         let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
 
         // Same value type but different key
         let map1 = HashMap::from([(1, 0), (2, 1)]);
         let map2 = HashMap::from([(1, 100), (2, 100)]);
         let expected_result = HashMap::from([(1, array![0, 100]), (2, array![1, 100])]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
 
         let map1 = HashMap::from([("A", 0.0), ("B", 1.0)]);
         let map2 = HashMap::from([("A", 100.0), ("B", 100.0)]);
         let expected_result = HashMap::from([("A", array![0.0, 100.0]), ("B", array![1.0, 100.0])]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
     }
 
     #[test]
@@ -110,11 +110,11 @@ mod tests {
             ("A", vec![String::from("0"), String::from("100")]),
             ("B", vec![String::from("1"), String::from("100")]),
         ]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
 
         let map1 = HashMap::from([("A", "0"), ("B", "1")]);
         let map2 = HashMap::from([("A", "100"), ("B", "100")]);
         let expected_result = HashMap::from([("A", vec!["0", "100"]), ("B", vec!["1", "100"])]);
-        assert_eq!(DefaultCollator::collate(vec![map1, map2]), expected_result);
+        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
     }
 }

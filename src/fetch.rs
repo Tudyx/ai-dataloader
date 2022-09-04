@@ -1,11 +1,11 @@
-use crate::collate::default_collate::DefaultCollator;
+use crate::collate::default_collate::DefaultCollate;
 use crate::collate::Collate;
 use crate::dataset::Dataset;
 
 /// A Fetcher will fetch data from the dataset
 /// Fetcher will be implemented for MapDataset (i.e. indexable dataset)
 /// and for iterable dataset
-pub trait Fetcher<D, C = DefaultCollator>
+pub trait Fetcher<D, C = DefaultCollate>
 where
     D: Dataset<C>,
     C: Collate<Vec<D::Output>>,
@@ -27,7 +27,7 @@ where
 // }
 
 /// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
-pub struct MapDatasetFetcher<'dataset, D: Dataset<C>, C = DefaultCollator>
+pub struct MapDatasetFetcher<'dataset, D: Dataset<C>, C = DefaultCollate>
 where
     C: Collate<Vec<D::Output>>,
 {
