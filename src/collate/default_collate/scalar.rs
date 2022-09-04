@@ -6,7 +6,7 @@ use ndarray::{Array, Ix1};
 macro_rules! impl_vec_collect {
     ($($t:ty)*) => {
         $(
-            impl Collate<Vec<$t>> for DefaultCollate {
+            impl Collate<$t> for DefaultCollate {
                 type Output = Array<$t, Ix1>;
                 fn collate(batch: Vec<$t>) -> Self::Output {
                     Array::from_vec(batch)

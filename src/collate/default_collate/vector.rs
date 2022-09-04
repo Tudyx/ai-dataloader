@@ -1,66 +1,27 @@
 /// Implementation for when the vec of batch conatins a vec
 use super::super::Collate;
 use super::DefaultCollate;
-use itertools::izip;
 
-macro_rules! impl_vec_vec {
-    ($($t:ty)*) => {
-        $(
-            /// Implementation for vector of vector
-            // TODO: ret
-            // # FIXME : the current implmentation make a lot of copy
-            // I tried with Itertools::izip! without success
-            impl Collate<Vec<Vec<$t>>> for DefaultCollate {
-                type Output = Vec<<DefaultCollate as Collate<Vec<$t>>>::Output>;
-                fn collate(batch: Vec<Vec<$t>>) -> Self::Output {
-                    let elem_size = batch
-                        .get(0)
-                        .expect("Batch should contain at least one element")
-                        .len();
-                    if !batch.iter().all(|vec| vec.len() == elem_size) {
-                        panic!("Each Vec in the batch should have equal size");
-                    }
-                    let mut res = Vec::with_capacity(batch.len());
-
-                    for i in 0..batch[0].len() {
-                        let vec: Vec<_> = batch.iter().map(|sample| sample[i]).collect();
-                        res.push(DefaultCollate::collate(vec));
-                    }
-                    res
-                }
-            }
-        )*
-    };
-}
-impl_vec_vec!(usize u8 u16 u32 u64 u128
-isize i8 i16 i32 i64 i128
-f32 f64
-bool char
-);
-
-// comme pour les string sont transformé en tuple pour les strings il peut y avoir plusieurs type de retour..
-// Cela retourne un tuple de la taille du vec.
-impl Collate<Vec<Vec<String>>> for DefaultCollate {
-    type Output = Vec<(String, String)>;
-    fn collate(batch: Vec<Vec<String>>) -> Self::Output {
-        let elem_size = batch.get(0).unwrap().len();
+impl<T> Collate<Vec<T>> for DefaultCollate
+where
+    DefaultCollate: Collate<T>,
+    T: Clone,
+{
+    type Output = Vec<<DefaultCollate as Collate<T>>::Output>;
+    fn collate(batch: Vec<Vec<T>>) -> Self::Output {
+        let elem_size = batch
+            .get(0)
+            .expect("Batch should contain at least one element")
+            .len();
         if !batch.iter().all(|vec| vec.len() == elem_size) {
-            panic!("each element in list of batch should be of equal size");
+            panic!("Each Vec in the batch should have equal size");
         }
-        let mut res = Vec::new();
 
-        // I don't find a way to unpack a vec of vec.
-        // Maybe i can turn this into a macro
-        if batch.len() == 1 {
-            // res.push(DefaultCollector::collect(batch[0].clone()));
-        } else if batch.len() == 2 {
-            for samples in izip!(batch[0].clone(), batch[1].clone()) {
-                res.push(DefaultCollate::collate(samples));
-            }
-        } else if batch.len() == 3 {
-            //for samples in izip!(batch[0].clone(), batch[1].clone(), batch[2].clone()) {
-            // res.push(DefaultCollector::collect(samples));
-            //}
+        let mut res = Vec::with_capacity(batch.len());
+
+        for i in 0..batch[0].len() {
+            let vec: Vec<_> = batch.iter().map(|sample| sample[i].clone()).collect();
+            res.push(DefaultCollate::collate(vec));
         }
         res
     }

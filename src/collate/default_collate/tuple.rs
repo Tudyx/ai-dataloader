@@ -36,20 +36,26 @@ use ndarray::{array, Array1};
 // TODO: this case is complicated because we would have to specialize
 
 macro_rules! impl_default_collate_vec_tuple {
-    ($($name:ident)+) => (
-        impl<$($name),+> Collate<Vec<($($name,)+)>> for DefaultCollate{
-            type Output = ($(Array1<$name>,)+);
+    ($($name:ident)+) => {
+        impl<$($name),+> Collate<($($name,)+)> for DefaultCollate
+        where
+            $($name: Clone,)+
+            $(DefaultCollate: Collate<$name>,)+
+
+        {
+            type Output = ($(<DefaultCollate as Collate<$name>>::Output,)+);
+
             #[allow(non_snake_case)]
             fn collate(batch: Vec<($($name,)+)>) -> Self::Output {
-                // multiunzip is used to transpose the vec of tuple
-                let ($($name,)+) = batch.into_iter().multiunzip();
-                // we convert the tuple of vec into a tuple of array
+                let copy = batch.to_vec();
+                let ($($name,)+) = copy.into_iter().multiunzip();
                 (
-                    $(Array1::from_vec($name),)+
+                    $(DefaultCollate::collate($name),)+
                 )
+
             }
         }
-    );
+    };
 }
 
 impl_default_collate_vec_tuple! { A }
@@ -65,75 +71,75 @@ impl_default_collate_vec_tuple! { A B C D E F G H I J }
 impl_default_collate_vec_tuple! { A B C D E F G H I J K }
 impl_default_collate_vec_tuple! { A B C D E F G H I J K L }
 
-macro_rules! impl_tuple_collect {
-    ($($t:ty)*) => {
-        $(
-            impl Collate<($t,)> for DefaultCollate {
-                type Output = Array1<$t>;
-                fn collate(batch: ($t,)) -> Self::Output {
-                    array![batch.0]
-                }
-            }
-        )*
-    };
-}
-impl_tuple_collect!(usize u8 u16 u32 u64 u128
-            isize i8 i16 i32 i64 i128
-            f32 f64
-            bool char);
+// macro_rules! impl_tuple_collect {
+//     ($($t:ty)*) => {
+//         $(
+//             impl Collate<($t,)> for DefaultCollate {
+//                 type Output = Array1<$t>;
+//                 fn collate(batch: ($t,)) -> Self::Output {
+//                     array![batch.0]
+//                 }
+//             }
+//         )*
+//     };
+// }
+// impl_tuple_collect!(usize u8 u16 u32 u64 u128
+//             isize i8 i16 i32 i64 i128
+//             f32 f64
+//             bool char);
 
-macro_rules! impl_tuple_collect2 {
-    ($($t:ty)*) => {
-        $(
-            impl Collate<($t,$t)> for DefaultCollate {
-                type Output = Array1<$t>;
-                fn collate(batch: ($t,$t)) -> Self::Output {
-                    array![batch.0, batch.1]
-                }
-            }
-        )*
-    };
-}
-impl_tuple_collect2!(usize u8 u16 u32 u64 u128
-                isize i8 i16 i32 i64 i128
-                f32 f64
-                bool char);
+// macro_rules! impl_tuple_collect2 {
+//     ($($t:ty)*) => {
+//         $(
+//             impl Collate<($t,$t)> for DefaultCollate {
+//                 type Output = Array1<$t>;
+//                 fn collate(batch: ($t,$t)) -> Self::Output {
+//                     array![batch.0, batch.1]
+//                 }
+//             }
+//         )*
+//     };
+// }
+// impl_tuple_collect2!(usize u8 u16 u32 u64 u128
+//                 isize i8 i16 i32 i64 i128
+//                 f32 f64
+//                 bool char);
 
-macro_rules! impl_tuple_collect3 {
-    ($($t:ty)*) => {
-        $(
-            impl Collate<($t,$t,$t)> for DefaultCollate {
-                type Output = Array1<$t>;
-                fn collate(batch: ($t,$t,$t)) -> Self::Output {
-                    array![batch.0, batch.1, batch.2]
-                }
-            }
-        )*
-    };
-}
-impl_tuple_collect3!(usize u8 u16 u32 u64 u128
-                    isize i8 i16 i32 i64 i128
-                    f32 f64
-                    bool char);
+// macro_rules! impl_tuple_collect3 {
+//     ($($t:ty)*) => {
+//         $(
+//             impl Collate<($t,$t,$t)> for DefaultCollate {
+//                 type Output = Array1<$t>;
+//                 fn collate(batch: ($t,$t,$t)) -> Self::Output {
+//                     array![batch.0, batch.1, batch.2]
+//                 }
+//             }
+//         )*
+//     };
+// }
+// impl_tuple_collect3!(usize u8 u16 u32 u64 u128
+//                     isize i8 i16 i32 i64 i128
+//                     f32 f64
+//                     bool char);
 
-// TODO: concatenate the `ndarray` as it's done for tensor
-// problem :  it won't give an Array1<T> like the other
-impl_tuple_collect!(Array1<f64>);
-impl_tuple_collect2!(Array1<f64>);
-impl_tuple_collect3!(Array1<f64>);
+// // TODO: concatenate the `ndarray` as it's done for tensor
+// // problem :  it won't give an Array1<T> like the other
+// impl_tuple_collect!(Array1<f64>);
+// impl_tuple_collect2!(Array1<f64>);
+// impl_tuple_collect3!(Array1<f64>);
 
-impl Collate<(String, String)> for DefaultCollate {
-    type Output = (String, String);
-    fn collate(batch: (String, String)) -> Self::Output {
-        batch
-    }
-}
-impl Collate<(String, String, String)> for DefaultCollate {
-    type Output = (String, String, String);
-    fn collate(batch: (String, String, String)) -> (String, String, String) {
-        batch
-    }
-}
+// impl Collate<(String, String)> for DefaultCollate {
+//     type Output = (String, String);
+//     fn collate(batch: (String, String)) -> Self::Output {
+//         batch
+//     }
+// }
+// impl Collate<(String, String, String)> for DefaultCollate {
+//     type Output = (String, String, String);
+//     fn collate(batch: (String, String, String)) -> (String, String, String) {
+//         batch
+//     }
+// }
 
 // build seems to never ends when we uncomment this
 // impl<T> Collate<((T, T), (T, T))> for DefaultCollate
