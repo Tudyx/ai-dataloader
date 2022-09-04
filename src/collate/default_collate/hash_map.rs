@@ -6,11 +6,11 @@ macro_rules! impl_default_collate_vec_hash_map {
     ($($t:ty)*) => {
         $(
             /// HasMap implementation for default collate. We can only be generic over keys, see comment below.
-            impl<K> Collate<Vec<HashMap<K, $t>>> for DefaultCollate
+            impl<K> Collate<HashMap<K, $t>> for DefaultCollate
             where
                 K: std::cmp::Eq + std::hash::Hash + Clone,
             {
-                type Output = HashMap<K, <DefaultCollate as Collate<Vec<$t>>>::Output>;
+                type Output = HashMap<K, <DefaultCollate as Collate<$t>>::Output>;
 
                 fn collate(batch: Vec<HashMap<K, $t>>) -> Self::Output {
                     let mut res = HashMap::with_capacity(batch[0].keys().len());
@@ -33,11 +33,11 @@ String
 );
 
 /// String slice require a specific implementation because of lifetime
-impl<'a, K> Collate<Vec<HashMap<K, &'a str>>> for DefaultCollate
+impl<'a, K> Collate<HashMap<K, &'a str>> for DefaultCollate
 where
     K: std::cmp::Eq + std::hash::Hash + Clone,
 {
-    type Output = HashMap<K, <DefaultCollate as Collate<Vec<&'a str>>>::Output>;
+    type Output = HashMap<K, <DefaultCollate as Collate<&'a str>>::Output>;
 
     fn collate(batch: Vec<HashMap<K, &'a str>>) -> Self::Output {
         let mut res = HashMap::with_capacity(batch[0].keys().len());

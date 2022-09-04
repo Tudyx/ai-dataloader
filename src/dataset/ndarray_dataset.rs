@@ -21,7 +21,7 @@ where
     A2: Clone,
     D1: Dimension + RemoveAxis,
     D2: Dimension + RemoveAxis,
-    T: Collate<Vec<Self::Output>>,
+    T: Collate<Self::Output>,
 {
 }
 

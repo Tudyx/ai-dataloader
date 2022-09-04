@@ -1,13 +1,13 @@
 use super::super::Collate;
 use super::DefaultCollate;
 
-impl Collate<Vec<String>> for DefaultCollate {
+impl Collate<String> for DefaultCollate {
     type Output = Vec<String>;
     fn collate(batch: Vec<String>) -> Self::Output {
         batch
     }
 }
-impl<'a> Collate<Vec<&'a str>> for DefaultCollate {
+impl<'a> Collate<&'a str> for DefaultCollate {
     type Output = Vec<&'a str>;
     fn collate(batch: Vec<&'a str>) -> Self::Output {
         batch

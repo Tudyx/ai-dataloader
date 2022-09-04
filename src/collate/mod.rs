@@ -5,7 +5,7 @@ pub trait Collate<T>: Default {
     /// The type of the collate function's output
     type Output;
     /// Take a batch of samples and collate them
-    fn collate(batch: T) -> Self::Output;
+    fn collate(batch: Vec<T>) -> Self::Output;
 }
 
 /// Simple collator that doesn't change the batch of samples
@@ -13,8 +13,8 @@ pub trait Collate<T>: Default {
 pub struct NoOpCollator;
 
 impl<T> Collate<T> for NoOpCollator {
-    type Output = T;
-    fn collate(batch: T) -> Self::Output {
+    type Output = Vec<T>;
+    fn collate(batch: Vec<T>) -> Self::Output {
         batch
     }
 }
@@ -22,10 +22,9 @@ impl<T> Collate<T> for NoOpCollator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollator::collate(array![1, 2]), array![1, 2]);
+        assert_eq!(NoOpCollator::collate(vec![1, 2]), vec![1, 2]);
     }
 }

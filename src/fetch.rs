@@ -8,7 +8,7 @@ use crate::dataset::Dataset;
 pub trait Fetcher<D, C = DefaultCollate>
 where
     D: Dataset<C>,
-    C: Collate<Vec<D::Output>>,
+    C: Collate<D::Output>,
 {
     /// Given a batch of index, return the result of the collate function on them
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
@@ -29,7 +29,7 @@ where
 /// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
 pub struct MapDatasetFetcher<'dataset, D: Dataset<C>, C = DefaultCollate>
 where
-    C: Collate<Vec<D::Output>>,
+    C: Collate<D::Output>,
 {
     /// The dataset data will be fetch from
     pub dataset: &'dataset D,
@@ -40,7 +40,7 @@ where
 impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
 where
     D: Dataset<C>,
-    C: Collate<Vec<D::Output>>,
+    C: Collate<D::Output>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
         // As the batch len can vary depending if the last element are drop or not, we can't use
