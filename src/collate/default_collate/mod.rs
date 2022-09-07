@@ -25,6 +25,7 @@ pub struct DefaultCollate;
 
 mod array;
 mod hash_map;
+mod ndarray;
 mod scalar;
 mod string;
 mod tuple;

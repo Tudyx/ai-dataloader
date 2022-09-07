@@ -142,7 +142,7 @@ mod tests {
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
     use crate::sampler::HasLength;
-    use ndarray::{array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
+    use ndarray::{arr0, array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
     use std::collections::HashMap;
@@ -224,9 +224,13 @@ mod tests {
         Random(TestDataLoader<RandomSampler>),
     }
     fn get_loader_with_dummy_data(batch_size: usize, shuffle: bool) -> TestDataLoaderData {
+        // We use a normal distribution for the random numbers
         let normal: Normal<f64> = Normal::new(0.0, 1.0).unwrap();
+        // We create a 4-dimensional array populated with random value
         let data = Array::random((100, 2, 3, 5), normal);
+        // We create a 1-dimensional array populated with random value
         let labels = Array::random(100, Uniform::<f64>::new(0., 50.));
+        // Basic Test dataset
         let dataset = NdarrayDataset {
             ndarrays: (data.clone(), labels.clone()),
         };
@@ -256,7 +260,8 @@ mod tests {
 
     #[test]
     fn sequential_non_batch() {
-        let test_dataloader_data = tests::get_loader_with_dummy_data(1, false);
+        let batch_size = 1;
+        let test_dataloader_data = tests::get_loader_with_dummy_data(batch_size, false);
         let test_data;
         if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
             test_data = test_dataloader_data;
@@ -265,9 +270,19 @@ mod tests {
         }
         let mut current_idx = 0;
 
-        for (idx, (sample, label)) in test_data.loader.iter().enumerate() {
-            assert_eq!(sample[0], test_data.data.index_axis(Axis(0), idx));
-            assert_eq!(label[0], test_data.labels.index_axis(Axis(0), idx));
+        for (idx, (sample, target)) in test_data.loader.iter().enumerate() {
+            assert_eq!(
+                sample,
+                test_data
+                    .data
+                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            );
+            assert_eq!(
+                target,
+                test_data
+                    .labels
+                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            );
             current_idx = idx;
         }
         assert_eq!(current_idx, test_data.dataset.len() - 1);
@@ -286,30 +301,20 @@ mod tests {
 
         let mut current_i = 0;
 
-        for (i, (sample, label)) in test_data.loader.iter().enumerate() {
+        for (i, (sample, target)) in test_data.loader.iter().enumerate() {
             let idx = i * batch_size;
-            // Even if the display on the console are the same we can compare them due to mismatch type (Array0<f64> and f64), hence the convertion
-            // (work out of the box with numpy)
-            let label: Array<_, _> = label.iter().map(|x| x.clone().into_scalar()).collect();
             assert_eq!(
-                label,
+                sample,
+                test_data
+                    .data
+                    .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
+            );
+            assert_eq!(
+                target,
                 test_data
                     .labels
                     .slice_axis(Axis(0), Slice::from(idx..idx + batch_size))
             );
-            // It seems to be that tensor/numpy do a elementwise comparison, producing an array of bool and ndarray produce the equivalent of (a == b).all()
-            // elementwise comparison (which is not the default unlike numpy where elementwise is invoked when "a == b")
-            let vec: Vec<_> = sample
-                .iter()
-                .flatten()
-                .zip(
-                    test_data
-                        .data
-                        .slice_axis(Axis(0), Slice::from(idx..idx + batch_size)),
-                )
-                .map(|x| x.0 == x.1)
-                .collect();
-            assert!(vec.iter().all(|x| *x));
             current_i = i;
         }
         assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size);
@@ -324,6 +329,7 @@ mod tests {
         } else {
             panic!("Expected a random loader")
         }
+        // 2 maps to keep track on what we have iterated.
         let mut found_data: HashMap<_, _> = (0..test_data.data.len())
             .zip(vec![0; test_data.data.len()])
             .collect();
@@ -331,12 +337,14 @@ mod tests {
             .zip(vec![0; test_data.labels.len()])
             .collect();
         let mut current_i = 0;
-        for (i, (sample, label)) in test_data.loader.iter().enumerate() {
+        for (i, (sample, target)) in test_data.loader.iter().enumerate() {
             current_i = i;
             let mut current_data_point_idx = 0;
+            // We iterate over the original data, finding the data corresponding to the one the dataloader just yield us
             for (data_point_idx, data_point) in test_data.data.outer_iter().enumerate() {
                 current_data_point_idx = data_point_idx;
-                if data_point == sample[0] {
+                // We need to take the inner of the sample (It's not automatically done like in python)
+                if data_point == sample.index_axis(Axis(0), 0) {
                     assert_eq!(found_data[&data_point_idx], 0);
                     *found_data.get_mut(&data_point_idx).unwrap() += 1;
                     break;
@@ -344,7 +352,7 @@ mod tests {
             }
 
             assert_eq!(
-                label[0],
+                arr0(target[0]),
                 test_data.labels.index_axis(Axis(0), current_data_point_idx)
             );
             *found_labels.get_mut(&current_data_point_idx).unwrap() += 1;
@@ -373,7 +381,7 @@ mod tests {
         let mut current_i = 0;
         for (i, (batch_samples, batch_targets)) in test_data.loader.iter().enumerate() {
             current_i = i;
-            for (sample, label) in batch_samples.iter().zip(batch_targets) {
+            for (sample, target) in batch_samples.outer_iter().zip(batch_targets) {
                 let mut current_data_point_idx = 0;
                 for (data_point_idx, data_point) in test_data.data.outer_iter().enumerate() {
                     current_data_point_idx = data_point_idx;
@@ -384,7 +392,7 @@ mod tests {
                     }
                 }
                 assert_eq!(
-                    label,
+                    arr0(target),
                     test_data.labels.index_axis(Axis(0), current_data_point_idx)
                 );
                 *found_labels.get_mut(&current_data_point_idx).unwrap() += 1;

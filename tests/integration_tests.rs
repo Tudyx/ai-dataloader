@@ -11,10 +11,10 @@ fn text_classification() {
     ];
     let loader: DataLoader<_> = DataLoader::builder(dataset).build();
     let mut loader = loader.iter();
-    assert_eq!(loader.next(), Some((array![0], array!["I'm happy"])));
-    assert_eq!(loader.next(), Some((array![1], array!["I'm sad"])));
-    assert_eq!(loader.next(), Some((array![0], array!["It feel goo"])));
-    assert_eq!(loader.next(), Some((array![0], array!["Let's go!"])));
+    assert_eq!(loader.next(), Some((array![0], vec!["I'm happy"])));
+    assert_eq!(loader.next(), Some((array![1], vec!["I'm sad"])));
+    assert_eq!(loader.next(), Some((array![0], vec!["It feel goo"])));
+    assert_eq!(loader.next(), Some((array![0], vec!["Let's go!"])));
     assert_eq!(loader.next(), None);
 }
 
@@ -30,10 +30,10 @@ fn text_classification_batch() {
     let mut loader = loader.iter();
     assert_eq!(
         loader.next(),
-        Some((array![0, 1], array!["I'm happy", "I'm sad"]))
+        Some((array![0, 1], vec!["I'm happy", "I'm sad"]))
     );
     assert_eq!(
         loader.next(),
-        Some((array![0, 0], array!["It feel goo", "Let's go!"]))
+        Some((array![0, 0], vec!["It feel goo", "Let's go!"]))
     );
 }
