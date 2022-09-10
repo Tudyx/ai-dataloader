@@ -1,6 +1,6 @@
 use super::super::Collate;
 use super::DefaultCollate;
-use std::ffi::{CStr, CString};
+use std::ffi::{CStr, CString, OsString};
 
 impl Collate<String> for DefaultCollate {
     type Output = Vec<String>;
@@ -26,6 +26,13 @@ impl Collate<CString> for DefaultCollate {
 impl<'a> Collate<&'a CStr> for DefaultCollate {
     type Output = Vec<&'a CStr>;
     fn collate(batch: Vec<&'a CStr>) -> Self::Output {
+        batch
+    }
+}
+
+impl Collate<OsString> for DefaultCollate {
+    type Output = Vec<OsString>;
+    fn collate(batch: Vec<OsString>) -> Self::Output {
         batch
     }
 }
