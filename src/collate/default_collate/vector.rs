@@ -75,17 +75,17 @@ mod tests {
         );
     }
 
-    // #[test]
-    // fn specialized() {
-    //     assert_eq!(
-    //         DefaultCollate::collate(vec![
-    //             vec![String::from("a"), String::from("b")],
-    //             vec![String::from("c"), String::from("d")]
-    //         ]),
-    //         vec![
-    //             (String::from('a'), String::from('c')),
-    //             (String::from('b'), String::from('d')),
-    //         ]
-    //     );
-    // }
+    #[test]
+    fn specialized() {
+        assert_eq!(
+            DefaultCollate::collate(vec![
+                vec![String::from("a"), String::from("b")],
+                vec![String::from("c"), String::from("d")]
+            ]),
+            vec![
+                vec![String::from('a'), String::from('c')],
+                vec![String::from('b'), String::from('d')],
+            ]
+        );
+    }
 }

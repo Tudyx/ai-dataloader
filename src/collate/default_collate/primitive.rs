@@ -3,7 +3,7 @@ use super::DefaultCollate;
 
 use ndarray::{Array, Ix1};
 
-macro_rules! impl_vec_collect {
+macro_rules! primitive_impl {
     ($($t:ty)*) => {
         $(
             impl Collate<$t> for DefaultCollate {
@@ -15,10 +15,18 @@ macro_rules! impl_vec_collect {
         )*
     };
 }
-impl_vec_collect!(usize u8 u16 u32 u64 u128
+primitive_impl!(usize u16 u32 u64 u128
     isize i8 i16 i32 i64 i128
     f32 f64
     bool char);
+
+/// NoOp for binairy, as pytorch `default_collate` function.
+impl Collate<u8> for DefaultCollate {
+    type Output = Vec<u8>;
+    fn collate(batch: Vec<u8>) -> Self::Output {
+        batch
+    }
+}
 
 #[cfg(test)]
 mod tests {

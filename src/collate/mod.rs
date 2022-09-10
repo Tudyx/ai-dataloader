@@ -1,6 +1,8 @@
 pub mod default_collate;
 
-/// Any collate gather sample from a batch together
+/// Any collate gather samples from one batch together.
+/// This trait can be seen as a functor.
+/// The `default trait` make it possible to create the functor.
 pub trait Collate<T>: Default {
     /// The type of the collate function's output
     type Output;
@@ -8,7 +10,7 @@ pub trait Collate<T>: Default {
     fn collate(batch: Vec<T>) -> Self::Output;
 }
 
-/// Simple collator that doesn't change the batch of samples
+/// Simple collator that doesn't change the batch of samples.
 #[derive(Default)]
 pub struct NoOpCollator;
 
