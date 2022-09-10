@@ -1,13 +1,13 @@
 use super::super::Collate;
 use super::DefaultCollate;
 
-use ndarray::{Array, Ix1};
+use ndarray::{Array, Array1};
 
 macro_rules! primitive_impl {
     ($($t:ty)*) => {
         $(
             impl Collate<$t> for DefaultCollate {
-                type Output = Array<$t, Ix1>;
+                type Output = Array1<$t>;
                 fn collate(batch: Vec<$t>) -> Self::Output {
                     Array::from_vec(batch)
                 }
