@@ -1,6 +1,6 @@
-///! # Example with a dataset containing image
+///! # Example with a dataset containing images.
 ///
-/// This example is a simplified version of [this pytorch tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html)
+/// This example is a simplified version of [this pytorch tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html).
 ///
 use dataloader_rs::{
     dataloader::DataLoader,
@@ -85,8 +85,6 @@ fn main() {
             image.shape(),
             landmarks.shape()
         );
-
-        println!("{:?}", image.shape());
     }
 
     // code to generate dumb data

@@ -8,22 +8,26 @@ A rust port of pytorch dataloader library.
 ## limitation 
 
 For now support only single threaded map style dataset.
-Random samler n'a pas de version avec replacement.
+Random sampler n'a pas de version avec replacement.
 
+Dataloader requière une library de multidimensionnal array qui a les opération suivante:
+- stack
+- transpose
+- Any number of dimension
+  
+ndarray est la seule actuellement et il y a pas de version sur le GPU (Not on the roadmap yet https://github.com/rust-ndarray/ndarray/issues/840)
 
 ## TODO:
-- cleanup le default collect de vector
-- voir si je converti les string ou pas
-- clarifier l'histoire de niveau de récursion autorisé
+
 - finir la doc
 - préparer le post sur reddit
 - publier
+- Rexeporter les symbols
+- voir comment Serde fait pour tester ses différent  type supporté.
 
-## Low priority
+### Low priority
 
 - trait for batchSampler
 - collect_fn comme closure -> unstable
-- macro default collect pour unpack les vec de vec/slice -> faisable avec seulement une déclarative macro
 - RandomSampler avec replacement
 - multithreading
-- iterable dataset

@@ -2,39 +2,16 @@ use super::super::Collate;
 use super::DefaultCollate;
 use itertools::Itertools;
 
-// vec of tuple
 // In python:
 // `default_collate([(1, 2.0), (3, 4.0)]) == [tensor([1, 3]), tensor([2., 4.], dtype=torch.float64)]`
 // In dataloader_rs:
 // `collate(vec![(1, 2.0), (3, 4.0)]) == (Array1[1, 3], Array1[2., 4.])`
 // > Note: a python list is roughly equivalent to a Rust mutable tuple
 
-// list of tuple of vector
-// In python:
-// default_collate(
-//  [
-//      (tensor(1, 2.0), tensor(3, 4.0)),
-//      (tensor(5, 6.0), tensor(7, 8.0)),
-//  ]
-// )
-// ==
-// [tensor([[1., 2.],
-//    [5., 6.]]),
-// tensor([[3., 4.],
-//            [7., 8.]])
-// ]
-//
-// In dataloader_rs:
-// `collate(vec![(1, 2.0), (3, 4.0)]) == (Array1[1, 3], Array1[2., 4.])`*
+// maybe an implementation passing the length and the index of element to the macro could be more efficient that with the
+// `Iterttols::multiunzip`.
 
-// tuple of tensor
-// If the content of the tuple are Tensor, they are stacked (using torch stack)
-// In python:
-// `default_collate((tensor(1, 2.0), tensor(3, 4.0))) == tensor([[1., 2.], [3., 4.]])
-// In dataloader_rs:
-// TODO: this case is complicated because we would have to specialize
-
-macro_rules! impl_default_collate_vec_tuple {
+macro_rules! tuple_impl {
     ($($name:ident)+) => {
         impl<$($name),+> Collate<($($name,)+)> for DefaultCollate
         where
@@ -57,108 +34,18 @@ macro_rules! impl_default_collate_vec_tuple {
     };
 }
 
-impl_default_collate_vec_tuple! { A }
-impl_default_collate_vec_tuple! { A B }
-impl_default_collate_vec_tuple! { A B C }
-impl_default_collate_vec_tuple! { A B C D }
-impl_default_collate_vec_tuple! { A B C D E }
-impl_default_collate_vec_tuple! { A B C D E F }
-impl_default_collate_vec_tuple! { A B C D E F G }
-impl_default_collate_vec_tuple! { A B C D E F G H }
-impl_default_collate_vec_tuple! { A B C D E F G H I }
-impl_default_collate_vec_tuple! { A B C D E F G H I J }
-impl_default_collate_vec_tuple! { A B C D E F G H I J K }
-impl_default_collate_vec_tuple! { A B C D E F G H I J K L }
-
-// macro_rules! impl_tuple_collect {
-//     ($($t:ty)*) => {
-//         $(
-//             impl Collate<($t,)> for DefaultCollate {
-//                 type Output = Array1<$t>;
-//                 fn collate(batch: ($t,)) -> Self::Output {
-//                     array![batch.0]
-//                 }
-//             }
-//         )*
-//     };
-// }
-// impl_tuple_collect!(usize u8 u16 u32 u64 u128
-//             isize i8 i16 i32 i64 i128
-//             f32 f64
-//             bool char);
-
-// macro_rules! impl_tuple_collect2 {
-//     ($($t:ty)*) => {
-//         $(
-//             impl Collate<($t,$t)> for DefaultCollate {
-//                 type Output = Array1<$t>;
-//                 fn collate(batch: ($t,$t)) -> Self::Output {
-//                     array![batch.0, batch.1]
-//                 }
-//             }
-//         )*
-//     };
-// }
-// impl_tuple_collect2!(usize u8 u16 u32 u64 u128
-//                 isize i8 i16 i32 i64 i128
-//                 f32 f64
-//                 bool char);
-
-// macro_rules! impl_tuple_collect3 {
-//     ($($t:ty)*) => {
-//         $(
-//             impl Collate<($t,$t,$t)> for DefaultCollate {
-//                 type Output = Array1<$t>;
-//                 fn collate(batch: ($t,$t,$t)) -> Self::Output {
-//                     array![batch.0, batch.1, batch.2]
-//                 }
-//             }
-//         )*
-//     };
-// }
-// impl_tuple_collect3!(usize u8 u16 u32 u64 u128
-//                     isize i8 i16 i32 i64 i128
-//                     f32 f64
-//                     bool char);
-
-// // TODO: concatenate the `ndarray` as it's done for tensor
-// // problem :  it won't give an Array1<T> like the other
-// impl_tuple_collect!(Array1<f64>);
-// impl_tuple_collect2!(Array1<f64>);
-// impl_tuple_collect3!(Array1<f64>);
-
-// impl Collate<(String, String)> for DefaultCollate {
-//     type Output = (String, String);
-//     fn collate(batch: (String, String)) -> Self::Output {
-//         batch
-//     }
-// }
-// impl Collate<(String, String, String)> for DefaultCollate {
-//     type Output = (String, String, String);
-//     fn collate(batch: (String, String, String)) -> (String, String, String) {
-//         batch
-//     }
-// }
-
-// build seems to never ends when we uncomment this
-// impl<T> Collate<((T, T), (T, T))> for DefaultCollate
-// where
-//     T: Clone,
-//     DefaultCollate: Collate<(T, T), Output = Array<T, Ix1>>,
-// {
-//     type Output = Vec<Array<T, Ix1>>;
-//     fn collate(batch: ((T, T), (T, T))) -> Self::Output {
-//         // This tuple is homogeneous, convert it into an array to be iterable
-//         let a = [batch.0 .0, batch.0 .1];
-//         let b = [batch.1 .0, batch.1 .1];
-
-//         let mut res = vec![];
-//         for samples in izip!(a, b) {
-//             res.push(DefaultCollate::collate(samples));
-//         }
-//         res
-//     }
-// }
+tuple_impl! { A }
+tuple_impl! { A B }
+tuple_impl! { A B C }
+tuple_impl! { A B C D }
+tuple_impl! { A B C D E }
+tuple_impl! { A B C D E F }
+tuple_impl! { A B C D E F G }
+tuple_impl! { A B C D E F G H }
+tuple_impl! { A B C D E F G H I }
+tuple_impl! { A B C D E F G H I J }
+tuple_impl! { A B C D E F G H I J K }
+tuple_impl! { A B C D E F G H I J K L }
 
 #[cfg(test)]
 mod tests {
@@ -233,17 +120,6 @@ mod tests {
                 array![2.0, 4.0, 6.0],
                 array![true, false, true]
             )
-        );
-    }
-
-    /// For now it's find that strings like are puts inside [`ndarray`] but this will not be possible when
-    /// with a real tensor library. A tensor can't support string (not tokenized).
-    /// In that case they must be put inside [`Vec`] or tuple.
-    #[test]
-    fn specialized_vec_of_tuple() {
-        assert_eq!(
-            DefaultCollate::collate(vec![(1, "lol"), (1, "mdrr"), (0, "serious")]),
-            (array![1, 1, 0], vec!["lol", "mdrr", "serious"])
         );
     }
 }

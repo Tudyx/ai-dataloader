@@ -24,7 +24,7 @@
 pub struct DefaultCollate;
 
 mod array;
-mod hash_map;
+mod map;
 mod ndarray;
 mod nonzero;
 mod primitive;
