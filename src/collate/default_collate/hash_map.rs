@@ -2,7 +2,7 @@ use super::super::Collate;
 use super::DefaultCollate;
 use std::{
     cmp::Eq,
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     hash::{BuildHasher, Hash},
 };
 
@@ -15,12 +15,28 @@ where
 {
     type Output = HashMap<K, <DefaultCollate as Collate<V>>::Output>;
     fn collate(batch: Vec<HashMap<K, V, H>>) -> Self::Output {
-        let mut res = HashMap::with_capacity(batch[0].keys().len());
+        let mut collated = HashMap::with_capacity(batch[0].keys().len());
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            res.insert(key.clone(), DefaultCollate::collate(vec));
+            collated.insert(key.clone(), DefaultCollate::collate(vec));
         }
-        res
+        collated
+    }
+}
+impl<K, V> Collate<BTreeMap<K, V>> for DefaultCollate
+where
+    K: Ord + Clone,
+    V: Clone,
+    DefaultCollate: Collate<V>,
+{
+    type Output = BTreeMap<K, <DefaultCollate as Collate<V>>::Output>;
+    fn collate(batch: Vec<BTreeMap<K, V>>) -> Self::Output {
+        let mut collated = BTreeMap::new();
+        for key in batch[0].keys() {
+            let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
+            collated.insert(key.clone(), DefaultCollate::collate(vec));
+        }
+        collated
     }
 }
 

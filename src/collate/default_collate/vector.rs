@@ -17,13 +17,13 @@ where
             panic!("Each Vec in the batch should have equal size");
         }
 
-        let mut res = Vec::with_capacity(batch.len());
+        let mut collated = Vec::with_capacity(batch.len());
 
         for i in 0..batch[0].len() {
             let vec: Vec<_> = batch.iter().map(|sample| sample[i].clone()).collect();
-            res.push(DefaultCollate::collate(vec));
+            collated.push(DefaultCollate::collate(vec));
         }
-        res
+        collated
     }
 }
 
