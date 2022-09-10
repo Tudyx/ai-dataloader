@@ -1,15 +1,20 @@
 use super::super::Collate;
 use super::DefaultCollate;
-use std::collections::HashMap;
+use std::{
+    cmp::Eq,
+    collections::HashMap,
+    hash::{BuildHasher, Hash},
+};
 
-impl<K, T> Collate<HashMap<K, T>> for DefaultCollate
+impl<K, V, H> Collate<HashMap<K, V, H>> for DefaultCollate
 where
-    K: std::cmp::Eq + std::hash::Hash + Clone,
-    T: Clone,
-    DefaultCollate: Collate<T>,
+    K: Eq + Hash + Clone,
+    V: Clone,
+    DefaultCollate: Collate<V>,
+    H: BuildHasher,
 {
-    type Output = HashMap<K, <DefaultCollate as Collate<T>>::Output>;
-    fn collate(batch: Vec<HashMap<K, T>>) -> Self::Output {
+    type Output = HashMap<K, <DefaultCollate as Collate<V>>::Output>;
+    fn collate(batch: Vec<HashMap<K, V, H>>) -> Self::Output {
         let mut res = HashMap::with_capacity(batch[0].keys().len());
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
