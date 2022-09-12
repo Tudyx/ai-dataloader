@@ -1,6 +1,11 @@
-/// Implementation for when the vec of batch conatins a vec
+/// Implementation for Sequence
+///
+/// Currently `BinaryHeap`, `BTreeSet`, `HashSet` and `LinkedList` are not supported because the current implementaion
+/// require indexing for doing the transpose.
+///
 use super::super::Collate;
 use super::DefaultCollate;
+use std::collections::VecDeque;
 
 impl<T> Collate<Vec<T>> for DefaultCollate
 where
@@ -9,6 +14,31 @@ where
 {
     type Output = Vec<<DefaultCollate as Collate<T>>::Output>;
     fn collate(batch: Vec<Vec<T>>) -> Self::Output {
+        let elem_size = batch
+            .get(0)
+            .expect("Batch should contain at least one element")
+            .len();
+        if !batch.iter().all(|vec| vec.len() == elem_size) {
+            panic!("Each Vec in the batch should have equal size");
+        }
+
+        let mut collated = Vec::with_capacity(batch.len());
+
+        for i in 0..batch[0].len() {
+            let vec: Vec<_> = batch.iter().map(|sample| sample[i].clone()).collect();
+            collated.push(DefaultCollate::collate(vec));
+        }
+        collated
+    }
+}
+
+impl<T> Collate<VecDeque<T>> for DefaultCollate
+where
+    DefaultCollate: Collate<T>,
+    T: Clone,
+{
+    type Output = Vec<<DefaultCollate as Collate<T>>::Output>;
+    fn collate(batch: Vec<VecDeque<T>>) -> Self::Output {
         let elem_size = batch
             .get(0)
             .expect("Batch should contain at least one element")

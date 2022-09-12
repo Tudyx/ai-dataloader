@@ -28,6 +28,6 @@ mod map;
 mod ndarray;
 mod nonzero;
 mod primitive;
+mod sequence;
 mod string;
 mod tuple;
-mod vector;
