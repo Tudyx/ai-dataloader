@@ -10,6 +10,12 @@ use crate::sampler::Sampler;
 use crate::DataLoaderBuilder;
 use std::marker::PhantomData;
 
+// The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
+// to pass directly closure or function to construct a `Dataloader`.
+// The main drawback is that you can't (as i'm aware of) pass a default value
+// to a generic Fn (or to the return type of fn), which made the API less ergonomic. Indeed, in that case, you have to precise
+// the collate function to construct the dataloader each time, and in most our use cases we just just want the default one.
+
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
