@@ -1,5 +1,4 @@
 use super::{Dataset, GetItem};
-use crate::collate::Collate;
 use crate::sampler::HasLength;
 use ndarray::{Array, Axis, Dimension, RemoveAxis};
 
@@ -15,13 +14,12 @@ where
     /// The content of the dataset
     pub ndarrays: (Array<A1, D1>, Array<A2, D2>),
 }
-impl<A1, A2, D1, D2, T> Dataset<T> for NdarrayDataset<A1, A2, D1, D2>
+impl<A1, A2, D1, D2> Dataset for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
     D1: Dimension + RemoveAxis,
     D2: Dimension + RemoveAxis,
-    T: Collate<Self::Output>,
 {
 }
 

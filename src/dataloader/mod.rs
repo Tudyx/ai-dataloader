@@ -13,7 +13,7 @@ use std::marker::PhantomData;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -24,14 +24,14 @@ where
 
 impl<D, S, C> DataLoader<D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
     /// Convenience helper to return a builder
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
     where
-        D: Dataset<DefaultCollate>,
+        D: Dataset,
         DefaultCollate: Collate<D::Output>,
     {
         DataLoaderBuilder::new(dataset)
@@ -40,7 +40,7 @@ where
 
 impl<D, S, C> HasLength for DataLoader<D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -53,7 +53,7 @@ where
 /// Iterate over the dataloader with a single thread
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollate>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -64,7 +64,7 @@ where
 
 impl<'dataset, D, S, C> SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -92,7 +92,7 @@ where
 }
 impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -109,7 +109,7 @@ where
 }
 impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -124,7 +124,7 @@ where
 
 impl<D, S, C> DataLoader<D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {

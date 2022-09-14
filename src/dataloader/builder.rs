@@ -10,7 +10,7 @@ use std::marker::PhantomData;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {
@@ -29,7 +29,7 @@ where
 }
 impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
-    D: Dataset<C>,
+    D: Dataset,
     S: Sampler,
     C: Collate<D::Output>,
 {

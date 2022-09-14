@@ -29,12 +29,7 @@ use crate::sampler::HasLength;
 /// }
 /// ```
 /// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
-pub trait Dataset<C = DefaultCollate>: HasLength + GetItem
-where
-    C: Collate<Self::Output>,
-{
-    // it's kind of weird that the dataset is link to a collator, a dataset shouldn't even know that collator exist
-}
+pub trait Dataset: HasLength + GetItem {}
 
 /// Dataset could become something like that when functor trait will be available
 #[doc(hidden)]
@@ -55,12 +50,7 @@ pub trait GetItem {
 
 // TODO: Does a blanket implementation of Dataset for type that have implemented std::ops::Index
 // will work in that case?
-impl<T, C> Dataset<C> for Vec<T>
-where
-    T: Clone,
-    C: Collate<Self::Output>,
-{
-}
+impl<T> Dataset for Vec<T> where T: Clone {}
 
 impl<T: Clone> GetItem for Vec<T> {
     type Output = T;
