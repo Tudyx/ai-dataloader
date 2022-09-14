@@ -15,7 +15,7 @@ pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     dataset: D,
     batch_sampler: BatchSampler<S>,
@@ -26,13 +26,13 @@ impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     /// Convenience helper to return a builder
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
     where
         D: Dataset,
-        DefaultCollate: Collate<D::Output>,
+        DefaultCollate: Collate<D::Sample>,
     {
         DataLoaderBuilder::new(dataset)
     }
@@ -42,7 +42,7 @@ impl<D, S, C> HasLength for DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     /// Return the number of batch that contain the dataloader
     fn len(&self) -> usize {
@@ -55,7 +55,7 @@ pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = Defa
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     sampler_iter: BatchIterator<S::IntoIter>,
     num_yielded: u64,
@@ -66,7 +66,7 @@ impl<'dataset, D, S, C> SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     fn new(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter {
@@ -94,7 +94,7 @@ impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S,
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     type Item = C::Output;
     fn next(&mut self) -> Option<Self::Item> {
@@ -111,7 +111,7 @@ impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     type Item = C::Output;
 
@@ -126,7 +126,7 @@ impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     /// Return not owning iterator over tge dataloader
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {

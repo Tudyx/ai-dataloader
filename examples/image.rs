@@ -4,7 +4,7 @@
 ///
 use dataloader_rs::{
     dataloader::DataLoader,
-    dataset::{Dataset, GetItem},
+    dataset::{Dataset, GetSample},
     sampler::HasLength,
 };
 use ndarray::{Array1, Array2, Array3};
@@ -41,11 +41,11 @@ impl HasLength for FaceLandmarksDataset {
         self.landmarks_frame.len()
     }
 }
-impl GetItem for FaceLandmarksDataset {
-    type Output = (Array3<u8>, Array2<f64>);
+impl GetSample for FaceLandmarksDataset {
+    type Sample = (Array3<u8>, Array2<f64>);
 
     /// Return the dataset sample corresponding to the index
-    fn get_item(&self, index: usize) -> Self::Output {
+    fn get_sample(&self, index: usize) -> Self::Sample {
         let record = &self.landmarks_frame[index];
 
         // We parse the landmark from the CSV into and ndarray

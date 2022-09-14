@@ -12,7 +12,7 @@ pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     /// The dataset from which the loader will yield the data
     dataset: D,
@@ -31,7 +31,7 @@ impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Output>,
+    C: Collate<D::Sample>,
 {
     pub fn new(dataset: D) -> Self {
         Self {

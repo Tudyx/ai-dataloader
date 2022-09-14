@@ -1,4 +1,4 @@
-use super::{Dataset, GetItem};
+use super::{Dataset, GetSample};
 use crate::sampler::HasLength;
 use ndarray::{Array, Axis, Dimension, RemoveAxis};
 
@@ -48,18 +48,18 @@ where
         self.ndarrays.0.shape()[0]
     }
 }
-impl<A1, A2, D1, D2> GetItem for NdarrayDataset<A1, A2, D1, D2>
+impl<A1, A2, D1, D2> GetSample for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,
     D1: Dimension + RemoveAxis,
     D2: Dimension + RemoveAxis,
 {
-    type Output = (
+    type Sample = (
         Array<A1, <D1 as Dimension>::Smaller>,
         Array<A2, <D2 as Dimension>::Smaller>,
     );
-    fn get_item(&self, index: usize) -> Self::Output {
+    fn get_sample(&self, index: usize) -> Self::Sample {
         (
             self.ndarrays.0.index_axis(Axis(0), index).into_owned(),
             self.ndarrays.1.index_axis(Axis(0), index).into_owned(),
@@ -76,7 +76,7 @@ mod tests {
         let dataset = NdarrayDataset {
             ndarrays: (array![1, 2], array![3, 4]),
         };
-        assert_eq!(dataset.get_item(0), (arr0(1), arr0(3)));
-        assert_eq!(dataset.get_item(1), (arr0(2), arr0(4)));
+        assert_eq!(dataset.get_sample(0), (arr0(1), arr0(3)));
+        assert_eq!(dataset.get_sample(1), (arr0(2), arr0(4)));
     }
 }
