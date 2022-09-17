@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use super::{HasLength, Sampler};
+use super::{Len, Sampler};
 
 /// Yield index from 0 to `data_source_len` in ascending order
 #[derive(Debug, Clone, Copy)]
@@ -14,7 +14,7 @@ impl Sampler for SequentialSampler {
     }
 }
 
-impl HasLength for SequentialSampler {
+impl Len for SequentialSampler {
     fn len(&self) -> usize {
         self.data_source_len
     }

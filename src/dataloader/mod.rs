@@ -5,9 +5,9 @@ use crate::dataset::Dataset;
 use crate::fetch::{Fetcher, MapDatasetFetcher};
 use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
 use crate::sampler::DefaultSampler;
-use crate::sampler::HasLength;
 use crate::sampler::Sampler;
 use crate::DataLoaderBuilder;
+use crate::Len;
 use std::marker::PhantomData;
 
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
@@ -42,9 +42,14 @@ where
     {
         DataLoaderBuilder::new(dataset)
     }
+
+    /// Return not owning iterator over tge dataloader
+    pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
+        SingleProcessDataLoaderIter::new(self)
+    }
 }
 
-impl<D, S, C> HasLength for DataLoader<D, S, C>
+impl<D, S, C> Len for DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
@@ -128,26 +133,14 @@ where
     }
 }
 
-impl<D, S, C> DataLoader<D, S, C>
-where
-    D: Dataset,
-    S: Sampler,
-    C: Collate<D::Sample>,
-{
-    /// Return not owning iterator over tge dataloader
-    pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
-        SingleProcessDataLoaderIter::new(self)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::collate::NoOpCollator;
-    use crate::dataset::ndarray_dataset::NdarrayDataset;
+    use crate::dataset::NdarrayDataset;
     use crate::sampler::random_sampler::RandomSampler;
     use crate::sampler::sequential_sampler::SequentialSampler;
-    use crate::sampler::HasLength;
+    use crate::Len;
     use ndarray::{arr0, array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;

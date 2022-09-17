@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-use super::{HasLength, Sampler};
+use super::{Len, Sampler};
 
 /// Sampler that return random index between 0 and `data_source_len`
 #[derive(Debug, Clone, Copy)]
@@ -20,7 +20,7 @@ impl Sampler for RandomSampler {
         }
     }
 }
-impl HasLength for RandomSampler {
+impl Len for RandomSampler {
     fn len(&self) -> usize {
         self.data_source_len
     }

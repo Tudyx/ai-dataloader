@@ -1,4 +1,4 @@
-use super::{DefaultSampler, HasLength, Sampler};
+use super::{DefaultSampler, Len, Sampler};
 
 /// Wraps another sampler to yield a mini-batch of indices.
 /// # Arguments
@@ -36,7 +36,7 @@ pub struct BatchSampler<S: Sampler = DefaultSampler> {
     pub drop_last: bool,
 }
 
-impl<S: Sampler> HasLength for BatchSampler<S> {
+impl<S: Sampler> Len for BatchSampler<S> {
     /// Return the number of batch
     ///
     /// If `drop_last` is set to false, even an incomplete batch will be counted

@@ -18,9 +18,9 @@ where
 // pub struct ExperimentalFetcher<D, F>
 // where
 //     D: Dataset,
-//     // F: Fn(Vec<<D as GetItem>::Output>) -> <F as Fn(Vec<<D as GetItem>::Output>)>::Output,
-//     F: Fn(Vec<<D as GetItem>::Output>) -> i32,
-//     DefaultCollector: Collect<Vec<<D as GetItem>::Output>>,
+//     // F: Fn(Vec<<D as GetSample>::Output>) -> <F as Fn(Vec<<D as GetSample>::Output>)>::Output,
+//     F: Fn(Vec<<D as GetSample>::Output>) -> i32,
+//     DefaultCollector: Collect<Vec<<D as GetSample>::Output>>,
 // {
 //     pub dataset: D,
 //     pub collecate_fn: F,

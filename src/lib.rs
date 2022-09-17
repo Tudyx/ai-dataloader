@@ -40,4 +40,5 @@ pub mod dataset;
 pub mod fetch;
 pub mod sampler;
 
-pub use crate::dataloader::{builder::DataLoaderBuilder, DataLoader};
+pub use dataloader::{builder::DataLoaderBuilder, DataLoader};
+pub use dataset::{Dataset, GetSample, Len};

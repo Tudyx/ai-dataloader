@@ -1,5 +1,5 @@
 use super::{Dataset, GetSample};
-use crate::sampler::HasLength;
+use crate::Len;
 use ndarray::{Array, Axis, Dimension, RemoveAxis};
 
 /// Basic dataset than can contains 2 `ndarray` of any dimension
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<A1, A2, D1, D2> HasLength for NdarrayDataset<A1, A2, D1, D2>
+impl<A1, A2, D1, D2> Len for NdarrayDataset<A1, A2, D1, D2>
 where
     A1: Clone,
     A2: Clone,

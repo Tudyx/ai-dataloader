@@ -5,7 +5,7 @@
 use dataloader_rs::{
     dataloader::DataLoader,
     dataset::{Dataset, GetSample},
-    sampler::HasLength,
+    Len,
 };
 use ndarray::{Array1, Array2, Array3};
 use nshare::ToNdarray3;
@@ -34,7 +34,7 @@ impl FaceLandmarksDataset {
 
 impl Dataset for FaceLandmarksDataset {}
 
-impl HasLength for FaceLandmarksDataset {
+impl Len for FaceLandmarksDataset {
     /// Returns the number of elements in the collection, also referred to
     /// as its 'length'.
     fn len(&self) -> usize {
