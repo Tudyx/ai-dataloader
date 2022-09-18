@@ -11,11 +11,11 @@ pub trait Collate<T>: Default {
     fn collate(batch: Vec<T>) -> Self::Output;
 }
 
-/// Simple collator that doesn't change the batch of samples.
+/// Simple Collate that doesn't change the batch of samples.
 #[derive(Default)]
-pub struct NoOpCollator;
+pub struct NoOpCollate;
 
-impl<T> Collate<T> for NoOpCollator {
+impl<T> Collate<T> for NoOpCollate {
     type Output = Vec<T>;
     fn collate(batch: Vec<T>) -> Self::Output {
         batch
@@ -28,6 +28,6 @@ mod tests {
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollator::collate(vec![1, 2]), vec![1, 2]);
+        assert_eq!(NoOpCollate::collate(vec![1, 2]), vec![1, 2]);
     }
 }

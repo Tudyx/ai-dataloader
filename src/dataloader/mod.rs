@@ -136,7 +136,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::collate::NoOpCollator;
+    use crate::collate::NoOpCollate;
     use crate::dataset::NdarrayDataset;
     use crate::sampler::RandomSampler;
     use crate::sampler::SequentialSampler;
@@ -196,11 +196,11 @@ mod tests {
         assert_eq!(iter.next(), None);
     }
     #[test]
-    fn test_collator() {
+    fn collate() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader: DataLoader<_, SequentialSampler, NoOpCollator> =
+        let dataloader: DataLoader<_, SequentialSampler, NoOpCollate> =
             DataLoader::builder(dataset)
-                .with_collate_fn(NoOpCollator)
+                .with_collate_fn(NoOpCollate)
                 .with_batch_size(2)
                 .build();
         let mut iter = dataloader.iter();

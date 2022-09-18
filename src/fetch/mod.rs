@@ -6,7 +6,7 @@ use crate::{
 /// A Fetcher will fetch data from the dataset
 /// Fetcher will be implemented for MapDataset (i.e. indexable dataset)
 /// and for iterable dataset
-pub trait Fetcher<D, C = DefaultCollate>
+pub(crate) trait Fetcher<D, C = DefaultCollate>
 where
     D: Dataset,
     C: Collate<D::Sample>,

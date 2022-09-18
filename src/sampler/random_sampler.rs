@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-use super::{Len, Sampler};
+use crate::{sampler::Sampler, Len};
 
 /// Sampler that return random index between 0 and `data_source_len`
 #[derive(Debug, Clone, Copy)]
