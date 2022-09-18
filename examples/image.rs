@@ -67,10 +67,8 @@ impl GetSample for FaceLandmarksDataset {
 
 fn main() {
     let dataset = FaceLandmarksDataset::new(
-        "examples/image_dataset/faces/face_landmarks.csv",
-        env::current_dir()
-            .unwrap()
-            .join("examples/image_dataset/faces/"),
+        "examples/image/dataset/face_landmarks.csv",
+        env::current_dir().unwrap().join("examples/image/dataset/"),
     );
     let loader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(4).build();
 
@@ -82,9 +80,4 @@ fn main() {
             landmarks.shape()
         );
     }
-
-    // code to generate dumb data
-    // use ndarray::Array;
-    // let image = Array::range(0., 7500., 1.).into_shape((3, 50, 50)).unwrap();
-    // let landmark = Array::range(0., 136., 1.).into_shape((68, 2)).unwrap();
 }
