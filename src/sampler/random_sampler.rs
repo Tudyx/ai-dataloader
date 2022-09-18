@@ -4,7 +4,7 @@ use rand::thread_rng;
 use crate::{sampler::Sampler, Len};
 
 /// Sampler that return random index between 0 and `data_source_len`
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct RandomSampler {
     data_source_len: usize,
     /// Whether the sample is replace or not

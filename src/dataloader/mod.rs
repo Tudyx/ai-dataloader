@@ -85,7 +85,7 @@ where
             num_yielded: 0,
             data_fetcher: MapDatasetFetcher {
                 dataset: &loader.dataset,
-                collate_fn: C::default(),
+                collate_fn: PhantomData,
             },
         }
     }

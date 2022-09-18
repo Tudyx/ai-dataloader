@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use crate::{
     collate::{Collate, DefaultCollate},
     Dataset,
@@ -16,14 +18,14 @@ where
 }
 
 /// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
-pub struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>
+pub(crate) struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>
 where
     C: Collate<D::Sample>,
 {
     /// The dataset data will be fetch from
     pub dataset: &'dataset D,
     /// The function (generic struct) used to collate data together
-    pub collate_fn: C,
+    pub collate_fn: PhantomData<C>,
 }
 
 impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>

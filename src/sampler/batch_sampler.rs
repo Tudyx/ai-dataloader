@@ -1,4 +1,5 @@
-use super::{DefaultSampler, Len, Sampler};
+use super::{DefaultSampler, Sampler};
+use crate::Len;
 
 /// Wraps another sampler to yield a mini-batch of indices.
 /// # Arguments
