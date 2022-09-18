@@ -1,8 +1,15 @@
+//! Merges a list of samples to form a batch.
+//!
+
 mod default_collate;
 pub use default_collate::DefaultCollate;
 
 /// Any collate gather samples from one batch together.
-/// This trait is used instead of `Fn` because we can not currently impl `Fn` on struct.
+///
+/// A `DefaultCollate` struct is provided which will cover most of the use cases.
+///
+///
+/// This trait is used instead of `Fn` because [we can not currently `impl Fn*` on struct on stable rust](https://github.com/rust-lang/rust/issues/29625).
 pub trait Collate<T>: Default {
     /// The type of the collate function's output
     type Output;

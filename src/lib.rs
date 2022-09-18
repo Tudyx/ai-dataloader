@@ -3,13 +3,21 @@
 // #![deny(clippy::all)]
 // #![deny(clippy::missing_docs_in_private_items)]
 
-//! The `dataloader_rs` crate provides a Rust implementation to the [PyTorch](https://pytorch.org/) DataLoader.
+//! The `dataloader_rs` crate provides a Rust implementation to the [PyTorch] DataLoader.
+//!
+//!
+//! Unlike the python version where almost everithing happen in runtime, `dataloader_rs` is built on Rust's powerful trait system.
 //!
 //!
 //! ## Highlights
 //!
 //! - Shuffle or Sequential Dataloader.
 //! - Customizable Sampler and collate function.
+//! - Default collate function that cover most of the type of the `std`
+//!
+//! ## Examples
+//!
+//! Examples can be found in the [examples] folder.
 //!
 //! ## PyTorch DataLoader function equivalents
 //!
@@ -31,7 +39,10 @@
 //!
 //! - Parallel DataLoader
 //! - Iterable dataset (dataset than are not indexable and have possibly no length)
-//! - Integrate with a Tensor library on GPU when one will be mature enough
+//! - Integrate with a Tensor library on GPU when one will be mature enough (Open for suggestion).
+//!
+//! [PyTorch]: https://pytorch.org/
+//! [examples]: https://github.com/Tudyx/dataloader_rs/tree/main/examples
 //!
 
 mod dataloader;

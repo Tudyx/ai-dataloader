@@ -21,3 +21,5 @@ impl<T: Clone> GetSample for VecDeque<T> {
         self[index].clone()
     }
 }
+
+// TODO: GetSample for Array?

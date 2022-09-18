@@ -16,6 +16,7 @@ pub mod builder;
 // to a generic Fn (or to the return type of fn), which made the API less ergonomic. Indeed, in that case, you have to precise
 // the collate function to construct the dataloader each time, and in most our use cases we just just want the default one.
 
+/// Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
@@ -23,8 +24,11 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
+    /// Dataset from which to load the data.
     dataset: D,
+    /// Return a batch of indices at a time.
     batch_sampler: BatchSampler<S>,
+    /// Just here because collate has no data.
     phantom: PhantomData<C>,
 }
 
@@ -34,7 +38,7 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    /// Convenience helper to return a builder
+    /// Convenience helper to return a builder.
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
     where
         D: Dataset,
@@ -43,7 +47,7 @@ where
         DataLoaderBuilder::new(dataset)
     }
 
-    /// Return not owning iterator over tge dataloader
+    /// Return not owning iterator over the dataloader.
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter::new(self)
     }
@@ -55,13 +59,13 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    /// Return the number of batch that contain the dataloader
+    /// Return the number of batch that contain the dataloader.
     fn len(&self) -> usize {
         self.batch_sampler.len()
     }
 }
 
-/// Iterate over the dataloader with a single thread
+/// Iterate over the dataloader with a single thread.
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollate>
 where
     D: Dataset,
@@ -125,11 +129,9 @@ where
     C: Collate<D::Sample>,
 {
     type Item = C::Output;
-
-    // type Item = <DefaultCollector as Collect<Vec<D::Output>>>::Output;
     type IntoIter = SingleProcessDataLoaderIter<'dataset, D, S, C>;
     fn into_iter(self) -> Self::IntoIter {
-        SingleProcessDataLoaderIter::new(self)
+        self.iter()
     }
 }
 

@@ -1,7 +1,5 @@
 use super::super::Collate;
 use super::DefaultCollate;
-// use itertools::izip;
-// use ndarray::Array1;
 
 impl<T, const N: usize> Collate<[T; N]> for DefaultCollate
 where
