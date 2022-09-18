@@ -5,26 +5,26 @@ use crate::{
     Dataset,
 };
 
-/// A Fetcher will fetch data from the dataset
+/// A Fetcher will fetch data from the dataset.
 /// Fetcher will be implemented for MapDataset (i.e. indexable dataset)
-/// and for iterable dataset
+/// and for iterable dataset.
 pub(crate) trait Fetcher<D, C = DefaultCollate>
 where
     D: Dataset,
     C: Collate<D::Sample>,
 {
-    /// Given a batch of index, return the result of the collate function on them
+    /// Given a batch of index, return the result of the collate function on them.
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
 
-/// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
+/// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements.
 pub(crate) struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>
 where
     C: Collate<D::Sample>,
 {
-    /// The dataset data will be fetch from
+    /// The dataset data will be fetch from.
     pub dataset: &'dataset D,
-    /// The function (generic struct) used to collate data together
+    /// The function (generic struct) used to collate data together.
     pub collate_fn: PhantomData<C>,
 }
 

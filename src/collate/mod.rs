@@ -2,8 +2,7 @@ mod default_collate;
 pub use default_collate::DefaultCollate;
 
 /// Any collate gather samples from one batch together.
-/// This trait can be seen as a functor.
-/// The `default trait` make it possible to create the functor.
+/// This trait is used instead of `Fn` because we can not currently impl `Fn` on struct.
 pub trait Collate<T>: Default {
     /// The type of the collate function's output
     type Output;

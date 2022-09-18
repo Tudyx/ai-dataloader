@@ -2,10 +2,10 @@ use std::ops::Range;
 
 use crate::{sampler::Sampler, Len};
 
-/// Yield index from 0 to `data_source_len` in ascending order
+/// Yield index from 0 to `data_source_len` in ascending order.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct SequentialSampler {
-    /// The length of the dataset that will be sampled
+    /// The length of the dataset that will be sampled.
     pub data_source_len: usize,
 }
 impl Sampler for SequentialSampler {

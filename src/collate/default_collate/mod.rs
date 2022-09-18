@@ -1,9 +1,9 @@
-/// Basic Collate that mimic the default collate function from PyTorch
+/// Basic Collate that mimic the default collate function from PyTorch.
 /// As they are no such lib with the same functionnality as PyTorch tensor in Rust,
 /// data is collated inside ndarray. Ndarray is the rust equivalent of `numpy.ndarray` with
 /// almost the same capabilities. Nevertheless, they can't run on the GPU.
 ///
-/// This function is always call with a Vec of data but can be also be called recursively
+/// This function is always call with a Vec of data but can be also be called recursively.
 ///
 /// Basic transformation implemented for the default Collate :
 /// ```md
@@ -14,7 +14,8 @@
 /// - Vec[V1_i, V2_i, ...]` -> Vec[default_collate([V1_1, V1_2, ...]), default_collate([V2_1, V2_2, ...]), ...]
 ///
 ///
-/// Like for Pytorch version, String and u8 aren't changed by the collation (No Op)
+/// Like for Pytorch version, String and u8 aren't changed by the collation (No Op).
+///
 /// - Vec<String> -> Vec<String>
 /// - Vec<&str> -> Vec<&str>
 /// - Vec<u8> -> todo

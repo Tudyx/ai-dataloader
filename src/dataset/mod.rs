@@ -8,7 +8,7 @@ mod get_sample;
 pub use get_sample::GetSample;
 
 /// A dataset is just something that has a length and is indexable.
-/// A vec of dataset collate output must also be collatable
+/// A vec of dataset collate output must also be collatable.
 ///
 /// We use a custom [GetSample] trait instead of `std::ops::Index` because
 /// it provides more flexibility.
@@ -32,10 +32,10 @@ pub use get_sample::GetSample;
 ///     texts: Vec<String>,
 /// }
 /// ```
-/// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`
+/// And we want to return a tuple (label, text) when indexing, it will no be possible with `std:ops::Index`.
 pub trait Dataset: Len + GetSample {}
 
-/// Dataset could become something like that when functor trait will be available
+/// Dataset could become something like that when functor trait will be available.
 #[doc(hidden)]
 trait FunctorDataset<F>: Len + GetSample
 where

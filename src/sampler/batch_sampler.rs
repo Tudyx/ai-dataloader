@@ -6,7 +6,7 @@ use crate::Len;
 ///
 /// * `sampler` - Base sampler.
 /// * `batch_size` - Size of mini-batch.
-/// * `drop_last` - If `true`, the sampler will drop the last batch if its size would be less than `batch_size`
+/// * `drop_last` - If `true`, the sampler will drop the last batch if its size would be less than `batch_size`.
 ///
 ///
 /// # Examples:
@@ -28,19 +28,19 @@ use crate::Len;
 /// ```
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct BatchSampler<S: Sampler = DefaultSampler> {
-    /// Base sampler
+    /// Base sampler.
     pub sampler: S,
-    /// Size of mini batch
+    /// Size of mini batch.
     pub batch_size: usize,
     /// If `true`, the sampler will drop the last batch if
-    /// its size would be less than ``batch_size``
+    /// its size would be less than ``batch_size``.
     pub drop_last: bool,
 }
 
 impl<S: Sampler> Len for BatchSampler<S> {
-    /// Return the number of batch
+    /// Return the number of batch.
     ///
-    /// If `drop_last` is set to false, even an incomplete batch will be counted
+    /// If `drop_last` is set to false, even an incomplete batch will be counted.
     fn len(&self) -> usize {
         if self.drop_last {
             self.sampler.len() / self.batch_size
@@ -77,7 +77,7 @@ where
         let mut batch = Vec::with_capacity(self.batch_size);
 
         // We can't use a classic for loop here because it will
-        // try to move the &mut
+        // try to move the `&mut`.
         let mut current_idx = self.sampler.next();
         while let Some(idx) = current_idx {
             batch.push(idx);

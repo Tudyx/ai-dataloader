@@ -3,13 +3,13 @@
 // #![deny(clippy::all)]
 // #![deny(clippy::missing_docs_in_private_items)]
 
-//! The `dataloader_rs` crate provides a Rust implementation to the [PyTorch](https://pytorch.org/) DataLoader
+//! The `dataloader_rs` crate provides a Rust implementation to the [PyTorch](https://pytorch.org/) DataLoader.
 //!
 //!
 //! ## Highlights
 //!
-//! - Shuffle or Sequential Dataloader
-//! - Customizable Sampler and collate function
+//! - Shuffle or Sequential Dataloader.
+//! - Customizable Sampler and collate function.
 //!
 //! ## PyTorch DataLoader function equivalents
 //!

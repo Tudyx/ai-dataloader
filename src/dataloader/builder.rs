@@ -6,7 +6,7 @@ use crate::{
     DataLoader, Dataset,
 };
 
-/// Basic builder for creating dataloader
+/// Basic builder for creating dataloader.
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
@@ -14,17 +14,17 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    /// The dataset from which the loader will yield the data
+    /// The dataset from which the loader will yield the data.
     dataset: D,
-    /// Number of element in a batch
+    /// Number of element in a batch.
     batch_size: usize,
-    /// Used to sample the dataset (randomly or not)
+    /// Used to sample the dataset (randomly or not).
     sampler: Option<S>,
-    /// The sampler userd to gather element of the batch together
+    /// The sampler userd to gather element of the batch together.
     batch_sampler: Option<BatchSampler<S>>,
-    /// if we drop sample at the end that doesn't fullfill a whole batch
+    /// if we drop sample at the end that doesn't fullfill a whole batch.
     drop_last: bool,
-    /// Used to collate the data together
+    /// Used to collate the data together.
     collate_fn: Option<C>,
 }
 impl<D, S, C> DataLoaderBuilder<D, S, C>

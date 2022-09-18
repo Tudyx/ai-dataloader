@@ -40,12 +40,12 @@ pub struct RandomSamplerIter {
 }
 
 impl RandomSamplerIter {
-    /// Create a new `RandomSamplerIter`
+    /// Create a new `RandomSamplerIter`.
     ///
     /// # Arguments
     ///
     /// * `data_source_len` - The len of the dataset.
-    /// * `replacement` - Wether we can have the same sample twice over one iteration or not
+    /// * `replacement` - Wether we can have the same sample twice over one iteration or not.
     fn new(data_source_len: usize, replacement: bool) -> RandomSamplerIter {
         if replacement {
             todo!()

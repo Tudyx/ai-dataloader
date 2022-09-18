@@ -2,7 +2,7 @@ use super::{Dataset, GetSample};
 use crate::Len;
 use ndarray::{Array, Axis, Dimension, RemoveAxis};
 
-/// Basic dataset than can contains 2 `ndarray` of any dimension
+/// Basic dataset than can contains 2 `ndarray` of any dimension.
 #[derive(Debug, PartialEq, Hash, Eq)]
 pub struct NdarrayDataset<A1, A2, D1, D2>
 where
@@ -11,7 +11,7 @@ where
     D1: Dimension + RemoveAxis,
     D2: Dimension + RemoveAxis,
 {
-    /// The content of the dataset
+    /// The content of the dataset.
     pub ndarrays: (Array<A1, D1>, Array<A2, D2>),
 }
 impl<A1, A2, D1, D2> Dataset for NdarrayDataset<A1, A2, D1, D2>
