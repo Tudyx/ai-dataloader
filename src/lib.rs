@@ -34,10 +34,11 @@
 //! - Integrate with a Tensor library on GPU when one will be mature enough
 //!
 
-pub mod collate;
 mod dataloader;
 mod dataset;
-pub mod fetch;
+mod fetch;
+
+pub mod collate;
 pub mod sampler;
 
 pub use dataloader::{builder::DataLoaderBuilder, DataLoader};

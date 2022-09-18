@@ -1,14 +1,14 @@
-pub mod builder;
-use crate::collate::default_collate::DefaultCollate;
-use crate::collate::Collate;
-use crate::dataset::Dataset;
-use crate::fetch::{Fetcher, MapDatasetFetcher};
-use crate::sampler::batch_sampler::{BatchIterator, BatchSampler};
-use crate::sampler::DefaultSampler;
-use crate::sampler::Sampler;
-use crate::DataLoaderBuilder;
-use crate::Len;
 use std::marker::PhantomData;
+
+use crate::{
+    collate::{Collate, DefaultCollate},
+    fetch::{Fetcher, MapDatasetFetcher},
+    sampler::{BatchIterator, BatchSampler},
+    sampler::{DefaultSampler, Sampler},
+    DataLoaderBuilder, Dataset, Len,
+};
+
+pub mod builder;
 
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
 // to pass directly closure or function to construct a `Dataloader`.
@@ -138,8 +138,8 @@ mod tests {
     use super::*;
     use crate::collate::NoOpCollator;
     use crate::dataset::NdarrayDataset;
-    use crate::sampler::random_sampler::RandomSampler;
-    use crate::sampler::sequential_sampler::SequentialSampler;
+    use crate::sampler::RandomSampler;
+    use crate::sampler::SequentialSampler;
     use crate::Len;
     use ndarray::{arr0, array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};

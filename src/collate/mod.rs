@@ -1,4 +1,5 @@
-pub mod default_collate;
+mod default_collate;
+pub use default_collate::DefaultCollate;
 
 /// Any collate gather samples from one batch together.
 /// This trait can be seen as a functor.

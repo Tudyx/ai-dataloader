@@ -1,6 +1,7 @@
-use crate::collate::default_collate::DefaultCollate;
-use crate::collate::Collate;
-use crate::dataset::Dataset;
+use crate::{
+    collate::{Collate, DefaultCollate},
+    Dataset,
+};
 
 /// A Fetcher will fetch data from the dataset
 /// Fetcher will be implemented for MapDataset (i.e. indexable dataset)
@@ -13,18 +14,6 @@ where
     /// Given a batch of index, return the result of the collate function on them
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
-
-// <Type as Trait>::function(receiver_if_method, next_arg, ...);
-// pub struct ExperimentalFetcher<D, F>
-// where
-//     D: Dataset,
-//     // F: Fn(Vec<<D as GetSample>::Output>) -> <F as Fn(Vec<<D as GetSample>::Output>)>::Output,
-//     F: Fn(Vec<<D as GetSample>::Output>) -> i32,
-//     DefaultCollector: Collect<Vec<<D as GetSample>::Output>>,
-// {
-//     pub dataset: D,
-//     pub collecate_fn: F,
-// }
 
 /// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements
 pub struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>

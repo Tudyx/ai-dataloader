@@ -1,9 +1,12 @@
-use self::sequential_sampler::SequentialSampler;
-
 use crate::Len;
-pub mod batch_sampler;
-pub mod random_sampler;
-pub mod sequential_sampler;
+
+mod batch_sampler;
+mod random_sampler;
+mod sequential_sampler;
+
+pub use batch_sampler::{BatchIterator, BatchSampler};
+pub use random_sampler::RandomSampler;
+pub use sequential_sampler::SequentialSampler;
 
 pub type DefaultSampler = SequentialSampler;
 

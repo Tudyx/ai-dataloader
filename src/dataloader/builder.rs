@@ -1,10 +1,10 @@
-use super::DataLoader;
-use crate::collate::default_collate::DefaultCollate;
-use crate::collate::Collate;
-use crate::dataset::Dataset;
-use crate::sampler::batch_sampler::BatchSampler;
-use crate::sampler::{DefaultSampler, Sampler};
 use std::marker::PhantomData;
+
+use crate::{
+    collate::{Collate, DefaultCollate},
+    sampler::{BatchSampler, DefaultSampler, Sampler},
+    DataLoader, Dataset,
+};
 
 /// Basic builder for creating dataloader
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]

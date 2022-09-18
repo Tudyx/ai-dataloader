@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use super::{Len, Sampler};
+use crate::{sampler::Sampler, Len};
 
 /// Yield index from 0 to `data_source_len` in ascending order
 #[derive(Debug, Clone, Copy)]

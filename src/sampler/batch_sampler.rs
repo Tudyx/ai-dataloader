@@ -10,8 +10,8 @@ use super::{DefaultSampler, Len, Sampler};
 ///
 /// # Examples:
 /// ```
-/// use dataloader_rs::sampler::sequential_sampler::SequentialSampler;
-/// use dataloader_rs::sampler::batch_sampler::BatchSampler;
+/// use dataloader_rs::sampler::SequentialSampler;
+/// use dataloader_rs::sampler::BatchSampler;
 ///
 /// let dataset = vec![0, 1, 2, 3];
 /// let batch_sampler = BatchSampler {
