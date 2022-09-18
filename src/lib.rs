@@ -35,8 +35,8 @@
 //!
 
 pub mod collate;
-pub mod dataloader;
-pub mod dataset;
+mod dataloader;
+mod dataset;
 pub mod fetch;
 pub mod sampler;
 

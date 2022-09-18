@@ -1,7 +1,11 @@
+use std::collections::VecDeque;
+
 mod len;
 pub use len::Len;
 mod ndarray_dataset;
 pub use ndarray_dataset::NdarrayDataset;
+mod get_sample;
+pub use get_sample::GetSample;
 
 /// A dataset is just something that has a length and is indexable.
 /// A vec of dataset collate output must also be collatable
@@ -40,21 +44,5 @@ where
     type CollateOutput;
 }
 
-/// Return a sample from the dataset at a given index
-pub trait GetSample {
-    /// Type of one sample of the dataset
-    type Sample: Sized;
-    /// Return the dataset sample corresponding to the index
-    fn get_sample(&self, index: usize) -> Self::Sample;
-}
-
-// TODO: Does a blanket implementation of Dataset for type that have implemented std::ops::Index
-// will work in that case?
 impl<T> Dataset for Vec<T> where T: Clone {}
-
-impl<T: Clone> GetSample for Vec<T> {
-    type Sample = T;
-    fn get_sample(&self, index: usize) -> Self::Sample {
-        self[index].clone()
-    }
-}
+impl<T> Dataset for VecDeque<T> where T: Clone {}
