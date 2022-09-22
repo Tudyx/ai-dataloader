@@ -26,35 +26,12 @@ impl<D> DataLoaderBuilder2<D, SequentialSampler, DefaultCollate>
 where
     D: Dataset,
 {
-    pub fn sequential(dataset: D) -> DataLoaderBuilder2<D> {
+    pub fn new(dataset: D) -> DataLoaderBuilder2<D> {
         let dataset_len = dataset.len();
         Self {
             dataset,
             batch_sampler: BatchSampler {
                 sampler: SequentialSampler::new(dataset_len),
-                batch_size: 1,
-                drop_last: false,
-            },
-            collate_fn: DefaultCollate,
-        }
-    }
-
-    pub fn new(dataset: D) -> DataLoaderBuilder2<D> {
-        Self::sequential(dataset)
-    }
-}
-
-impl<D> DataLoaderBuilder2<D, RandomSampler, DefaultCollate>
-where
-    D: Dataset,
-{
-    pub fn random(dataset: D) -> DataLoaderBuilder2<D, RandomSampler> {
-        let dataset_len = dataset.len();
-        Self {
-            dataset,
-
-            batch_sampler: BatchSampler {
-                sampler: RandomSampler::new(dataset_len),
                 batch_size: 1,
                 drop_last: false,
             },
@@ -67,8 +44,13 @@ impl<D, S, C> DataLoaderBuilder2<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Sample>,
+    // TODO: verify we can't produce invalide dataloader because the line below is commented
+    // C: Collate<D::Sample>,
 {
+    pub fn shuffle(self) -> DataLoaderBuilder2<D, RandomSampler, C> {
+        self.with_sampler::<RandomSampler>()
+    }
+
     pub fn with_batch_size(mut self, batch_size: usize) -> Self {
         self.batch_sampler.batch_size = batch_size;
         self
@@ -121,19 +103,19 @@ mod tests {
 
     #[test]
     fn api() {
-        let _loader = DataLoaderBuilder2::sequential(vec![1, 2, 3, 4]).build();
-        let _loader = DataLoaderBuilder2::random(vec![1, 2, 3, 4]).build();
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4]).build();
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4]).shuffle().build();
 
-        let _loader = DataLoaderBuilder2::sequential(vec![1, 2, 3, 4])
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4])
             .with_batch_size(2)
             .build();
 
-        let _loader = DataLoaderBuilder2::sequential(vec![1, 2, 3, 4])
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4])
             .with_batch_size(2)
             .drop_last(true)
             .build();
 
-        let _loader = DataLoaderBuilder2::sequential(vec![1, 2, 3, 4])
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4])
             .with_batch_size(2)
             .drop_last(true)
             .with_collate_fn(NoOpCollate)
@@ -143,6 +125,20 @@ mod tests {
             .with_batch_size(2)
             .drop_last(true)
             .with_sampler::<RandomSampler>()
+            .build();
+
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4])
+            .with_batch_size(2)
+            .drop_last(true)
+            .with_sampler::<RandomSampler>()
+            .with_collate_fn(NoOpCollate)
+            .build();
+
+        let _loader = DataLoaderBuilder2::new(vec![1, 2, 3, 4])
+            .shuffle()
+            .with_batch_size(2)
+            .drop_last(true)
+            .with_collate_fn(NoOpCollate)
             .build();
     }
 }
