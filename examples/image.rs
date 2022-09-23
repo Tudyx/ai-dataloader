@@ -70,7 +70,7 @@ fn main() {
         "examples/image/dataset/face_landmarks.csv",
         env::current_dir().unwrap().join("examples/image/dataset/"),
     );
-    let loader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(4).build();
+    let loader = DataLoader::builder(dataset).batch_size(4).build();
 
     for (batch_id, (image, landmarks)) in loader.iter().enumerate() {
         println!(

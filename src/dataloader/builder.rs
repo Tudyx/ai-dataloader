@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use crate::{
-    collate::{Collate, DefaultCollate},
-    sampler::{BatchSampler, DefaultSampler, Sampler},
+    collate::DefaultCollate,
+    sampler::{BatchSampler, DefaultSampler, RandomSampler, Sampler, SequentialSampler},
     DataLoader, Dataset,
 };
 
@@ -10,73 +10,137 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
-    D: Dataset,
+    // D: Dataset,
     S: Sampler,
-    C: Collate<D::Sample>,
+    // C: Collate<D::Sample>,
 {
     /// The dataset from which the loader will yield the data.
     dataset: D,
-    /// Number of element in a batch.
-    batch_size: usize,
-    /// Used to sample the dataset (randomly or not).
-    sampler: Option<S>,
     /// The sampler userd to gather element of the batch together.
-    batch_sampler: Option<BatchSampler<S>>,
-    /// if we drop sample at the end that doesn't fullfill a whole batch.
-    drop_last: bool,
+    batch_sampler: BatchSampler<S>,
     /// Used to collate the data together.
-    collate_fn: Option<C>,
+    collate_fn: C,
 }
+
+impl<D> DataLoaderBuilder<D, SequentialSampler, DefaultCollate>
+where
+    D: Dataset,
+{
+    pub fn new(dataset: D) -> DataLoaderBuilder<D> {
+        let dataset_len = dataset.len();
+        Self {
+            dataset,
+            batch_sampler: BatchSampler {
+                sampler: SequentialSampler::new(dataset_len),
+                batch_size: 1,
+                drop_last: false,
+            },
+            collate_fn: DefaultCollate,
+        }
+    }
+}
+
 impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    C: Collate<D::Sample>,
+    // TODO: verify we can't produce invalide dataloader because the line below is commented
+    // C: Collate<D::Sample>,
 {
-    pub fn new(dataset: D) -> Self {
-        Self {
-            dataset,
-            batch_size: 1,
-            sampler: None,
-            batch_sampler: None,
-            drop_last: false,
-            collate_fn: None,
-        }
+    pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
+        self.with_sampler::<RandomSampler>()
     }
-    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
-        self.batch_size = batch_size;
-        self
-    }
-    pub fn with_collate_fn(mut self, collate_fn: C) -> Self {
-        self.collate_fn = Some(collate_fn);
-        self
-    }
-    pub fn with_sampler(mut self, sampler: S) -> Self {
-        self.sampler = Some(sampler);
+
+    pub fn batch_size(mut self, batch_size: usize) -> Self {
+        self.batch_sampler.batch_size = batch_size;
         self
     }
 
-    pub fn build(mut self) -> DataLoader<D, S, C> {
-        if self.batch_sampler.is_some() && self.batch_size != 0
-            || self.sampler.is_some()
-            || self.drop_last
-        {
-            panic!("batch_sampler option is mutually exclusive with batch_size,  sampler, and drop_last'")
-        }
+    pub fn drop_last(mut self) -> Self {
+        self.batch_sampler.drop_last = true;
+        self
+    }
 
-        let sampler = self.sampler.unwrap_or_else(|| S::new(self.dataset.len()));
+    pub fn with_collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF> {
+        DataLoaderBuilder {
+            dataset: self.dataset,
 
-        if self.batch_sampler.is_none() {
-            self.batch_sampler = Some(BatchSampler {
-                sampler, // because sampler implement the copy trait
-                batch_size: self.batch_size,
-                drop_last: self.drop_last,
-            })
+            batch_sampler: self.batch_sampler,
+            collate_fn,
         }
+    }
+
+    pub fn with_sampler<SA>(self) -> DataLoaderBuilder<D, SA, C>
+    where
+        SA: Sampler,
+    {
+        let sampler: SA = SA::new(self.dataset.len());
+        DataLoaderBuilder {
+            dataset: self.dataset,
+            batch_sampler: BatchSampler {
+                sampler,
+                batch_size: self.batch_sampler.batch_size,
+                drop_last: self.batch_sampler.drop_last,
+            },
+
+            collate_fn: self.collate_fn,
+        }
+    }
+
+    pub fn build(self) -> DataLoader<D, S, C> {
         DataLoader {
             dataset: self.dataset,
-            batch_sampler: self.batch_sampler.unwrap(),
+            batch_sampler: self.batch_sampler,
             phantom: PhantomData,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::collate::NoOpCollate;
+
+    #[test]
+    fn api() {
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4]).build();
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4]).shuffle().build();
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .batch_size(2)
+            .build();
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .batch_size(2)
+            .drop_last()
+            .build();
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .batch_size(2)
+            .drop_last()
+            .with_collate_fn(NoOpCollate)
+            .build();
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .batch_size(2)
+            .drop_last()
+            .with_sampler::<RandomSampler>()
+            .build();
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .batch_size(2)
+            .drop_last()
+            .with_sampler::<RandomSampler>()
+            .with_collate_fn(NoOpCollate)
+            .build();
+
+        // TODO: checker la syntax des builder dans la STL, voir s'il utilise "with_", des verbe, etc..
+
+        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+            .shuffle()
+            .batch_size(2)
+            .drop_last()
+            .with_collate_fn(NoOpCollate)
+            .build();
     }
 }

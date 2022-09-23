@@ -2,13 +2,16 @@ use std::marker::PhantomData;
 
 use crate::{
     collate::{Collate, DefaultCollate},
+    dataloader::builder::DataLoaderBuilder,
     fetch::{Fetcher, MapDatasetFetcher},
     sampler::{BatchIterator, BatchSampler},
-    sampler::{DefaultSampler, Sampler},
-    DataLoaderBuilder, Dataset, Len,
+    sampler::{DefaultSampler, RandomSampler, Sampler, SequentialSampler},
+    Dataset, Len,
 };
 
 pub mod builder;
+
+// TODO: Generic over batch or over sampler?
 
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
 // to pass directly closure or function to construct a `Dataloader`.
@@ -20,9 +23,9 @@ pub mod builder;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
-    D: Dataset,
+    // D: Dataset,
     S: Sampler,
-    C: Collate<D::Sample>,
+    // C: Collate<D::Sample>,
 {
     /// Dataset from which to load the data.
     dataset: D,
@@ -32,19 +35,91 @@ where
     phantom: PhantomData<C>,
 }
 
+impl<D> DataLoader<D, SequentialSampler, DefaultCollate>
+where
+    D: Dataset,
+    DefaultCollate: Collate<D::Sample>,
+{
+    pub fn sequential(dataset: D, batch_size: usize) -> Self {
+        let dataset_len = dataset.len();
+
+        Self::new_complete(
+            dataset,
+            SequentialSampler {
+                data_source_len: dataset_len,
+            },
+            DefaultCollate,
+            batch_size,
+        )
+    }
+    pub fn builder(dataset: D) -> DataLoaderBuilder<D, SequentialSampler, DefaultCollate> {
+        DataLoaderBuilder::new(dataset)
+    }
+}
+
+impl<D> DataLoader<D, RandomSampler, DefaultCollate>
+where
+    D: Dataset,
+    DefaultCollate: Collate<D::Sample>,
+{
+    pub fn random(dataset: D, batch_size: usize) -> Self {
+        let dataset_len = dataset.len();
+
+        Self::new_complete(
+            dataset,
+            RandomSampler::new(dataset_len),
+            DefaultCollate,
+            batch_size,
+        )
+    }
+}
+
+impl<D, S> DataLoader<D, S, DefaultCollate>
+where
+    D: Dataset,
+    DefaultCollate: Collate<D::Sample>,
+    S: Sampler,
+{
+    pub fn with_sampler(dataset: D, sampler: S, batch_size: usize) -> Self {
+        Self::new_complete(dataset, sampler, DefaultCollate, batch_size)
+    }
+}
+
 impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    /// Convenience helper to return a builder.
-    pub fn builder(dataset: D) -> DataLoaderBuilder<D, S, C>
-    where
-        D: Dataset,
-        DefaultCollate: Collate<D::Sample>,
-    {
-        DataLoaderBuilder::new(dataset)
+    pub fn new_complete(
+        dataset: D,
+        sampler: S,
+        _collate: C,
+        batch_size: usize,
+    ) -> DataLoader<D, S, C> {
+        DataLoader {
+            dataset,
+            batch_sampler: BatchSampler {
+                sampler,
+                batch_size,
+                drop_last: false,
+            },
+            phantom: PhantomData,
+        }
+    }
+    // todo return self?
+    pub fn drop_last(mut self, activate: bool) -> Self {
+        self.batch_sampler.drop_last = activate;
+        self
+    }
+    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
+        self.batch_sampler.batch_size = batch_size;
+        self
+    }
+
+    pub fn with_collate_fn(mut self, _collate_fn: C) -> Self {
+        self.phantom = PhantomData;
+        self
     }
 
     /// Return not owning iterator over the dataloader.
@@ -151,7 +226,7 @@ mod tests {
     #[test]
     fn len() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
+        let dataloader = DataLoader::sequential(dataset, 2).drop_last(true);
         assert_eq!(dataloader.len(), dataloader.batch_sampler.len());
         assert_eq!(dataloader.len(), 5);
     }
@@ -161,7 +236,7 @@ mod tests {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
         // why type annotation is required even if we provide a dataset parameter?
-        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
+        let dataloader = DataLoader::builder(dataset).batch_size(2).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(array![1, 2]));
@@ -175,7 +250,7 @@ mod tests {
     #[test]
     fn two_iteration() {
         let dataset = vec![1, 2, 3, 4];
-        let dataloader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
+        let dataloader = DataLoader::builder(dataset).batch_size(2).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(array![1, 2]));
@@ -190,7 +265,7 @@ mod tests {
     #[test]
     fn one_dimension_basic_string() {
         let dataset = vec![String::from("a"), String::from("b")];
-        let dataloader: DataLoader<_> = DataLoader::builder(dataset).build();
+        let dataloader = DataLoader::builder(dataset).build();
 
         let mut iter = dataloader.iter();
         assert_eq!(iter.next(), Some(vec![String::from("a")]));
@@ -200,11 +275,12 @@ mod tests {
     #[test]
     fn collate() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader: DataLoader<_, SequentialSampler, NoOpCollate> =
-            DataLoader::builder(dataset)
-                .with_collate_fn(NoOpCollate)
-                .with_batch_size(2)
-                .build();
+
+        let dataloader = DataLoader::builder(dataset)
+            .batch_size(2)
+            .with_collate_fn(NoOpCollate)
+            .build();
+
         let mut iter = dataloader.iter();
 
         assert_eq!(iter.next(), Some(vec![1, 2]));
@@ -237,9 +313,11 @@ mod tests {
         };
 
         if shuffle {
-            let loader: DataLoader<_, RandomSampler> = DataLoader::builder(dataset.clone())
-                .with_batch_size(batch_size)
+            let loader = DataLoader::builder(dataset.clone())
+                .batch_size(batch_size)
+                .shuffle()
                 .build();
+
             TestDataLoaderData::Random(TestDataLoader {
                 loader,
                 data,
@@ -247,9 +325,10 @@ mod tests {
                 dataset,
             })
         } else {
-            let loader: DataLoader<_, SequentialSampler> = DataLoader::builder(dataset.clone())
-                .with_batch_size(batch_size)
+            let loader = DataLoader::builder(dataset.clone())
+                .batch_size(batch_size)
                 .build();
+
             TestDataLoaderData::Sequential(TestDataLoader {
                 loader,
                 data,

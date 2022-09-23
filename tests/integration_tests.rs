@@ -9,7 +9,7 @@ fn text_classification() {
         (0, "It feel goo"),
         (0, "Let's go!"),
     ];
-    let loader: DataLoader<_> = DataLoader::builder(dataset).build();
+    let loader = DataLoader::builder(dataset).build();
     let mut loader = loader.iter();
     assert_eq!(loader.next(), Some((array![0], vec!["I'm happy"])));
     assert_eq!(loader.next(), Some((array![1], vec!["I'm sad"])));
@@ -26,7 +26,7 @@ fn text_classification_batch() {
         (0, "It feel goo"),
         (0, "Let's go!"),
     ];
-    let loader: DataLoader<_> = DataLoader::builder(dataset).with_batch_size(2).build();
+    let loader = DataLoader::builder(dataset).batch_size(2).build();
     let mut loader = loader.iter();
     assert_eq!(
         loader.next(),
