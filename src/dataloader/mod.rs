@@ -20,6 +20,14 @@ pub mod builder;
 // the collate function to construct the dataloader each time, and in most our use cases we just just want the default one.
 
 /// Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
+///
+///
+/// ```rust
+/// use dataloader_rs::DataLoader;
+///
+/// let loader = DataLoader::builder(vec![1, 2, 3, 4]).batch_size(2).shuffle().build();
+/// ```
+///
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate>
 where
@@ -252,7 +260,7 @@ mod tests {
 
         let dataloader = DataLoader::builder(dataset)
             .batch_size(2)
-            .with_collate_fn(NoOpCollate)
+            .collate_fn(NoOpCollate)
             .build();
 
         let mut iter = dataloader.iter();

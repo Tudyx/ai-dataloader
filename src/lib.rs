@@ -11,9 +11,10 @@
 //!
 //! ## Highlights
 //!
-//! - Shuffle or Sequential Dataloader.
-//! - Customizable Sampler and collate function.
+//! - Shuffle or Sequential Sampler.
+//! - Customisable sampler
 //! - Default collate function that cover most of the type of the `std`, supporting nested type.
+//! - Cutomizable collate function
 //!
 //! ## Examples
 //!
@@ -26,8 +27,15 @@
 //! PyTorch | `dataloader_rs` | Notes
 //! --------|-----------------|-------
 //! `DataLoader(dataset)` | `DataLoader::builder(dataset).build()` | Create a DataLoader with default parameter
-//! `DataLoader(dataset, batch_size=2)` | `DataLoader::builder(dataset).with_batch_size(2).build()` | Setup the batch size
-//! `DataLoader(dataset, shuffle=True)` | `let loader: DataLoader<_, RandomSampler> = DataLoader::builder(dataset).build()` | Shuffle the data
+//! `DataLoader(dataset, batch_size=2)` | `DataLoader::builder(dataset).batch_size(2).build()` | Setup the batch size
+//! `DataLoader(dataset, shuffle=True)` | `DataLoader::builder(dataset).shuffle().build()` | Shuffle the data
+//! `DataLoader(dataset, sampler=CustomSampler)` | `DataLoader::builder(dataset).sampler::<CustomSampler>().build()` | Shuffle the data
+//!
+//! ### Combined options
+//!
+//! PyTorch | `dataloader_rs`
+//! --------|-----------------
+//! `DataLoader(dataset, shuffle=True, batch_size=2, drop_last=True, collate_fn=CustomCollate)` | `DataLoaderBuilder::new(dataset).shuffle().batch_size(2).drop_last().collate_fn(CustomCollate).build()`
 //!
 //! ### DataLoader iteration
 //!

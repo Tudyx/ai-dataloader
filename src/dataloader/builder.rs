@@ -49,7 +49,7 @@ where
     C: Collate<D::Sample>,
 {
     pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
-        self.with_sampler::<RandomSampler>()
+        self.sampler::<RandomSampler>()
     }
 
     pub fn batch_size(mut self, batch_size: usize) -> Self {
@@ -62,7 +62,7 @@ where
         self
     }
 
-    pub fn with_collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF>
+    pub fn collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF>
     where
         CF: Collate<D::Sample>,
     {
@@ -74,7 +74,7 @@ where
         }
     }
 
-    pub fn with_sampler<SA>(self) -> DataLoaderBuilder<D, SA, C>
+    pub fn sampler<SA>(self) -> DataLoaderBuilder<D, SA, C>
     where
         SA: Sampler,
     {
@@ -122,20 +122,20 @@ mod tests {
         let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
-            .with_collate_fn(NoOpCollate)
+            .collate_fn(NoOpCollate)
             .build();
 
         let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
-            .with_sampler::<RandomSampler>()
+            .sampler::<RandomSampler>()
             .build();
 
         let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
-            .with_sampler::<RandomSampler>()
-            .with_collate_fn(NoOpCollate)
+            .sampler::<RandomSampler>()
+            .collate_fn(NoOpCollate)
             .build();
 
         // TODO: checker la syntax des builder dans la STL, voir s'il utilise "with_", des verbe, etc..
@@ -144,7 +144,7 @@ mod tests {
             .shuffle()
             .batch_size(2)
             .drop_last()
-            .with_collate_fn(NoOpCollate)
+            .collate_fn(NoOpCollate)
             .build();
     }
 }
