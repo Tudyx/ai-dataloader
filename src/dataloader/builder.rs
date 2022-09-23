@@ -10,9 +10,9 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
 where
-    // D: Dataset,
+    D: Dataset,
     S: Sampler,
-    // C: Collate<D::Sample>,
+    C: Collate<D::Sample>,
 {
     /// The dataset from which the loader will yield the data.
     dataset: D,
@@ -25,6 +25,7 @@ where
 impl<D> DataLoaderBuilder<D, SequentialSampler, DefaultCollate>
 where
     D: Dataset,
+    DefaultCollate: Collate<D::Sample>,
 {
     pub fn new(dataset: D) -> DataLoaderBuilder<D> {
         let dataset_len = dataset.len();
@@ -39,13 +40,13 @@ where
         }
     }
 }
+use crate::collate::Collate;
 
 impl<D, S, C> DataLoaderBuilder<D, S, C>
 where
     D: Dataset,
     S: Sampler,
-    // TODO: verify we can't produce invalide dataloader because the line below is commented
-    // C: Collate<D::Sample>,
+    C: Collate<D::Sample>,
 {
     pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
         self.with_sampler::<RandomSampler>()
@@ -61,7 +62,10 @@ where
         self
     }
 
-    pub fn with_collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF> {
+    pub fn with_collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF>
+    where
+        CF: Collate<D::Sample>,
+    {
         DataLoaderBuilder {
             dataset: self.dataset,
 

@@ -23,9 +23,9 @@ pub mod builder;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
 where
-    // D: Dataset,
+    D: Dataset,
     S: Sampler,
-    // C: Collate<D::Sample>,
+    C: Collate<D::Sample>,
 {
     /// Dataset from which to load the data.
     dataset: D,
