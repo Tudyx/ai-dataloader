@@ -1,3 +1,6 @@
+//! Defines the strategy to draw samples from the dataset.
+//!
+
 use crate::Len;
 
 mod batch_sampler;
@@ -7,8 +10,6 @@ mod sequential_sampler;
 pub use batch_sampler::{BatchIterator, BatchSampler};
 pub use random_sampler::RandomSampler;
 pub use sequential_sampler::SequentialSampler;
-
-pub type DefaultSampler = SequentialSampler;
 
 // TODO: maybe copy is too restrictive and should be replaced by Clone?
 /// Every Sampler is iterable and has a length.

@@ -13,7 +13,7 @@
 //!
 //! - Shuffle or Sequential Dataloader.
 //! - Customizable Sampler and collate function.
-//! - Default collate function that cover most of the type of the `std`
+//! - Default collate function that cover most of the type of the `std`, supporting nested type.
 //!
 //! ## Examples
 //!
