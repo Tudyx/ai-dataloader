@@ -5,7 +5,7 @@ use crate::{
     dataloader::builder::DataLoaderBuilder,
     fetch::{Fetcher, MapDatasetFetcher},
     sampler::{BatchIterator, BatchSampler},
-    sampler::{DefaultSampler, RandomSampler, Sampler, SequentialSampler},
+    sampler::{Sampler, SequentialSampler},
     Dataset, Len,
 };
 
@@ -21,7 +21,7 @@ pub mod builder;
 
 /// Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct DataLoader<D, S = DefaultSampler, C = DefaultCollate>
+pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
@@ -40,37 +40,8 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
-    pub fn sequential(dataset: D, batch_size: usize) -> Self {
-        let dataset_len = dataset.len();
-
-        Self::new_complete(
-            dataset,
-            SequentialSampler {
-                data_source_len: dataset_len,
-            },
-            DefaultCollate,
-            batch_size,
-        )
-    }
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, SequentialSampler, DefaultCollate> {
         DataLoaderBuilder::new(dataset)
-    }
-}
-
-impl<D> DataLoader<D, RandomSampler, DefaultCollate>
-where
-    D: Dataset,
-    DefaultCollate: Collate<D::Sample>,
-{
-    pub fn random(dataset: D, batch_size: usize) -> Self {
-        let dataset_len = dataset.len();
-
-        Self::new_complete(
-            dataset,
-            RandomSampler::new(dataset_len),
-            DefaultCollate,
-            batch_size,
-        )
     }
 }
 
@@ -141,7 +112,7 @@ where
 }
 
 /// Iterate over the dataloader with a single thread.
-pub struct SingleProcessDataLoaderIter<'dataset, D, S = DefaultSampler, C = DefaultCollate>
+pub struct SingleProcessDataLoaderIter<'dataset, D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
@@ -226,7 +197,10 @@ mod tests {
     #[test]
     fn len() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let dataloader = DataLoader::sequential(dataset, 2).drop_last(true);
+        let dataloader = DataLoader::builder(dataset)
+            .batch_size(2)
+            .drop_last()
+            .build();
         assert_eq!(dataloader.len(), dataloader.batch_sampler.len());
         assert_eq!(dataloader.len(), 5);
     }

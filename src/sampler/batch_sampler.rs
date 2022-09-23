@@ -1,4 +1,4 @@
-use super::{DefaultSampler, Sampler};
+use super::{Sampler, SequentialSampler};
 use crate::Len;
 
 /// Wraps another sampler to yield a mini-batch of indices.
@@ -27,7 +27,7 @@ use crate::Len;
 /// assert_eq!(iter.next(), Some(vec![2, 3]));
 /// ```
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct BatchSampler<S: Sampler = DefaultSampler> {
+pub struct BatchSampler<S: Sampler = SequentialSampler> {
     /// Base sampler.
     pub sampler: S,
     /// Size of mini batch.

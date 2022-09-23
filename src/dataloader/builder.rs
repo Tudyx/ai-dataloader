@@ -2,13 +2,13 @@ use std::marker::PhantomData;
 
 use crate::{
     collate::DefaultCollate,
-    sampler::{BatchSampler, DefaultSampler, RandomSampler, Sampler, SequentialSampler},
+    sampler::{BatchSampler, RandomSampler, Sampler, SequentialSampler},
     DataLoader, Dataset,
 };
 
 /// Basic builder for creating dataloader.
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct DataLoaderBuilder<D, S = DefaultSampler, C = DefaultCollate>
+pub struct DataLoaderBuilder<D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
