@@ -216,8 +216,6 @@ mod tests {
     #[test]
     fn one_dimension_basic() {
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-        // why type annotation is required even if we provide a dataset parameter?
         let dataloader = DataLoader::builder(dataset).batch_size(2).build();
 
         let mut iter = dataloader.iter();
