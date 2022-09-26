@@ -2,6 +2,10 @@
 name = "dataloader_rs"
 version = "0.1.0"
 edition = "2021"
+categories = ["science"]
+keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
+repository = "https://github.com/Tudyx/dataloader_rs"
+description = "Rust implementation to the PyTorch DataLoader"
 
 [dependencies]
 ndarray = { version = "0.15.4", features = ["serde"] }
