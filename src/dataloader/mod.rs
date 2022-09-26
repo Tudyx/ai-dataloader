@@ -53,54 +53,12 @@ where
     }
 }
 
-impl<D, S> DataLoader<D, S, DefaultCollate>
-where
-    D: Dataset,
-    DefaultCollate: Collate<D::Sample>,
-    S: Sampler,
-{
-    pub fn with_sampler(dataset: D, sampler: S, batch_size: usize) -> Self {
-        Self::new_complete(dataset, sampler, DefaultCollate, batch_size)
-    }
-}
-
 impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset,
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    pub fn new_complete(
-        dataset: D,
-        sampler: S,
-        _collate: C,
-        batch_size: usize,
-    ) -> DataLoader<D, S, C> {
-        DataLoader {
-            dataset,
-            batch_sampler: BatchSampler {
-                sampler,
-                batch_size,
-                drop_last: false,
-            },
-            phantom: PhantomData,
-        }
-    }
-    // todo return self?
-    pub fn drop_last(mut self, activate: bool) -> Self {
-        self.batch_sampler.drop_last = activate;
-        self
-    }
-    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
-        self.batch_sampler.batch_size = batch_size;
-        self
-    }
-
-    pub fn with_collate_fn(mut self, _collate_fn: C) -> Self {
-        self.phantom = PhantomData;
-        self
-    }
-
     /// Return not owning iterator over the dataloader.
     pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
         SingleProcessDataLoaderIter::new(self)
