@@ -9,24 +9,26 @@ use std::collections::VecDeque;
 
 impl<T> Collate<Vec<T>> for DefaultCollate
 where
-    DefaultCollate: Collate<T>,
+    Self: Collate<T>,
     T: Clone,
 {
-    type Output = Vec<<DefaultCollate as Collate<T>>::Output>;
+    type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(batch: Vec<Vec<T>>) -> Self::Output {
         let elem_size = batch
             .get(0)
             .expect("Batch should contain at least one element")
             .len();
-        if !batch.iter().all(|vec| vec.len() == elem_size) {
-            panic!("Each Vec in the batch should have equal size");
-        }
+
+        assert!(
+            batch.iter().all(|vec| vec.len() == elem_size),
+            "Each Vec in the batch should have equal size"
+        );
 
         let mut collated = Vec::with_capacity(batch.len());
 
         for i in 0..batch[0].len() {
             let vec: Vec<_> = batch.iter().map(|sample| sample[i].clone()).collect();
-            collated.push(DefaultCollate::collate(vec));
+            collated.push(Self::collate(vec));
         }
         collated
     }
@@ -34,24 +36,26 @@ where
 
 impl<T> Collate<VecDeque<T>> for DefaultCollate
 where
-    DefaultCollate: Collate<T>,
+    Self: Collate<T>,
     T: Clone,
 {
-    type Output = Vec<<DefaultCollate as Collate<T>>::Output>;
+    type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(batch: Vec<VecDeque<T>>) -> Self::Output {
         let elem_size = batch
             .get(0)
             .expect("Batch should contain at least one element")
             .len();
-        if !batch.iter().all(|vec| vec.len() == elem_size) {
-            panic!("Each Vec in the batch should have equal size");
-        }
+
+        assert!(
+            batch.iter().all(|vec| vec.len() == elem_size),
+            "Each Vec in the batch should have equal size"
+        );
 
         let mut collated = Vec::with_capacity(batch.len());
 
         for i in 0..batch[0].len() {
             let vec: Vec<_> = batch.iter().map(|sample| sample[i].clone()).collect();
-            collated.push(DefaultCollate::collate(vec));
+            collated.push(Self::collate(vec));
         }
         collated
     }

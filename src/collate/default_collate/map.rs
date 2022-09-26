@@ -10,15 +10,15 @@ impl<K, V, H> Collate<HashMap<K, V, H>> for DefaultCollate
 where
     K: Eq + Hash + Clone,
     V: Clone,
-    DefaultCollate: Collate<V>,
+    Self: Collate<V>,
     H: BuildHasher,
 {
-    type Output = HashMap<K, <DefaultCollate as Collate<V>>::Output>;
+    type Output = HashMap<K, <Self as Collate<V>>::Output>;
     fn collate(batch: Vec<HashMap<K, V, H>>) -> Self::Output {
         let mut collated = HashMap::with_capacity(batch[0].keys().len());
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            collated.insert(key.clone(), DefaultCollate::collate(vec));
+            collated.insert(key.clone(), Self::collate(vec));
         }
         collated
     }
@@ -27,14 +27,14 @@ impl<K, V> Collate<BTreeMap<K, V>> for DefaultCollate
 where
     K: Ord + Clone,
     V: Clone,
-    DefaultCollate: Collate<V>,
+    Self: Collate<V>,
 {
-    type Output = BTreeMap<K, <DefaultCollate as Collate<V>>::Output>;
+    type Output = BTreeMap<K, <Self as Collate<V>>::Output>;
     fn collate(batch: Vec<BTreeMap<K, V>>) -> Self::Output {
         let mut collated = BTreeMap::new();
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            collated.insert(key.clone(), DefaultCollate::collate(vec));
+            collated.insert(key.clone(), Self::collate(vec));
         }
         collated
     }

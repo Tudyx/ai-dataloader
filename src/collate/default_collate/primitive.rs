@@ -20,7 +20,7 @@ primitive_impl!(usize u16 u32 u64 u128
     f32 f64
     bool char);
 
-/// NoOp for binairy, as pytorch `default_collate` function.
+/// `NoOp` for binairy, as pytorch `default_collate` function.
 impl Collate<u8> for DefaultCollate {
     type Output = Vec<u8>;
     fn collate(batch: Vec<u8>) -> Self::Output {

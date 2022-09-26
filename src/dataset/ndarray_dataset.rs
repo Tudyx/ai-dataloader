@@ -31,7 +31,7 @@ where
     D2: Dimension + RemoveAxis,
 {
     fn clone(&self) -> Self {
-        NdarrayDataset {
+        Self {
             ndarrays: self.ndarrays.clone(),
         }
     }

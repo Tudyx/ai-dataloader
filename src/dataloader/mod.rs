@@ -1,3 +1,5 @@
+//! Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
+
 use std::marker::PhantomData;
 
 use crate::{
@@ -10,8 +12,6 @@ use crate::{
 };
 
 pub mod builder;
-
-// TODO: Generic over batch or over sampler?
 
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
 // to pass directly closure or function to construct a `Dataloader`.
@@ -48,6 +48,7 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
+    /// Helper to return a [`DataLoaderBuilder`] easily.
     pub fn builder(dataset: D) -> DataLoaderBuilder<D, SequentialSampler, DefaultCollate> {
         DataLoaderBuilder::new(dataset)
     }
@@ -84,8 +85,11 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
+    /// The batch iterator of this iterator.
     sampler_iter: BatchIterator<S::IntoIter>,
+    /// Number of sample yielded.
     num_yielded: u64,
+    /// Used to fetch the data from the dataset.
     data_fetcher: MapDatasetFetcher<'dataset, D, C>,
 }
 

@@ -50,6 +50,7 @@ impl<S: Sampler> Len for BatchSampler<S> {
     }
 }
 impl<S: Sampler> BatchSampler<S> {
+    /// Return an iterator over the [`BatchSampler`].
     pub fn iter(&self) -> BatchIterator<S::IntoIter> {
         BatchIterator {
             sampler: self.sampler.into_iter(),
@@ -59,12 +60,16 @@ impl<S: Sampler> BatchSampler<S> {
     }
 }
 
+/// An iterator for the batch. Yield a sequence of index at each iteration.
 pub struct BatchIterator<I>
 where
     I: Iterator<Item = usize>,
 {
+    /// The underlying sampler.
     sampler: I,
+    /// The size of one batch.
     batch_size: usize,
+    /// Weither to drop the laste elements or not.
     drop_last: bool,
 }
 

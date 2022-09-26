@@ -11,6 +11,7 @@ use itertools::Itertools;
 // maybe an implementation passing the length and the index of element to the macro could be more efficient that with the
 // `Iterttols::multiunzip`.
 
+/// `tuple` implementation, up to 16 elements.
 macro_rules! tuple_impl {
     ($($name:ident)+) => {
         impl<$($name),+> Collate<($($name,)+)> for DefaultCollate

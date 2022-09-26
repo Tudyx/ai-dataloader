@@ -7,6 +7,7 @@ use crate::{
 };
 
 /// Basic builder for creating dataloader.
+#[must_use]
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoaderBuilder<D, S = SequentialSampler, C = DefaultCollate>
 where
@@ -27,7 +28,9 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
-    pub fn new(dataset: D) -> DataLoaderBuilder<D> {
+    /// Create a new [`DataLoaderBuilder`], with default field.
+    /// By default the [`DataLoaderBuilder`] is sequential and have a `batch_size` of one.
+    pub fn new(dataset: D) -> Self {
         let dataset_len = dataset.len();
         Self {
             dataset,
@@ -48,20 +51,24 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
+    /// Use a random sampler.
     pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
         self.sampler::<RandomSampler>()
     }
-
+    /// Set the number of elements a batch contains.
     pub fn batch_size(mut self, batch_size: usize) -> Self {
         self.batch_sampler.batch_size = batch_size;
         self
     }
 
+    /// Drop the lasts element if they don't feat into a batch. For instance if a dataset have 13
+    /// samples and a `batch_size` of 5, the last 3 samples will be droped.
     pub fn drop_last(mut self) -> Self {
         self.batch_sampler.drop_last = true;
         self
     }
 
+    /// Set a custom collate function.
     pub fn collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF>
     where
         CF: Collate<D::Sample>,
@@ -74,6 +81,7 @@ where
         }
     }
 
+    /// Set a custom [`Sampler`].
     pub fn sampler<SA>(self) -> DataLoaderBuilder<D, SA, C>
     where
         SA: Sampler,
@@ -90,7 +98,7 @@ where
             collate_fn: self.collate_fn,
         }
     }
-
+    /// Create a [`Dataloader`] from a [`DataLoaderBuilder`].
     pub fn build(self) -> DataLoader<D, S, C> {
         DataLoader {
             dataset: self.dataset,
