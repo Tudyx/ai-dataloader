@@ -2,7 +2,7 @@
 ///
 /// This example is a simplified version of [this pytorch tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html).
 ///
-use dataloader_rs::{DataLoader, Dataset, GetSample, Len};
+use ai_dataloader::{DataLoader, Dataset, GetSample, Len};
 use ndarray::{Array1, Array2, Array3};
 use nshare::ToNdarray3;
 use std::{env, path::PathBuf};

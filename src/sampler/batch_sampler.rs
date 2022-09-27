@@ -11,8 +11,8 @@ use crate::Len;
 ///
 /// # Examples:
 /// ```
-/// use dataloader_rs::sampler::SequentialSampler;
-/// use dataloader_rs::sampler::BatchSampler;
+/// use ai_dataloader::sampler::SequentialSampler;
+/// use ai_dataloader::sampler::BatchSampler;
 ///
 /// let dataset = vec![0, 1, 2, 3];
 /// let batch_sampler = BatchSampler {

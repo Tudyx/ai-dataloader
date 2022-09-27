@@ -1,4 +1,4 @@
-use dataloader_rs::DataLoader;
+use ai_dataloader::DataLoader;
 use ndarray::array;
 
 #[test]

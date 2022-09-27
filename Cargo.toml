@@ -1,11 +1,11 @@
 [package]
-name = "dataloader_rs"
+name = "ai-dataloader"
 version = "0.1.0"
 authors = ["Tudy Gourmelen <gourmelentudy@gmail.com>"]
 edition = "2021"
 description = "Rust implementation to the PyTorch DataLoader"
 readme = "README.md"
-repository = "https://github.com/Tudyx/dataloader_rs"
+repository = "https://github.com/Tudyx/ai-dataloader"
 license = "MIT OR Apache-2.0"
 keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
 categories = ["science"]

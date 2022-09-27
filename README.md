@@ -1,7 +1,7 @@
-[![CI](https://github.com/Tudyx/dataloader_rs/actions/workflows/ci.yml/badge.svg)](https://github.com/Tudyx/dataloader_rs/actions/workflows/ci.yml) 
-[![Coverage](https://github.com/Tudyx/dataloader_rs/actions/workflows/codecov.yml/badge.svg)](https://github.com/Tudyx/dataloader_rs/actions/workflows/codecov.yml)
+[![CI](https://github.com/Tudyx/ai-dataloader/actions/workflows/ci.yml/badge.svg)](https://github.com/Tudyx/ai-dataloader/actions/workflows/ci.yml) 
+[![Coverage](https://github.com/Tudyx/ai-dataloader/actions/workflows/codecov.yml/badge.svg)](https://github.com/Tudyx/ai-dataloader/actions/workflows/codecov.yml)
 
-# dataloader_rs
+# ai-dataloader
 
 A rust port of [`pytorch`](https://pytorch.org/) `dataloader` library.
 
@@ -20,7 +20,7 @@ Feel free to read the doc that contains tutorials for [`pytorch`](https://pytorc
 
 Examples can be found in the [examples](examples/) folder but here there is a simple one
 
-```rust use dataloader_rs::DataLoader;
+```rust use ai-dataloader::DataLoader;
 
 let loader = DataLoader::builder(vec![(0, "hola"), (1, "hello"), (2, "hallo"), (3, "bonjour")]).batch_size(2).shuffle().build();
 

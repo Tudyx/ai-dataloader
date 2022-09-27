@@ -15,8 +15,8 @@ pub use get_sample::GetSample;
 /// Indeed we could have provided this implementation:
 ///
 /// ```
-/// use dataloader_rs::collate::Collate;
-/// use dataloader_rs::Len;
+/// use ai_dataloader::collate::Collate;
+/// use ai_dataloader::Len;
 ///
 /// pub trait Dataset<T>: Len + std::ops::Index<usize>
 /// where

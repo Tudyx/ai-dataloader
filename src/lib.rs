@@ -3,10 +3,10 @@
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
 
-//! The `dataloader_rs` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
+//! The `ai-dataloader` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
 //!
 //!
-//! Unlike the python version where almost everything happens in runtime, `dataloader_rs` is built on Rust's powerful trait system.
+//! Unlike the python version where almost everything happens in runtime, `ai-dataloader` is built on Rust's powerful trait system.
 //!
 //!
 //! ## Highlights
@@ -24,7 +24,7 @@
 //!
 //! ### `DataLoader` creation
 //!
-//! `PyTorch` | `dataloader_rs` | Notes
+//! `PyTorch` | `ai-dataloader` | Notes
 //! --------|-----------------|-------
 //! `DataLoader(dataset)` | `DataLoader::builder(dataset).build()` | Create a `DataLoader` with default parameters
 //! `DataLoader(dataset, batch_size=2)` | `DataLoader::builder(dataset).batch_size(2).build()` | Setup the batch size
@@ -33,19 +33,19 @@
 //!
 //! ### Combined options
 //!
-//! `PyTorch` | `dataloader_rs`
+//! `PyTorch` | `ai-dataloader`
 //! --------|-----------------
 //! `DataLoader(dataset, shuffle=True, batch_size=2, drop_last=True, collate_fn=CustomCollate)` | `DataLoaderBuilder::new(dataset).shuffle().batch_size(2).drop_last().collate_fn(CustomCollate).build()`
 //!
 //! ### `DataLoader` iteration
 //!
-//! `PyTorch` | `dataloader_rs` | Notes
+//! `PyTorch` | `ai-dataloader` | Notes
 //! --------|-----------------|-------
 //! `for text, label in data_loader:` | `for (text, label) in data_loader.iter()` | Simple iteration
 //!
 //!
 //! [PyTorch]: https://pytorch.org/
-//! [examples]: https://github.com/Tudyx/dataloader_rs/tree/main/examples
+//! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
 //!
 
 mod dataloader;

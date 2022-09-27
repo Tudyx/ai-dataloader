@@ -23,7 +23,7 @@ pub mod builder;
 ///
 ///
 /// ```rust
-/// use dataloader_rs::DataLoader;
+/// use ai_dataloader::DataLoader;
 ///
 /// let loader = DataLoader::builder(vec![(0, "hola"), (1, "hello"), (2, "hallo"), (3, "bonjour")]).batch_size(2).shuffle().build();
 ///
