@@ -1,5 +1,7 @@
 #![deny(missing_docs)]
 #![deny(clippy::all, clippy::cargo)]
+// I've a false positive on this one.
+#![allow(clippy::derive_partial_eq_without_eq)]
 
 //! The `dataloader_rs` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
 //!
