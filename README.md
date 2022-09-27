@@ -40,7 +40,7 @@ I've planned to integrate different tensor libraries using [features](https://do
 
 ### Next Features
 
-This features that could be added in the future:
+This features could be added in the future:
 
 - customizable `BatchSampler` (by using a `trait`)
 - collect function as a closure 

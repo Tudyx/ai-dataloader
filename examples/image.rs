@@ -22,7 +22,7 @@ impl FaceLandmarksDataset {
             .map(|record| record.unwrap())
             .collect();
         FaceLandmarksDataset {
-            root_dir: root_dir.to_owned(),
+            root_dir,
             landmarks_frame,
         }
     }
