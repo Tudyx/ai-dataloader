@@ -6,6 +6,7 @@ edition = "2021"
 description = "Rust implementation to the PyTorch DataLoader"
 readme = "README.md"
 repository = "https://github.com/Tudyx/ai-dataloader"
+documentation = "https://docs.rs/ai-dataloader/"
 license = "MIT OR Apache-2.0"
 keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
 categories = ["science"]
