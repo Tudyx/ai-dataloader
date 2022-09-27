@@ -22,4 +22,4 @@ impl<T: Clone> GetSample for VecDeque<T> {
     }
 }
 
-// TODO: GetSample for Array?
+// TODO: `GetSample` for Array?

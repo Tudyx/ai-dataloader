@@ -33,12 +33,12 @@ pub struct BatchSampler<S: Sampler = SequentialSampler> {
     /// Size of mini batch.
     pub batch_size: usize,
     /// If `true`, the sampler will drop the last batch if
-    /// its size would be less than ``batch_size``.
+    /// its size were less than ``batch_size``.
     pub drop_last: bool,
 }
 
 impl<S: Sampler> Len for BatchSampler<S> {
-    /// Return the number of batch.
+    /// Returns the number of batch.
     ///
     /// If `drop_last` is set to false, even an incomplete batch will be counted.
     fn len(&self) -> usize {

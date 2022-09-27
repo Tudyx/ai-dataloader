@@ -8,7 +8,7 @@ use crate::{
 
 /// Basic builder for creating dataloader.
 #[must_use]
-#[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Ord)]
 pub struct DataLoaderBuilder<D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
@@ -17,7 +17,7 @@ where
 {
     /// The dataset from which the loader will yield the data.
     dataset: D,
-    /// The sampler userd to gather element of the batch together.
+    /// The sampler used to gather elements of the batch together.
     batch_sampler: BatchSampler<S>,
     /// Used to collate the data together.
     collate_fn: C,
@@ -28,7 +28,7 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
-    /// Create a new [`DataLoaderBuilder`], with default field.
+    /// Create a new [`DataLoaderBuilder`], with default fields.
     /// By default the [`DataLoaderBuilder`] is sequential and have a `batch_size` of one.
     pub fn new(dataset: D) -> Self {
         let dataset_len = dataset.len();
@@ -55,7 +55,7 @@ where
     pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
         self.sampler::<RandomSampler>()
     }
-    /// Set the number of elements a batch contains.
+    /// Set the number of elements in a batch.
     pub fn batch_size(mut self, batch_size: usize) -> Self {
         self.batch_sampler.batch_size = batch_size;
         self

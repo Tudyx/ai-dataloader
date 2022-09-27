@@ -8,11 +8,11 @@ mod get_sample;
 pub use get_sample::GetSample;
 
 /// A dataset is just something that has a length and is indexable.
-/// A vec of dataset collate output must also be collatable.
+/// A `Vec` of `dataset` collate output must also be collatable.
 ///
 /// We use a custom [`GetSample`] trait instead of `std::ops::Index` because
 /// it provides more flexibility.
-/// Indeed we could have provide this implementation:
+/// Indeed we could have provided this implementation:
 ///
 /// ```
 /// use dataloader_rs::collate::Collate;

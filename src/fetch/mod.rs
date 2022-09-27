@@ -17,7 +17,7 @@ where
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
 
-/// Fetcher for map-style dataset. Simply calll the collate function on all the batch of elements.
+/// Fetcher for map-style dataset. Simply call the collate function on all the batch of elements.
 pub(crate) struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>
 where
     C: Collate<D::Sample>,
@@ -34,7 +34,7 @@ where
     C: Collate<D::Sample>,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
-        // As the batch len can vary depending if the last element are drop or not, we can't use
+        // As the batch length can vary depending on if the last element is dropped or not, we can't use
         // a fix sized array.
         let mut data = Vec::with_capacity(possibly_batched_index.len());
         for idx in possibly_batched_index {

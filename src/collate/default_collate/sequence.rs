@@ -1,6 +1,6 @@
 /// Implementation for Sequence.
 ///
-/// Currently `BinaryHeap`, `BTreeSet`, `HashSet` and `LinkedList` are not supported because the current implementaton
+/// Currently `BinaryHeap`, `BTreeSet`, `HashSet` and `LinkedList` are not supported because the current implementation
 /// require indexing for doing the transpose.
 ///
 use super::super::Collate;

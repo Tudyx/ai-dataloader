@@ -3,10 +3,10 @@ use rand::thread_rng;
 
 use crate::{sampler::Sampler, Len};
 
-/// Sampler that return random index between 0 and `data_source_len`.
+/// Sampler that returns random index between zero and `data_source_len`.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct RandomSampler {
-    /// The length of the datasource.
+    /// The length of the data source.
     data_source_len: usize,
     /// Whether the sample is replaced or not.
     /// If it's replaced, we can have 2 times the same sample.
@@ -33,9 +33,9 @@ impl IntoIterator for RandomSampler {
         RandomSamplerIter::new(self.data_source_len, self.replacement)
     }
 }
-/// Iterator that return random index between 0 and `data_source_len`.
+/// Iterator that returns random index between zero and `data_source_len`.
 pub struct RandomSamplerIter {
-    /// The length of the datasource.
+    /// The length of the data source.
     data_source_len: usize,
     /// A permutation over the datasets indexes.
     indexes: Vec<usize>,
@@ -48,7 +48,7 @@ impl RandomSamplerIter {
     ///
     /// # Arguments
     ///
-    /// * `data_source_len` - The len of the dataset.
+    /// * `data_source_len` - The length of the dataset.
     /// * `replacement` - Wether we can have the same sample twice over one iteration or not.
     fn new(data_source_len: usize, replacement: bool) -> Self {
         if replacement {

@@ -2,7 +2,7 @@ use super::super::Collate;
 use super::DefaultCollate;
 use itertools::Itertools;
 
-// maybe an implementation passing the length and the index of element to the macro could be more efficient that with the
+// Maybe an implementation passing the length and the index of elements to the macro could be more efficient than with the
 // `Iterttols::multiunzip`.
 
 /// `tuple` implementation, up to 16 elements.

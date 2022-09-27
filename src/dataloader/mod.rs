@@ -44,7 +44,7 @@ where
     dataset: D,
     /// Return a batch of indices at a time.
     batch_sampler: BatchSampler<S>,
-    /// Just here because collate has no data.
+    /// Just here because collate has no data members.
     phantom: PhantomData<C>,
 }
 
