@@ -14,7 +14,7 @@ A rust port of [`pytorch`](https://pytorch.org/) `dataloader` library.
 - Default collate function that covers most of the type of the he standard library that can go in a tensor, supporting nested type.
 - Customizable collate function
 
-Feel free to read the doc that contains tutorials for [`pytorch`](https://pytorch.org/) user.
+Feel free to [read the doc](https://docs.rs/ai-dataloader/) that contains tutorials for [`pytorch`](https://pytorch.org/) user.
 
 ## Examples
 
