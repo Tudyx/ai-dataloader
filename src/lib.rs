@@ -55,5 +55,5 @@ mod fetch;
 pub mod collate;
 pub mod sampler;
 
-pub use dataloader::{builder::DataLoaderBuilder, DataLoader};
+pub use dataloader::{builder::Builder, DataLoader};
 pub use dataset::{Dataset, GetSample, Len};

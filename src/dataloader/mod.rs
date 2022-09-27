@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use crate::{
     collate::{Collate, DefaultCollate},
-    dataloader::builder::DataLoaderBuilder,
+    dataloader::builder::Builder,
     fetch::{Fetcher, MapDatasetFetcher},
     sampler::{BatchIterator, BatchSampler},
     sampler::{Sampler, SequentialSampler},
@@ -54,8 +54,8 @@ where
     DefaultCollate: Collate<D::Sample>,
 {
     /// Helper to return a [`DataLoaderBuilder`] easily.
-    pub fn builder(dataset: D) -> DataLoaderBuilder<D, SequentialSampler, DefaultCollate> {
-        DataLoaderBuilder::new(dataset)
+    pub fn builder(dataset: D) -> Builder<D, SequentialSampler, DefaultCollate> {
+        Builder::new(dataset)
     }
 }
 

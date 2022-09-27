@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::{
-    collate::DefaultCollate,
+    collate::{Collate, DefaultCollate},
     sampler::{BatchSampler, RandomSampler, Sampler, SequentialSampler},
     DataLoader, Dataset,
 };
@@ -9,7 +9,7 @@ use crate::{
 /// Basic builder for creating dataloader.
 #[must_use]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Ord)]
-pub struct DataLoaderBuilder<D, S = SequentialSampler, C = DefaultCollate>
+pub struct Builder<D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
     S: Sampler,
@@ -23,7 +23,7 @@ where
     collate_fn: C,
 }
 
-impl<D> DataLoaderBuilder<D, SequentialSampler, DefaultCollate>
+impl<D> Builder<D, SequentialSampler, DefaultCollate>
 where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
@@ -43,16 +43,15 @@ where
         }
     }
 }
-use crate::collate::Collate;
 
-impl<D, S, C> DataLoaderBuilder<D, S, C>
+impl<D, S, C> Builder<D, S, C>
 where
     D: Dataset,
     S: Sampler,
     C: Collate<D::Sample>,
 {
     /// Use a random sampler.
-    pub fn shuffle(self) -> DataLoaderBuilder<D, RandomSampler, C> {
+    pub fn shuffle(self) -> Builder<D, RandomSampler, C> {
         self.sampler::<RandomSampler>()
     }
     /// Set the number of elements in a batch.
@@ -69,11 +68,11 @@ where
     }
 
     /// Set a custom collate function.
-    pub fn collate_fn<CF>(self, collate_fn: CF) -> DataLoaderBuilder<D, S, CF>
+    pub fn collate_fn<CF>(self, collate_fn: CF) -> Builder<D, S, CF>
     where
         CF: Collate<D::Sample>,
     {
-        DataLoaderBuilder {
+        Builder {
             dataset: self.dataset,
 
             batch_sampler: self.batch_sampler,
@@ -82,12 +81,12 @@ where
     }
 
     /// Set a custom [`Sampler`].
-    pub fn sampler<SA>(self) -> DataLoaderBuilder<D, SA, C>
+    pub fn sampler<SA>(self) -> Builder<D, SA, C>
     where
         SA: Sampler,
     {
         let sampler: SA = SA::new(self.dataset.len());
-        DataLoaderBuilder {
+        Builder {
             dataset: self.dataset,
             batch_sampler: BatchSampler {
                 sampler,
@@ -115,31 +114,29 @@ mod tests {
 
     #[test]
     fn api() {
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4]).build();
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4]).shuffle().build();
+        let _loader = Builder::new(vec![1, 2, 3, 4]).build();
+        let _loader = Builder::new(vec![1, 2, 3, 4]).shuffle().build();
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
-            .batch_size(2)
-            .build();
+        let _loader = Builder::new(vec![1, 2, 3, 4]).batch_size(2).build();
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+        let _loader = Builder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
             .build();
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+        let _loader = Builder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
             .collate_fn(NoOpCollate)
             .build();
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+        let _loader = Builder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
             .sampler::<RandomSampler>()
             .build();
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+        let _loader = Builder::new(vec![1, 2, 3, 4])
             .batch_size(2)
             .drop_last()
             .sampler::<RandomSampler>()
@@ -148,7 +145,7 @@ mod tests {
 
         // TODO: checker la syntax des builder dans la STL, voir s'il utilise "with_", des verbe, etc..
 
-        let _loader = DataLoaderBuilder::new(vec![1, 2, 3, 4])
+        let _loader = Builder::new(vec![1, 2, 3, 4])
             .shuffle()
             .batch_size(2)
             .drop_last()
