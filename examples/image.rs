@@ -2,6 +2,8 @@
 ///
 /// This example is a simplified version of [this pytorch tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html).
 ///
+/// The dataset is a subset of the tutorial’s dataset for storing purpose.
+///
 use ai_dataloader::{DataLoader, Dataset, GetSample, Len};
 use ndarray::{Array1, Array2, Array3};
 use nshare::ToNdarray3;
