@@ -25,7 +25,12 @@ pub mod builder;
 /// ```rust
 /// use dataloader_rs::DataLoader;
 ///
-/// let loader = DataLoader::builder(vec![1, 2, 3, 4]).batch_size(2).shuffle().build();
+/// let loader = DataLoader::builder(vec![(0, "hola"), (1, "hello"), (2, "hallo"), (3, "bonjour")]).batch_size(2).shuffle().build();
+///
+/// for (label, text) in &loader {
+///     println!("Label {label:?}");
+///     println!("Text {text:?}");
+/// }
 /// ```
 ///
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
