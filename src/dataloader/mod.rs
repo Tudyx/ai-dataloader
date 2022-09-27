@@ -53,7 +53,7 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
-    /// Helper to return a [`DataLoaderBuilder`] easily.
+    /// Helper to return a [`Builder`] easily.
     pub fn builder(dataset: D) -> Builder<D, SequentialSampler, DefaultCollate> {
         Builder::new(dataset)
     }

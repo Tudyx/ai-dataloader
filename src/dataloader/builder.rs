@@ -28,8 +28,8 @@ where
     D: Dataset,
     DefaultCollate: Collate<D::Sample>,
 {
-    /// Create a new [`DataLoaderBuilder`], with default fields.
-    /// By default the [`DataLoaderBuilder`] is sequential and have a `batch_size` of one.
+    /// Create a new [`Builder`], with default fields.
+    /// By default the [`Builder`] is sequential and have a `batch_size` of one.
     pub fn new(dataset: D) -> Self {
         let dataset_len = dataset.len();
         Self {
@@ -97,7 +97,7 @@ where
             collate_fn: self.collate_fn,
         }
     }
-    /// Create a [`Dataloader`] from a [`DataLoaderBuilder`].
+    /// Create a `Dataloader` from a [`Builder`].
     pub fn build(self) -> DataLoader<D, S, C> {
         DataLoader {
             dataset: self.dataset,

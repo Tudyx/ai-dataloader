@@ -3,7 +3,7 @@
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
 
-//! The `ai-dataloader` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
+//! The `ai-dataloader` crate provides a Rust implementation to the [PyTorch] `DataLoader`.
 //!
 //!
 //! Unlike the python version where almost everything happens in runtime, `ai-dataloader` is built on Rust's powerful trait system.
