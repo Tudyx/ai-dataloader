@@ -1,5 +1,5 @@
 #![deny(missing_docs)]
-#![deny(clippy::all)]
+#![deny(clippy::all, clippy::cargo)]
 
 //! The `dataloader_rs` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
 //!

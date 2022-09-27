@@ -2,12 +2,6 @@ use super::super::Collate;
 use super::DefaultCollate;
 use itertools::Itertools;
 
-// In python:
-// `default_collate([(1, 2.0), (3, 4.0)]) == [tensor([1, 3]), tensor([2., 4.], dtype=torch.float64)]`
-// In dataloader_rs:
-// `collate(vec![(1, 2.0), (3, 4.0)]) == (Array1[1, 3], Array1[2., 4.])`
-// > Note: a python list is roughly equivalent to a Rust mutable tuple
-
 // maybe an implementation passing the length and the index of element to the macro could be more efficient that with the
 // `Iterttols::multiunzip`.
 
