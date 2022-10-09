@@ -18,14 +18,15 @@ where
 }
 
 /// Fetcher for map-style dataset. Simply call the collate function on all the batch of elements.
+#[derive(Debug)]
 pub(crate) struct MapDatasetFetcher<'dataset, D: Dataset, C = DefaultCollate>
 where
     C: Collate<D::Sample>,
 {
     /// The dataset data will be fetch from.
-    pub dataset: &'dataset D,
+    pub(crate) dataset: &'dataset D,
     /// The function (generic struct) used to collate data together.
-    pub collate_fn: PhantomData<C>,
+    pub(crate) collate_fn: PhantomData<C>,
 }
 
 impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>

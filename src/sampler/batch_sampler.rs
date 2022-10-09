@@ -61,6 +61,7 @@ impl<S: Sampler> BatchSampler<S> {
 }
 
 /// An iterator for the batch. Yield a sequence of index at each iteration.
+#[derive(Debug)]
 pub struct BatchIterator<I>
 where
     I: Iterator<Item = usize>,

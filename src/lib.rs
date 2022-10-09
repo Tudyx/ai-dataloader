@@ -1,5 +1,12 @@
-#![deny(missing_docs)]
-#![deny(clippy::all, clippy::cargo)]
+#![deny(
+    clippy::all,
+    clippy::cargo,
+    rustdoc::all,
+    missing_docs,
+    missing_debug_implementations,
+    rust_2018_idioms,
+    unreachable_pub
+)]
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
 
@@ -55,5 +62,5 @@ mod fetch;
 pub mod collate;
 pub mod sampler;
 
-pub use dataloader::{builder::Builder, DataLoader};
-pub use dataset::{Dataset, GetSample, Len};
+pub use dataloader::{Builder, DataLoader};
+pub use dataset::{Dataset, GetSample, Len, NdarrayDataset};

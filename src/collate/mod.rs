@@ -18,7 +18,7 @@ pub trait Collate<T>: Default {
 }
 
 /// Simple Collate that doesn't change the batch of samples.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct NoOpCollate;
 
 impl<T> Collate<T> for NoOpCollate {

@@ -34,6 +34,7 @@ impl IntoIterator for RandomSampler {
     }
 }
 /// Iterator that returns random index between zero and `data_source_len`.
+#[derive(Debug)]
 pub struct RandomSamplerIter {
     /// The length of the data source.
     data_source_len: usize,

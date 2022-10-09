@@ -4,15 +4,14 @@ use std::marker::PhantomData;
 
 use crate::{
     collate::{Collate, DefaultCollate},
-    dataloader::builder::Builder,
     fetch::{Fetcher, MapDatasetFetcher},
     sampler::{BatchIterator, BatchSampler},
     sampler::{Sampler, SequentialSampler},
     Dataset, Len,
 };
 
-pub mod builder;
-
+mod builder;
+pub use builder::Builder;
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
 // to pass directly closure or function to construct a `Dataloader`.
 // The main drawback is that you can't (as i'm aware of) pass a default value
@@ -66,7 +65,7 @@ where
     C: Collate<D::Sample>,
 {
     /// Return not owning iterator over the dataloader.
-    pub fn iter(&self) -> SingleProcessDataLoaderIter<D, S, C> {
+    pub fn iter(&self) -> SingleProcessDataLoaderIter<'_, D, S, C> {
         SingleProcessDataLoaderIter::new(self)
     }
 }
@@ -84,6 +83,7 @@ where
 }
 
 /// Iterate over the dataloader with a single thread.
+#[derive(Debug)]
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = SequentialSampler, C = DefaultCollate>
 where
     D: Dataset,
@@ -104,7 +104,7 @@ where
     S: Sampler,
     C: Collate<D::Sample>,
 {
-    fn new(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<D, S, C> {
+    fn new(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<'_, D, S, C> {
         SingleProcessDataLoaderIter {
             sampler_iter: loader.batch_sampler.iter(),
             num_yielded: 0,
