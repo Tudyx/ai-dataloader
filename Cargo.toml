@@ -1,6 +1,6 @@
 [package]
 name = "ai-dataloader"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Tudy Gourmelen <gourmelentudy@gmail.com>"]
 edition = "2021"
 description = "Rust implementation to the PyTorch DataLoader"
