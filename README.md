@@ -9,10 +9,10 @@ A rust port of [`pytorch`](https://pytorch.org/) `dataloader` library.
 
 ## Highlights
 
-- Random or sequential `Sampler`.
-- Customizable `Sampler`
-- Default collate function that covers most of the type of the he standard library that can go in a tensor, supporting nested type.
-- Customizable collate function
+- Iterable or indexable (Map style) `DataLoader`.
+- Customizable `Sampler`, `BatchSampler` and `collate_fn`.
+- Default collate function that will cover most of the uses cases, supporting nested type.
+- Shuffling for iterable and indexable `DataLoader`.
 
 Feel free to [read the doc](https://docs.rs/ai-dataloader/) that contains tutorials for [`pytorch`](https://pytorch.org/) user.
 

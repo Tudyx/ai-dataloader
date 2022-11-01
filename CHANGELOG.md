@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - more strict compiler warnings
 - `Dataloader` for iterable datasets. A dalaloader working for any type that implements `IntoIterator`
+- shuffling support for iterable dataset
 - project folder reorganization
 - default collate now support reference
+
 
 ## [0.2.1] - 2022-27-09
 ### Fixed

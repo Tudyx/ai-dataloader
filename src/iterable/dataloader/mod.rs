@@ -24,7 +24,7 @@ pub struct DataLoader<D, C> {
     drop_last: bool,
     /// Just here because collate has no data members.
     collate_fn: PhantomData<C>,
-    /// True if the sample in the batch will be shuffled
+    /// If `true` the sample in the batch will be shuffled
     shuffle: bool,
 }
 
@@ -33,14 +33,14 @@ where
     D: IntoIterator,
     DefaultCollate: Collate<D::Item>,
 {
-    /// Helper to return a [`Builder`] easily.
+    /// return a [`DataLoader`] builder.
     pub fn builder(dataset: D) -> Builder<D, DefaultCollate> {
         Builder::new(dataset)
     }
 }
 
 // we want to use dataloader in for loop
-// A dataset is something we can turun into an iterator.
+// A dataset is something we can turn into an iterator.
 // We make a an iterator that consume this iterator and yield only batches of it.
 impl<D, C> IntoIterator for DataLoader<D, C>
 where
@@ -180,7 +180,6 @@ mod tests {
     use super::*;
 
     use ndarray::array;
-    use rand::{seq::SliceRandom, thread_rng};
 
     #[test]
     fn multiple_iteration() {

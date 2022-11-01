@@ -18,10 +18,10 @@
 //!
 //! ## Highlights
 //!
-//! - Shuffle or Sequential Sampler.
-//! - Customizable sampler
-//! - Default collate function that covers most of the type of the standard library, supporting nested type.
-//! - Customizable  collate function
+//! - Iterable or indexable (Map style) `DataLoader`.
+//! - Customizable `Sampler`, `BatchSampler` and `collate_fn`.
+//! - Default collate function that will cover most of the uses cases, supporting nested type.
+//! - Shuffling for iterable and indexable `DataLoader`.
 //!
 //! ## Examples
 //!
@@ -51,9 +51,34 @@
 //! `for text, label in data_loader:` | `for (text, label) in data_loader.iter()` | Simple iteration
 //!
 //!
+//!
+//!
+//! ## Choosing between Iterable or Indexable dataloader
+//!
+//! You can choose Iterable `DataLoader` for instance if your dataset arrived from a stream and you don't have random access into it.
+//! It's also useful for large dataset to only load a small part at the time in the RAM. When the order mater, for instance in Reinforcement Learning, Iterable
+//! `DataLoader` is also a good fit.
+//!
+//! Otherwise Indexable Dataloader (Map style in [PyTorch] doc) maybe be a good fit.
+//!
+//! Both support shuffling the sample.
+//!
+//! To choose iterable:
+//!
+//! ```
+//! use ai_dataloader::iterable::DataLoader;
+//! ```
+//!
+//! To choose indexable:
+//!
+//! ```
+//! use ai_dataloader::indexable::DataLoader;
+//! ```
+//!
+//!
+//!
 //! [PyTorch]: https://pytorch.org/
 //! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
-//!
 
 pub mod indexable;
 pub mod iterable;
