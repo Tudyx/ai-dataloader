@@ -55,12 +55,9 @@
 //! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
 //!
 
-mod dataloader;
-mod dataset;
-mod fetch;
+pub mod indexable;
+pub mod iterable;
 
 pub mod collate;
-pub mod sampler;
 
-pub use dataloader::{Builder, DataLoader};
-pub use dataset::{Dataset, GetSample, Len, NdarrayDataset};
+pub use indexable::{sampler, Dataset, GetSample, Len, NdarrayDataset};

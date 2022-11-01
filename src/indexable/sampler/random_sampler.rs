@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-use crate::{sampler::Sampler, Len};
+use super::{Len, Sampler};
 
 /// Sampler that returns random index between zero and `data_source_len`.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Hash, Eq, Ord)]
@@ -77,13 +77,18 @@ impl Iterator for RandomSamplerIter {
     }
 }
 
-#[test]
-fn random_sampler() {
-    let random_sampler = RandomSampler {
-        data_source_len: 10,
-        replacement: false,
-    };
-    for idx in random_sampler {
-        println!("{idx}");
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn random_sampler() {
+        let random_sampler = RandomSampler {
+            data_source_len: 10,
+            replacement: false,
+        };
+        for idx in random_sampler {
+            println!("{idx}");
+        }
     }
 }

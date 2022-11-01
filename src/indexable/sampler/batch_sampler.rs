@@ -27,7 +27,7 @@ use crate::Len;
 /// assert_eq!(iter.next(), Some(vec![2, 3]));
 /// ```
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct BatchSampler<S: Sampler = SequentialSampler> {
+pub struct BatchSampler<S = SequentialSampler> {
     /// Base sampler.
     pub sampler: S,
     /// Size of mini batch.
@@ -101,7 +101,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sampler::sequential_sampler::SequentialSampler;
 
     #[test]
     fn basics() {

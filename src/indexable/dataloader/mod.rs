@@ -2,16 +2,15 @@
 
 use std::marker::PhantomData;
 
+use super::fetch::{Fetcher, MapDatasetFetcher};
 use crate::{
     collate::{Collate, DefaultCollate},
-    fetch::{Fetcher, MapDatasetFetcher},
-    sampler::{BatchIterator, BatchSampler},
-    sampler::{Sampler, SequentialSampler},
+    sampler::{BatchIterator, BatchSampler, Sampler, SequentialSampler},
     Dataset, Len,
 };
 
 mod builder;
-pub use builder::Builder;
+use builder::Builder;
 // The collate function could have been a `Fn(Vec<D::Sample>) -> T` or a `fn(Vec<D::Sample>) -> T`, it would have allowed
 // to pass directly closure or function to construct a `Dataloader`.
 // The main drawback is that you can't (as i'm aware of) pass a default value
@@ -22,7 +21,7 @@ pub use builder::Builder;
 ///
 ///
 /// ```rust
-/// use ai_dataloader::DataLoader;
+/// use ai_dataloader::indexable::DataLoader;
 ///
 /// let loader = DataLoader::builder(vec![(0, "hola"), (1, "hello"), (2, "hallo"), (3, "bonjour")]).batch_size(2).shuffle().build();
 ///
@@ -33,18 +32,13 @@ pub use builder::Builder;
 /// ```
 ///
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
-pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate>
-where
-    D: Dataset,
-    S: Sampler,
-    C: Collate<D::Sample>,
-{
+pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate> {
     /// Dataset from which to load the data.
     dataset: D,
     /// Return a batch of indices at a time.
     batch_sampler: BatchSampler<S>,
     /// Just here because collate has no data members.
-    phantom: PhantomData<C>,
+    collate_fn: PhantomData<C>,
 }
 
 impl<D> DataLoader<D, SequentialSampler, DefaultCollate>
@@ -151,6 +145,7 @@ where
 {
     type Item = C::Output;
     type IntoIter = SingleProcessDataLoaderIter<'dataset, D, S, C>;
+
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
     }
@@ -160,10 +155,10 @@ where
 mod tests {
     use super::*;
     use crate::collate::NoOpCollate;
-    use crate::dataset::NdarrayDataset;
     use crate::sampler::RandomSampler;
     use crate::sampler::SequentialSampler;
     use crate::Len;
+    use crate::NdarrayDataset;
     use ndarray::{arr0, array, Array, Array1, Array4, Axis, Ix1, Ix4, Slice};
     use ndarray_rand::rand_distr::{Normal, Uniform};
     use ndarray_rand::RandomExt;
@@ -293,7 +288,7 @@ mod tests {
         if let TestDataLoaderData::Sequential(test_dataloader_data) = test_dataloader_data {
             test_data = test_dataloader_data;
         } else {
-            panic!("Excpected a Sequential loader")
+            panic!("Expected a sequential loader")
         }
         let mut current_idx = 0;
 
