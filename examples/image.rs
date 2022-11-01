@@ -4,7 +4,9 @@
 ///
 /// The dataset is a subset of the tutorial’s dataset for storing purpose.
 ///
-use ai_dataloader::{DataLoader, Dataset, GetSample, Len};
+use ai_dataloader::{Dataset, GetSample, Len};
+
+use ai_dataloader::indexable::DataLoader;
 use ndarray::{Array1, Array2, Array3};
 use nshare::ToNdarray3;
 use std::{env, path::PathBuf};

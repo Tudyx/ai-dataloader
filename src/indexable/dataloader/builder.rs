@@ -3,10 +3,14 @@ use std::marker::PhantomData;
 use crate::{
     collate::{Collate, DefaultCollate},
     sampler::{BatchSampler, RandomSampler, Sampler, SequentialSampler},
-    DataLoader, Dataset,
+    Dataset,
 };
 
-/// Basic builder for creating dataloader.
+use super::DataLoader;
+
+/// Basic builder for creating dataloader from a type that implement `IntoIterator`.
+/// add a dataloader for all type that implement IntoIterator.
+/// If the iterator `Item` is not supported by default collate, you must provid your own collate function
 #[must_use]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Ord)]
 pub struct Builder<D, S = SequentialSampler, C = DefaultCollate>
@@ -102,7 +106,7 @@ where
         DataLoader {
             dataset: self.dataset,
             batch_sampler: self.batch_sampler,
-            phantom: PhantomData,
+            collate_fn: PhantomData,
         }
     }
 }
@@ -142,8 +146,6 @@ mod tests {
             .sampler::<RandomSampler>()
             .collate_fn(NoOpCollate)
             .build();
-
-        // TODO: checker la syntax des builder dans la STL, voir s'il utilise "with_", des verbe, etc..
 
         let _loader = Builder::new(vec![1, 2, 3, 4])
             .shuffle()
