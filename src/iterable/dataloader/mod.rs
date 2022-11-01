@@ -5,22 +5,27 @@
 
 mod builder;
 use builder::Builder;
+use rand::{seq::SliceRandom, thread_rng};
 
 use std::marker::PhantomData;
 
 use crate::collate::{Collate, DefaultCollate};
 
-// TODO: add shuffle
-
 /// For iterable dataset, the `datalaoder` will yield until the underlying iterator is `None`.
 /// As the iteration over the dataset can be done mutliple time, depending if the underlying dataset iterator consume the dataset or not.
 #[derive(Debug)]
 pub struct DataLoader<D, C> {
+    /// The dataset we will iterate over.
     dataset: D,
+    /// The number of sample a batch will contain.
     batch_size: usize,
-    /// Just here because collate has no data members.
+    /// If `true`, the sampler will drop the last batch if
+    /// its size were less than `batch_size`.
     drop_last: bool,
+    /// Just here because collate has no data members.
     collate_fn: PhantomData<C>,
+    /// True if the sample in the batch will be shuffled
+    shuffle: bool,
 }
 
 impl<D> DataLoader<D, DefaultCollate>
@@ -52,6 +57,7 @@ where
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
             collate_fn: PhantomData,
+            shuffle: self.shuffle,
         }
     }
 }
@@ -63,6 +69,7 @@ pub struct IntoIter<D, C> {
     dataset_iter: D,
     drop_last: bool,
     collate_fn: PhantomData<C>,
+    shuffle: bool,
 }
 
 impl<D, C> Iterator for IntoIter<D, C>
@@ -72,7 +79,7 @@ where
 {
     type Item = C::Output;
     fn next(&mut self) -> Option<Self::Item> {
-        let batch = self
+        let mut batch = self
             .dataset_iter
             .by_ref()
             .take(self.batch_size)
@@ -83,6 +90,9 @@ where
         }
 
         if batch.len() == self.batch_size || (batch.len() != self.batch_size && !self.drop_last) {
+            if self.shuffle {
+                batch.shuffle(&mut thread_rng());
+            }
             return Some(C::collate(batch));
         }
         None
@@ -96,6 +106,7 @@ pub struct Iter<D, C> {
     dataset_iter: D,
     drop_last: bool,
     collate_fn: PhantomData<C>,
+    shuffle: bool,
 }
 
 impl<'dataset, D, C> IntoIterator for &'dataset DataLoader<D, C>
@@ -113,6 +124,7 @@ where
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
             collate_fn: PhantomData,
+            shuffle: self.shuffle,
         }
     }
 }
@@ -131,6 +143,7 @@ where
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
             collate_fn: PhantomData,
+            shuffle: self.shuffle,
         }
     }
 }
@@ -142,7 +155,7 @@ where
 {
     type Item = C::Output;
     fn next(&mut self) -> Option<Self::Item> {
-        let batch = self
+        let mut batch = self
             .dataset_iter
             .by_ref()
             .take(self.batch_size)
@@ -153,6 +166,9 @@ where
         }
 
         if batch.len() == self.batch_size || (batch.len() != self.batch_size && !self.drop_last) {
+            if self.shuffle {
+                batch.shuffle(&mut thread_rng());
+            }
             return Some(C::collate(batch));
         }
         None
@@ -164,6 +180,7 @@ mod tests {
     use super::*;
 
     use ndarray::array;
+    use rand::{seq::SliceRandom, thread_rng};
 
     #[test]
     fn multiple_iteration() {

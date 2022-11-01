@@ -20,6 +20,8 @@ where
     drop_last: bool,
     /// Used to collate the data together.
     collate_fn: C,
+
+    shuffle: bool,
 }
 
 impl<D> Builder<D, DefaultCollate>
@@ -35,6 +37,7 @@ where
             batch_size: 1,
             drop_last: false,
             collate_fn: DefaultCollate,
+            shuffle: false,
         }
     }
 }
@@ -45,8 +48,9 @@ where
     DefaultCollate: Collate<D::Item>,
 {
     /// Use a random sampler.
-    pub fn shuffle(self) -> Builder<D, C> {
-        unimplemented!()
+    pub fn shuffle(mut self) -> Builder<D, C> {
+        self.shuffle = true;
+        self
     }
     /// Set the number of elements in a batch.
     pub fn batch_size(mut self, batch_size: usize) -> Self {
@@ -71,6 +75,7 @@ where
             batch_size: self.batch_size,
             drop_last: self.drop_last,
             collate_fn,
+            shuffle: self.shuffle,
         }
     }
 
@@ -81,6 +86,7 @@ where
             batch_size: self.batch_size,
             drop_last: self.drop_last,
             collate_fn: PhantomData,
+            shuffle: self.shuffle,
         }
     }
 }
@@ -94,8 +100,7 @@ mod tests {
     fn api() {
         let _loader = Builder::new(vec![1, 2, 3, 4]).build();
 
-        // not implemented yet
-        // let _loader = Builder::new(vec![1, 2, 3, 4]).shuffle().build();
+        let _loader = Builder::new(vec![1, 2, 3, 4]).shuffle().build();
 
         let _loader = Builder::new(vec![1, 2, 3, 4]).batch_size(2).build();
 
@@ -110,12 +115,11 @@ mod tests {
             .collate_fn(NoOpCollate)
             .build();
 
-        // not implemented yet
-        // let _loader = Builder::new(vec![1, 2, 3, 4])
-        //     .shuffle()
-        //     .batch_size(2)
-        //     .drop_last()
-        //     .collate_fn(NoOpCollate)
-        //     .build();
+        let _loader = Builder::new(vec![1, 2, 3, 4])
+            .shuffle()
+            .batch_size(2)
+            .drop_last()
+            .collate_fn(NoOpCollate)
+            .build();
     }
 }

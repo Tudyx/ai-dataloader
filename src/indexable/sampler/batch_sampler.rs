@@ -33,7 +33,7 @@ pub struct BatchSampler<S = SequentialSampler> {
     /// Size of mini batch.
     pub batch_size: usize,
     /// If `true`, the sampler will drop the last batch if
-    /// its size were less than ``batch_size``.
+    /// its size were less than `batch_size`.
     pub drop_last: bool,
 }
 
