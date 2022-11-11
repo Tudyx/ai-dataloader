@@ -69,6 +69,7 @@ impl GetSample for FaceLandmarksDataset {
     }
 }
 
+#[cfg(not(feature = "torch"))]
 fn main() {
     let dataset = FaceLandmarksDataset::new(
         "examples/image/dataset/face_landmarks.csv",
@@ -82,6 +83,24 @@ fn main() {
             batch_id,
             image.shape(),
             landmarks.shape()
+        );
+    }
+}
+
+#[cfg(feature = "torch")]
+fn main() {
+    let dataset = FaceLandmarksDataset::new(
+        "examples/image/dataset/face_landmarks.csv",
+        env::current_dir().unwrap().join("examples/image/dataset/"),
+    );
+    let loader = DataLoader::builder(dataset).batch_size(4).build();
+
+    for (batch_id, (image, landmarks)) in loader.iter().enumerate() {
+        println!(
+            "Batch {}: image shape {:?}, landmark shape {:?}",
+            batch_id,
+            image.dim(),
+            landmarks.dim()
         );
     }
 }
