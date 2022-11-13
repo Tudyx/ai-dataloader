@@ -81,11 +81,14 @@ fn main() {
         println!(
             "Batch {}: image shape {:?}, landmark shape {:?}",
             batch_id,
-            image.shape(),
-            landmarks.shape()
+            image.dim(),
+            landmarks.dim()
         );
     }
 }
+
+#[cfg(feature = "torch")]
+use ai_dataloader::collate::TorchCollate;
 
 #[cfg(feature = "torch")]
 fn main() {
@@ -93,7 +96,10 @@ fn main() {
         "examples/image/dataset/face_landmarks.csv",
         env::current_dir().unwrap().join("examples/image/dataset/"),
     );
-    let loader = DataLoader::builder(dataset).batch_size(4).build();
+    let loader = DataLoader::builder(dataset)
+        .batch_size(4)
+        .collate_fn(TorchCollate)
+        .build();
 
     for (batch_id, (image, landmarks)) in loader.iter().enumerate() {
         println!(
