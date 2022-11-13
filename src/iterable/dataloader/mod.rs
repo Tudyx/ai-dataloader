@@ -179,6 +179,7 @@ where
 mod tests {
     use super::*;
 
+    use crate::collate::NoOpCollate;
     use ndarray::array;
 
     #[test]
@@ -218,6 +219,24 @@ mod tests {
         assert_eq!(into_iter.next(), Some(array![4, 5]));
         assert_eq!(into_iter.next(), Some(array![6, 7]));
         assert_eq!(into_iter.next(), Some(array![8, 9]));
+        assert_eq!(into_iter.next(), None);
+    }
+
+    #[test]
+    fn custom_collate() {
+        let dataset = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let loader = DataLoader::builder(dataset)
+            .batch_size(2)
+            .collate_fn(NoOpCollate)
+            .build();
+
+        let mut into_iter = loader.into_iter();
+        assert_eq!(into_iter.next(), Some(vec![0, 1]));
+        assert_eq!(into_iter.next(), Some(vec![2, 3]));
+        assert_eq!(into_iter.next(), Some(vec![4, 5]));
+        assert_eq!(into_iter.next(), Some(vec![6, 7]));
+        assert_eq!(into_iter.next(), Some(vec![8, 9]));
+        assert_eq!(into_iter.next(), Some(vec![10]));
         assert_eq!(into_iter.next(), None);
     }
 }
