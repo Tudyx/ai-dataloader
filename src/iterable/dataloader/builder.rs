@@ -10,7 +10,7 @@ use super::DataLoader;
 pub struct Builder<D, C = DefaultCollate>
 where
     D: IntoIterator,
-    DefaultCollate: Collate<D::Item>,
+    C: Collate<D::Item>,
 {
     /// The dataset from which the loader will yield the data.
     dataset: D,
@@ -45,7 +45,7 @@ where
 impl<D, C> Builder<D, C>
 where
     D: IntoIterator,
-    DefaultCollate: Collate<D::Item>,
+    C: Collate<D::Item>,
 {
     /// Use a random sampler.
     pub fn shuffle(mut self) -> Builder<D, C> {
