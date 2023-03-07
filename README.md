@@ -34,9 +34,9 @@ for (label, text) in &loader {
 
 [`ndarray`](https://docs.rs/ndarray/latest/ndarray/) can't [currently run on the GPU](https://github.com/rust-ndarray/ndarray/issues/840).
 
-But if you're tensor library can be created from a [`ndarray`](https://docs.rs/ndarray/latest/ndarray/), it could be easily integrated.
+But if your tensor library can be created from a [`ndarray`](https://docs.rs/ndarray/latest/ndarray/), it could be easily integrated.
 
-I've planned to integrate different tensor libraries using [features](https://doc.rust-lang.org/cargo/reference/features.html), file free to add an issue if you want to submit one.
+I've planned to integrate different tensor libraries using [features](https://doc.rust-lang.org/cargo/reference/features.html), feel free to add an issue if you want to submit one.
 
 ### Next Features
 
