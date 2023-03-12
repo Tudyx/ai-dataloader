@@ -1,5 +1,6 @@
 [![CI](https://github.com/Tudyx/ai-dataloader/actions/workflows/ci.yml/badge.svg)](https://github.com/Tudyx/ai-dataloader/actions/workflows/ci.yml) 
-[![Coverage](https://github.com/Tudyx/ai-dataloader/actions/workflows/codecov.yml/badge.svg)](https://github.com/Tudyx/ai-dataloader/actions/workflows/codecov.yml)
+[![Crates.io](https://img.shields.io/crates/v/ai-dataloader.svg)](https://crates.io/crates/ai-dataloader)
+[![Documentation](https://docs.rs/ai-dataloader/badge.svg)](https://docs.rs/ai-dataloader/)
 
 # ai-dataloader
 
