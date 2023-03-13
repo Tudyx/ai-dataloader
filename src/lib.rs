@@ -5,7 +5,7 @@
     missing_docs,
     missing_debug_implementations,
     rust_2018_idioms,
-    unreachable_pub
+    // unreachable_pub
 )]
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
