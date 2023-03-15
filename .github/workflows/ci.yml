@@ -10,34 +10,84 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  fmt:
     runs-on: ubuntu-latest
-
+    name: stable / fmt
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-      
-  lint:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: cargo fmt --check
+        run: cargo fmt --check 
+  clippy:
     runs-on: ubuntu-latest
+    name: ${{ matrix.toolchain }} / clippy
+    permissions:
+      contents: read
+      checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable, beta]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-      - uses: actions-rs/cargo@v1
+          submodules: true
+      - name: Install ${{ matrix.toolchain }}
+        uses: dtolnay/rust-toolchain@master
         with:
-          command: fmt
-          args: --all -- --check
-      - uses: actions-rs/cargo@v1
-        if: always()
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+      - name: cargo clippy
+        uses: actions-rs/clippy-check@v1
         with:
-          command: clippy
-          args: --workspace --all-targets -- -D warnings
+          token: ${{ secrets.GITHUB_TOKEN }}
+  doc:
+    runs-on: ubuntu-latest
+    name: nightly / doc
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install nightly
+        uses: dtolnay/rust-toolchain@nightly
+      - name: cargo doc
+        run: cargo doc --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: --cfg docsrs
+  hack:
+    runs-on: ubuntu-latest
+    name: ubuntu / stable / features
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: cargo install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+      - name: cargo hack
+        run: cargo hack --feature-powerset check --lib --tests
+  msrv:
+    runs-on: ubuntu-latest
+    # we use a matrix here just because env can't be used in job names
+    # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+    strategy:
+      matrix:
+        msrv: [1.56.1] # 2021 edition requires 1.56
+    name: ubuntu / ${{ matrix.msrv }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install ${{ matrix.msrv }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.msrv }}
+      - name: cargo +${{ matrix.msrv }} check
+        run: cargo check
 
