@@ -16,7 +16,15 @@ where
         let array = stack(Axis(0), vec_of_view.as_slice())
             .expect("Make sure you're items from the dataset have the same shape.");
 
-        let tensor = Tensor::of_slice(array.as_slice().unwrap()).to_device(tch::Device::Cuda(0));
+        let device = if tch::utils::has_cuda() {
+            tch::Device::Cuda(0)
+        } else if tch::utils::has_mps() {
+            tch::Device::Mps
+        } else {
+            tch::Device::Cpu
+        };
+
+        let tensor = Tensor::of_slice(array.as_slice().unwrap()).to_device(device);
         let shape = array
             .shape()
             .into_iter()
