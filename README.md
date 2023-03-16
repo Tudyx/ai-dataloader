@@ -23,7 +23,6 @@ More info in the [documentation](https://docs.rs/ai-dataloader/).
 Examples can be found in the [examples](examples/) folder but here there is a simple one
 
 ```rust 
-
 use ai_dataloader::DataLoader;
 let loader = DataLoader::builder(vec![(0, "hola"), (1, "hello"), (2, "hallo"), (3, "bonjour")]).batch_size(2).shuffle().build();
 
@@ -40,11 +39,11 @@ In order to collate your data into torch tensor that can run on the GPU, you mus
 This feature relies on the tch crate for bindings to the C++ `libTorch` API. The `libtorch` library is required can be downloaded either automatically or manually. The following provides a reference on how to set up your environment to use these bindings, please refer to the [tch](https://github.com/LaurentMazare/tch-rs) for detailed information or support.
 
 We advise doing the manual installation, as [doctest don't pass with the automatic one](https://github.com/LaurentMazare/tch-rs).
+
 ### Next Features
 
 This features could be added in the future:
 
-- customizable `BatchSampler` (by using a `trait`)
 - collect function as a closure 
 - `RandomSampler` with replacement
 - parallel `dataloader` (using [rayon](https://docs.rs/rayon/latest/rayon/)?)

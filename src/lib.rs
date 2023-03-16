@@ -1,11 +1,9 @@
 #![deny(
     clippy::all,
     clippy::cargo,
-    rustdoc::all,
     missing_docs,
     missing_debug_implementations,
-    rust_2018_idioms,
-    // unreachable_pub
+    rust_2018_idioms
 )]
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
