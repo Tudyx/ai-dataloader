@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-17-03
+### Added
+- Add tch-rs integration to run on the GPU.
+
 ## [0.3.1] - 2022-13-11
 ### Fixed
 - Incorrect bound for iterable dataloader builder, which doesn't allowed provide a custom collate function.
@@ -18,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - shuffling support for iterable dataset
 - project folder reorganization
 - default collate now support reference
-
 
 ## [0.2.1] - 2022-27-09
 ### Fixed
@@ -32,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sequential and random `Sampler`
 
 
-[Unreleased]: https://github.com/Tudyx/ai-dataloader/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/Tudyx/ai-dataloader/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Tudyx/ai-dataloader/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Tudyx/ai-dataloader/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Tudyx/ai-dataloader/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Tudyx/ai-dataloader/compare/v0.2.0...v0.2.1
