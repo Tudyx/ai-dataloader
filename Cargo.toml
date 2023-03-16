@@ -11,14 +11,17 @@ license = "MIT OR Apache-2.0"
 keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
 categories = ["science"]
 
+[features]
+torch = ["tch"]
+
 [dependencies]
 ndarray = { version = "0.15.4", features = ["serde"] }
 ndarray-rand = "0.14.0"
 itertools = "0.10.3"
 rand = "0.8.5"
+tch = { version = "0.10.3", optional = true }
 
 [dev-dependencies]
 csv = "1.1.6"
 image = "0.24.3"
 nshare = { version = "0.9.0", features = ["ndarray", "image"] }
-

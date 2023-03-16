@@ -1,11 +1,9 @@
 #![deny(
     clippy::all,
     clippy::cargo,
-    rustdoc::all,
     missing_docs,
     missing_debug_implementations,
-    rust_2018_idioms,
-    // unreachable_pub
+    rust_2018_idioms
 )]
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
@@ -20,7 +18,8 @@
 //!
 //! - Iterable or indexable (Map style) `DataLoader`.
 //! - Customizable `Sampler`, `BatchSampler` and `collate_fn`.
-//! - Default collate function that will cover most of the uses cases, supporting nested type.
+//! - Integration with [`ndarray`] and [`tch-rs`], CPU and GPU support.
+//! - Default collate function that will automatically collate most of your type (supporting nesting).
 //! - Shuffling for iterable and indexable `DataLoader`.
 //!
 //! ## Examples
@@ -51,8 +50,6 @@
 //! `for text, label in data_loader:` | `for (text, label) in data_loader.iter()` | Simple iteration
 //!
 //!
-//!
-//!
 //! ## Choosing between Iterable or Indexable dataloader
 //!
 //! You can choose Iterable `DataLoader` for instance if your dataset arrived from a stream and you don't have random access into it.
@@ -75,8 +72,7 @@
 //! use ai_dataloader::indexable::DataLoader;
 //! ```
 //!
-//!
-//!
+//! [`tch-rs`]: https://github.com/LaurentMazare/tch-rs
 //! [PyTorch]: https://pytorch.org/
 //! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
 

@@ -4,6 +4,11 @@
 mod default_collate;
 pub use default_collate::DefaultCollate;
 
+#[cfg(feature = "torch")]
+mod torch_collate;
+#[cfg(feature = "torch")]
+pub use torch_collate::TorchCollate;
+
 /// Any collate gather samples from one batch together.
 ///
 /// A `DefaultCollate` struct is provided which will cover most of the use cases.

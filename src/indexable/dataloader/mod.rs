@@ -424,4 +424,26 @@ mod tests {
         }
         assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size)
     }
+
+    #[test]
+    fn vec_of_token() {
+        let dataset = vec![
+            (0, vec![1, 23, 4, 0]),
+            (1, vec![4, 0, 0, 0]),
+            (1, vec![8, 23, 12, 3]),
+            (0, vec![2, 45, 4, 0]),
+        ];
+
+        let loader = DataLoader::builder(dataset).batch_size(2).build();
+
+        let mut iter = loader.iter();
+
+        assert_eq!(
+            iter.next(),
+            Some((
+                array![0, 1],
+                vec![array![1, 4], array![23, 0], array![4, 0], array![0, 0]]
+            ))
+        );
+    }
 }
