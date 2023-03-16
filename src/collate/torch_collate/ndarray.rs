@@ -16,7 +16,7 @@ where
         let array = stack(Axis(0), vec_of_view.as_slice())
             .expect("Make sure you're items from the dataset have the same shape.");
 
-        let tensor = Tensor::of_slice(array.as_slice().unwrap());
+        let tensor = Tensor::of_slice(array.as_slice().unwrap()).to_device(tch::Device::Cuda(0));
         let shape = array
             .shape()
             .into_iter()
@@ -38,9 +38,22 @@ mod tests {
         batch.print();
     }
 
+    // #[test]
+    // fn foo() {
+    //     println!("has_cuda: {}", tch::utils::has_cuda());
+
+    //     let array = vec![0; 1_000_000];
+    //     let array = Array::from_vec(array);
+    //     for i in 1..1_000_000 {
+    //         let t = TorchCollate::collate(vec![&array]);
+    //         println!("{} {:?}", i, t.size())
+    //     }
+    //     assert!(false);
+    // }
+
     #[test]
     fn nested() {
         // If a type is an ndarray it get converted into tensor. But what if this tensor needs to be collated again?.
-        // Regarder dans les type supporté si cela peut arriver.
+        // Look at the supported type if this case can happen.
     }
 }
