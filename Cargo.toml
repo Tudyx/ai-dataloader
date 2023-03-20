@@ -19,7 +19,7 @@ ndarray = { version = "0.15.4", features = ["serde"] }
 ndarray-rand = "0.14.0"
 itertools = "0.10.3"
 rand = "0.8.5"
-tch = { version = "0.10.3", optional = true }
+tch = { version = "0.11.0", optional = true }
 
 [dev-dependencies]
 csv = "1.1.6"
