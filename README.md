@@ -34,7 +34,7 @@ for (label, text) in &loader {
 
 ## [`tch-rs`](https://github.com/LaurentMazare/tch-rs) integration
 
-In order to collate your data into torch tensor that can run on the GPU, you must activate the torch feature.
+In order to collate your data into torch tensor that can run on the GPU, you must activate the `torch` feature.
 
 This feature relies on the tch crate for bindings to the C++ `libTorch` API. The `libtorch` library is required can be downloaded either automatically or manually. The following provides a reference on how to set up your environment to use these bindings, please refer to the [tch](https://github.com/LaurentMazare/tch-rs) for detailed information or support.
 
