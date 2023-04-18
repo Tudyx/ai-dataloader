@@ -24,6 +24,7 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       # https://twitter.com/jonhoo/status/1571290371124260865
+      # https://github.com/jonhoo/rust-ci-conf/issues/2
       - name: cargo test --locked
         run: cargo test --locked --all-features --all-targets
 
