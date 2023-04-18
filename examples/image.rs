@@ -91,6 +91,18 @@ fn main() {
 use ai_dataloader::collate::TorchCollate;
 
 #[cfg(feature = "tch")]
+fn chose_device() -> tch::Device {
+    let device = if tch::utils::has_cuda() {
+        tch::Device::Cuda(0)
+    } else if tch::utils::has_mps() {
+        tch::Device::Mps
+    } else {
+        tch::Device::Cpu
+    };
+    device
+}
+
+#[cfg(feature = "tch")]
 fn main() {
     let dataset = FaceLandmarksDataset::new(
         "examples/image/dataset/face_landmarks.csv",
@@ -101,7 +113,11 @@ fn main() {
         .collate_fn(TorchCollate)
         .build();
 
+    let device = chose_device();
+
     for (batch_id, (image, landmarks)) in loader.iter().enumerate() {
+        let _ = image.to_device(device);
+        let _ = landmarks.to_device(device);
         println!(
             "Batch {}: image shape {:?}, landmark shape {:?}",
             batch_id,

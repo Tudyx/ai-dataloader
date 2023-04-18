@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor example organisation
 - rename features `torch` to `tch`.
 - make tch loading on the GPU opt-in
+- bunp tch to 0.11.0
 
 ## [0.4.0] - 2023-17-03
 ### Added
