@@ -1,6 +1,6 @@
 use ai_dataloader::iterable::DataLoader;
 
-#[cfg(not(feature = "torch"))]
+#[cfg(not(feature = "tch"))]
 fn main() {
     let dataset = vec![
         (0, vec![1, 23, 4, 0]),
@@ -18,10 +18,10 @@ fn main() {
     }
 }
 
-#[cfg(feature = "torch")]
+#[cfg(feature = "tch")]
 use ai_dataloader::collate::TorchCollate;
 
-#[cfg(feature = "torch")]
+#[cfg(feature = "tch")]
 fn main() {
     // Lets say we have tokenized the input.
     let dataset = vec![

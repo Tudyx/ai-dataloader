@@ -69,7 +69,7 @@ impl GetSample for FaceLandmarksDataset {
     }
 }
 
-#[cfg(not(feature = "torch"))]
+#[cfg(not(feature = "tch"))]
 fn main() {
     let dataset = FaceLandmarksDataset::new(
         "examples/image/dataset/face_landmarks.csv",
@@ -87,10 +87,10 @@ fn main() {
     }
 }
 
-#[cfg(feature = "torch")]
+#[cfg(feature = "tch")]
 use ai_dataloader::collate::TorchCollate;
 
-#[cfg(feature = "torch")]
+#[cfg(feature = "tch")]
 fn main() {
     let dataset = FaceLandmarksDataset::new(
         "examples/image/dataset/face_landmarks.csv",

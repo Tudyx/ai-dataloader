@@ -11,8 +11,6 @@ license = "MIT OR Apache-2.0"
 keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
 categories = ["science"]
 
-[features]
-torch = ["tch"]
 
 [dependencies]
 ndarray = { version = "0.15.4", features = ["serde"] }
