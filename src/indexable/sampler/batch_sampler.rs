@@ -113,7 +113,7 @@ mod tests {
             drop_last: false,
         };
         for (i, batch_indices) in batch_sampler.iter().enumerate() {
-            println!("Batch #{} indices: {:?}", i, batch_indices);
+            println!("Batch #{i} indices: {batch_indices:?}");
         }
         let mut iter = batch_sampler.iter();
         assert_eq!(iter.next(), Some(vec![0, 1, 2]));

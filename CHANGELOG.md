@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- primitive type for `TorchCollate` are now collate in `tch::Tensor` instead of `ndarray`.
+- clippy pedantic lints
+
 ## [0.5.0] - 2023-18-04
 ### Changed
 - refactor example organisation

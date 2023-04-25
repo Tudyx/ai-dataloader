@@ -21,10 +21,8 @@ impl FaceLandmarksDataset {
         let mut landmarks_frame = csv::Reader::from_path(csv_file).unwrap();
 
         // We parse the reader beacause so we can easily manipulate the data
-        let landmarks_frame: Vec<csv::StringRecord> = landmarks_frame
-            .records()
-            .map(|record| record.unwrap())
-            .collect();
+        let landmarks_frame: Vec<csv::StringRecord> =
+            landmarks_frame.records().map(Result::unwrap).collect();
         FaceLandmarksDataset {
             root_dir,
             landmarks_frame,

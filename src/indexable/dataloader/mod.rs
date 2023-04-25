@@ -381,7 +381,7 @@ mod tests {
             assert_eq!(found_data.values().sum::<usize>(), i + 1);
             assert_eq!(found_labels.values().sum::<usize>(), i + 1);
         }
-        assert_eq!(current_i, test_data.dataset.len() - 1)
+        assert_eq!(current_i, test_data.dataset.len() - 1);
     }
 
     #[test]
@@ -422,7 +422,7 @@ mod tests {
             assert_eq!(found_data.values().sum::<usize>(), (i + 1) * batch_size);
             assert_eq!(found_labels.values().sum::<usize>(), (i + 1) * batch_size);
         }
-        assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size)
+        assert_eq!(current_i, (test_data.dataset.len() - 1) / batch_size);
     }
 
     #[test]

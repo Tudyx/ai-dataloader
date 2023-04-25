@@ -1,14 +1,18 @@
-#![deny(
+#![warn(
     clippy::all,
     clippy::cargo,
+    clippy::pedantic,
+    clippy::clone_on_ref_ptr,
     missing_docs,
     missing_debug_implementations,
     rust_2018_idioms
 )]
 // I've a false positive on this one.
 #![allow(clippy::derive_partial_eq_without_eq)]
+// Opinionated.
+#![allow(clippy::module_name_repetitions)]
 
-//! The `ai-dataloader` crate provides a Rust implementation to the [PyTorch] `DataLoader`.
+//! The `ai-dataloader` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
 //!
 //!
 //! Unlike the python version where almost everything happens in runtime, `ai-dataloader` is built on Rust's powerful trait system.
@@ -56,7 +60,7 @@
 //! It's also useful for large dataset to only load a small part at the time in the RAM. When the order mater, for instance in Reinforcement Learning, Iterable
 //! `DataLoader` is also a good fit.
 //!
-//! Otherwise Indexable Dataloader (Map style in [PyTorch] doc) maybe be a good fit.
+//! Otherwise Indexable Dataloader (Map style in [`PyTorch`] doc) maybe be a good fit.
 //!
 //! Both support shuffling the sample.
 //!
@@ -73,7 +77,7 @@
 //! ```
 //!
 //! [`tch-rs`]: https://github.com/LaurentMazare/tch-rs
-//! [PyTorch]: https://pytorch.org/
+//! [`PyTorch`]: https://pytorch.org/
 //! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
 
 pub mod indexable;
