@@ -38,8 +38,8 @@ fn main() {
         .collate_fn(TorchCollate)
         .build();
 
-    for (label, text) in &loader {
-        dbg!(label);
+    for (_label, text) in &loader {
+        dbg!(_label);
         dbg!(text);
     }
 }

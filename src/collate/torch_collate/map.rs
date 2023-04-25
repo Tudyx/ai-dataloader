@@ -43,24 +43,33 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+    use tch::Tensor;
 
     #[test]
     fn vec_of_hash_map() {
         let map1 = HashMap::from([("A", 0), ("B", 1)]);
         let map2 = HashMap::from([("A", 100), ("B", 100)]);
-        let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
+        let expected_result = HashMap::from([
+            ("A", Tensor::of_slice(&[0, 100])),
+            ("B", Tensor::of_slice(&[1, 100])),
+        ]);
         assert_eq!(TorchCollate::collate(vec![map1, map2]), expected_result);
 
         // Same value type but different key
         let map1 = HashMap::from([(1, 0), (2, 1)]);
         let map2 = HashMap::from([(1, 100), (2, 100)]);
-        let expected_result = HashMap::from([(1, array![0, 100]), (2, array![1, 100])]);
+        let expected_result = HashMap::from([
+            (1, Tensor::of_slice(&[0, 100])),
+            (2, Tensor::of_slice(&[1, 100])),
+        ]);
         assert_eq!(TorchCollate::collate(vec![map1, map2]), expected_result);
 
         let map1 = HashMap::from([("A", 0.0), ("B", 1.0)]);
         let map2 = HashMap::from([("A", 100.0), ("B", 100.0)]);
-        let expected_result = HashMap::from([("A", array![0.0, 100.0]), ("B", array![1.0, 100.0])]);
+        let expected_result = HashMap::from([
+            ("A", Tensor::of_slice(&[0.0, 100.0])),
+            ("B", Tensor::of_slice(&[1.0, 100.0])),
+        ]);
         assert_eq!(TorchCollate::collate(vec![map1, map2]), expected_result);
     }
 

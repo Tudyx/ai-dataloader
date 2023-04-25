@@ -64,29 +64,40 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+
+    use tch::Tensor;
 
     #[test]
     fn vec_of_vec() {
-        assert_eq!(TorchCollate::collate(vec![vec![1]]), vec![array![1]]);
+        assert_eq!(
+            TorchCollate::collate(vec![vec![1]]),
+            vec![Tensor::of_slice(&[1])]
+        );
         assert_eq!(
             TorchCollate::collate(vec![vec![1, 2], vec![3, 4]]),
-            vec![array![1, 3], array![2, 4]]
+            vec![Tensor::of_slice(&[1, 3]), Tensor::of_slice(&[2, 4])]
         );
         // different type
         assert_eq!(
             TorchCollate::collate(vec![vec![true, false], vec![true, false]]),
-            vec![array![true, true], array![false, false]]
+            vec![
+                Tensor::of_slice(&[true, true]),
+                Tensor::of_slice(&[false, false])
+            ]
         );
 
         assert_eq!(
             TorchCollate::collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
-            vec![array![1, 4], array![2, 5], array![3, 6]]
+            vec![
+                Tensor::of_slice(&[1, 4]),
+                Tensor::of_slice(&[2, 5]),
+                Tensor::of_slice(&[3, 6])
+            ]
         );
         // batch_size 3
         assert_eq!(
             TorchCollate::collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
-            vec![array![1, 3, 5], array![2, 4, 6]]
+            vec![Tensor::of_slice(&[1, 3, 5]), Tensor::of_slice(&[2, 4, 6])]
         );
         // batch_size 10
         assert_eq!(
@@ -103,8 +114,8 @@ mod tests {
                 vec![19, 20]
             ]),
             vec![
-                array![1, 3, 5, 7, 9, 11, 13, 15, 17, 19],
-                array![2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+                Tensor::of_slice(&[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]),
+                Tensor::of_slice(&[2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
             ]
         );
     }

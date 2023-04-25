@@ -20,13 +20,13 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ndarray::array;
+    use tch::Tensor;
 
     #[test]
     fn vec_of_array() {
         assert_eq!(
             TorchCollate::collate(vec![[1, 2], [3, 4], [5, 6]]),
-            vec![array![1, 3, 5], array![2, 4, 6]]
+            vec![Tensor::of_slice(&[1, 3, 5]), Tensor::of_slice(&[2, 4, 6])]
         );
     }
 }
