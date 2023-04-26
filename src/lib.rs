@@ -80,9 +80,8 @@
 //! [`PyTorch`]: https://pytorch.org/
 //! [examples]: https://github.com/Tudyx/ai-dataloader/tree/main/examples
 
+pub mod collate;
 pub mod indexable;
 pub mod iterable;
-
-pub mod collate;
 
 pub use indexable::{sampler, Dataset, GetSample, Len, NdarrayDataset};
