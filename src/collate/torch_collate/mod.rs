@@ -1,13 +1,11 @@
-/// Default Collate function that mimic the [`default_collate` function](https://pytorch.org/docs/stable/data.html#automatic-batching-default) from ``PyTorch``.
+/// Torch Collate function that mimic the [`default_collate` function](https://pytorch.org/docs/stable/data.html#automatic-batching-default) from ``PyTorch``.
 ///
-/// As they are no such lib with the same functionnality as `PyTorch` tensor in Rust,
-/// data is collated inside `ndarray`. Ndarray is the rust equivalent of `numpy.ndarray` with
-/// almost the same capabilities. Nevertheless, they can't run on the GPU.
+/// Data is collated inside a `tch` `Tensor`.
 ///
 ///
 /// Basic transformation implemented for the default Collate :
 ///
-/// - `Vec<Scalar>` -> `ndarray<scalar>`
+/// - `Vec<Scalar>` -> `tch::Tensor<scalar>`
 /// - `Vec<tuple>` -> `tuple(ndarray)`
 /// - `Vec<HashMap<Key, Value>>` -> `HasMap<Key, TorchCollate::collate(Vec<Value>)`
 /// - `Vec<Array>` -> `Vec<Stack Array>`

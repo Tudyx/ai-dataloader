@@ -11,6 +11,7 @@
 #![allow(clippy::derive_partial_eq_without_eq)]
 // Opinionated.
 #![allow(clippy::module_name_repetitions)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! The `ai-dataloader` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.
 //!

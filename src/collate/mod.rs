@@ -5,8 +5,10 @@ mod default_collate;
 pub use default_collate::DefaultCollate;
 
 #[cfg(feature = "tch")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tch")))]
 mod torch_collate;
 #[cfg(feature = "tch")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tch")))]
 pub use torch_collate::TorchCollate;
 
 /// Any collate gather samples from one batch together.
