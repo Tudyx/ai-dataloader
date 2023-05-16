@@ -7,9 +7,9 @@
 ///
 /// - `Vec<Scalar>` -> `tch::Tensor<scalar>`
 /// - `Vec<tuple>` -> `tuple(ndarray)`
-/// - `Vec<HashMap<Key, Value>>` -> `HasMap<Key, TorchCollate::collate(Vec<Value>)`
+/// - `Vec<HashMap<Key, Value>>` -> `HasMap<Key, TorchCollate::default().collate(Vec<Value>)`
 /// - `Vec<Array>` -> `Vec<Stack Array>`
-/// - `Vec[V1_i, V2_i, ...]` -> `Vec[TorchCollate::collate([V1_1, V1_2, ...]), TorchCollate::collate([V2_1, V2_2, ...]), ...]`
+/// - `Vec[V1_i, V2_i, ...]` -> `Vec[TorchCollate::default().collate([V1_1, V1_2, ...]), TorchCollate::default().collate([V2_1, V2_2, ...]), ...]`
 ///
 ///
 /// Like for `PyTorch` version, `String` and `u8` aren't changed by the collation (No Op).

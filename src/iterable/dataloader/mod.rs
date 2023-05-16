@@ -7,8 +7,6 @@ mod builder;
 use builder::Builder;
 use rand::{seq::SliceRandom, thread_rng};
 
-use std::marker::PhantomData;
-
 use crate::collate::{Collate, DefaultCollate};
 
 /// For iterable dataset, the `datalaoder` will yield until the underlying iterator is `None`.
@@ -22,8 +20,8 @@ pub struct DataLoader<D, C> {
     /// If `true`, the sampler will drop the last batch if
     /// its size were less than `batch_size`.
     drop_last: bool,
-    /// Just here because collate has no data members.
-    collate_fn: PhantomData<C>,
+    /// Collate function.
+    collate_fn: C,
     /// If `true` the sample in the batch will be shuffled
     shuffle: bool,
 }
@@ -56,7 +54,7 @@ where
             batch_size: self.batch_size,
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
-            collate_fn: PhantomData,
+            collate_fn: self.collate_fn,
             shuffle: self.shuffle,
         }
     }
@@ -68,7 +66,7 @@ pub struct IntoIter<D, C> {
     batch_size: usize,
     dataset_iter: D,
     drop_last: bool,
-    collate_fn: PhantomData<C>,
+    collate_fn: C,
     shuffle: bool,
 }
 
@@ -93,7 +91,7 @@ where
             if self.shuffle {
                 batch.shuffle(&mut thread_rng());
             }
-            return Some(C::collate(batch));
+            return Some(self.collate_fn.collate(batch));
         }
         None
     }
@@ -101,11 +99,11 @@ where
 
 /// Iterator returned by `iter` function.
 #[derive(Debug)]
-pub struct Iter<D, C> {
+pub struct Iter<'dataset, D, C> {
     batch_size: usize,
     dataset_iter: D,
     drop_last: bool,
-    collate_fn: PhantomData<C>,
+    collate_fn: &'dataset C,
     shuffle: bool,
 }
 
@@ -116,14 +114,14 @@ where
     C: Collate<<&'dataset D as IntoIterator>::Item>,
 {
     type Item = C::Output;
-    type IntoIter = Iter<<&'dataset D as IntoIterator>::IntoIter, C>;
+    type IntoIter = Iter<'dataset, <&'dataset D as IntoIterator>::IntoIter, C>;
 
     fn into_iter(self) -> Self::IntoIter {
         Iter {
             batch_size: self.batch_size,
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
-            collate_fn: PhantomData,
+            collate_fn: &self.collate_fn,
             shuffle: self.shuffle,
         }
     }
@@ -137,18 +135,18 @@ where
 {
     /// Iterate over the dataloader without consuming the underlying dataset.
     /// As it make no sens to collate reference into a tensor, by default element are copied.
-    pub fn iter(&'dataset self) -> Iter<<&'dataset D as IntoIterator>::IntoIter, C> {
+    pub fn iter(&'dataset self) -> Iter<'_, <&'dataset D as IntoIterator>::IntoIter, C> {
         Iter {
             batch_size: self.batch_size,
             dataset_iter: self.dataset.into_iter(),
             drop_last: self.drop_last,
-            collate_fn: PhantomData,
+            collate_fn: &self.collate_fn,
             shuffle: self.shuffle,
         }
     }
 }
 
-impl<D, C> Iterator for Iter<D, C>
+impl<'dataset, D, C> Iterator for Iter<'dataset, D, C>
 where
     D: Iterator,
     C: Collate<D::Item>,
@@ -169,7 +167,7 @@ where
             if self.shuffle {
                 batch.shuffle(&mut thread_rng());
             }
-            return Some(C::collate(batch));
+            return Some(self.collate_fn.collate(batch));
         }
         None
     }

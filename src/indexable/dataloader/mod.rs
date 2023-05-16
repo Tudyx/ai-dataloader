@@ -1,7 +1,5 @@
 //! Data loader. Combines a dataset and a sampler, and provides an iterable over the given dataset.
 
-use std::marker::PhantomData;
-
 use super::fetch::{Fetcher, MapDatasetFetcher};
 use crate::{
     collate::{Collate, DefaultCollate},
@@ -37,8 +35,8 @@ pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate> {
     dataset: D,
     /// Return a batch of indices at a time.
     batch_sampler: BatchSampler<S>,
-    /// Just here because collate has no data members.
-    collate_fn: PhantomData<C>,
+    /// Collate function.
+    collate_fn: C,
 }
 
 impl<D> DataLoader<D, SequentialSampler, DefaultCollate>
@@ -104,7 +102,7 @@ where
             num_yielded: 0,
             data_fetcher: MapDatasetFetcher {
                 dataset: &loader.dataset,
-                collate_fn: PhantomData,
+                collate_fn: &loader.collate_fn,
             },
         }
     }

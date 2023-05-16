@@ -42,7 +42,6 @@ This feature relies on the tch crate for bindings to the C++ `libTorch` API. The
 
 This features could be added in the future:
 
-- collect function as a closure 
 - `RandomSampler` with replacement
 - parallel `dataloader` (using [rayon](https://docs.rs/rayon/latest/rayon/)?)
 - distributed `dataloader`

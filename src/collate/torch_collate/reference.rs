@@ -10,7 +10,7 @@ where
     Self: Collate<T>,
 {
     type Output = <Self as Collate<T>>::Output;
-    fn collate(batch: Vec<&T>) -> Self::Output {
-        TorchCollate::collate(batch.into_iter().cloned().collect())
+    fn collate(&self, batch: Vec<&T>) -> Self::Output {
+        TorchCollate::default().collate(batch.into_iter().cloned().collect())
     }
 }

@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::{
     collate::{Collate, DefaultCollate},
     Dataset,
@@ -29,7 +27,7 @@ where
     /// The dataset data will be fetch from.
     pub(crate) dataset: &'dataset D,
     /// The function (generic struct) used to collate data together.
-    pub(crate) collate_fn: PhantomData<C>,
+    pub(crate) collate_fn: &'dataset C,
 }
 
 impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
@@ -44,6 +42,6 @@ where
         for idx in possibly_batched_index {
             data.push(self.dataset.get_sample(idx));
         }
-        C::collate(data)
+        self.collate_fn.collate(data)
     }
 }

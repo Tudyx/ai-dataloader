@@ -13,7 +13,7 @@ macro_rules! nonzero_impl {
         $(
             impl Collate<$t> for DefaultCollate {
                 type Output = Array<$t, Ix1>;
-                fn collate(batch: Vec<$t>) -> Self::Output {
+                fn collate(&self, batch: Vec<$t>) -> Self::Output {
                     Array::from_vec(batch)
                 }
             }

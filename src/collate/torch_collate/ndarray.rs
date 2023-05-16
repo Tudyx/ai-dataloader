@@ -10,7 +10,7 @@ where
     D::Larger: RemoveAxis,
 {
     type Output = Tensor;
-    fn collate(batch: Vec<Array<A, D>>) -> Self::Output {
+    fn collate(&self, batch: Vec<Array<A, D>>) -> Self::Output {
         // Convert it to a `Vec` of view.
         let vec_of_view: Vec<ArrayView<'_, A, D>> = batch.iter().map(ArrayBase::view).collect();
         // TODO: maybe use tensor stack here
@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn keep_dimension() {
-        let batch = TorchCollate::collate(vec![array![1, 2], array![3, 4]]);
+        let batch = TorchCollate::default().collate(vec![array![1, 2], array![3, 4]]);
         assert_eq!(batch.dim(), 2);
         batch.print();
     }
@@ -46,7 +46,7 @@ mod tests {
     //     let array = vec![0; 1_000_000];
     //     let array = Array::from_vec(array);
     //     for i in 1..1_000_000 {
-    //         let t = TorchCollate::collate(vec![&array]);
+    //         let t = TorchCollate::default().collate(vec![&array]);
     //         println!("{} {:?}", i, t.size())
     //     }
     //     assert!(false);

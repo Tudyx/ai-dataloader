@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::collate::{Collate, DefaultCollate};
 
 use super::DataLoader;
@@ -85,7 +83,7 @@ where
             dataset: self.dataset,
             batch_size: self.batch_size,
             drop_last: self.drop_last,
-            collate_fn: PhantomData,
+            collate_fn: self.collate_fn,
             shuffle: self.shuffle,
         }
     }
@@ -120,6 +118,13 @@ mod tests {
             .batch_size(2)
             .drop_last()
             .collate_fn(NoOpCollate)
+            .build();
+
+        let _loader = Builder::new(vec![1, 2, 3, 4])
+            .shuffle()
+            .batch_size(2)
+            .drop_last()
+            .collate_fn(|x| x)
             .build();
     }
 }
