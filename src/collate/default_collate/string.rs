@@ -4,35 +4,35 @@ use std::ffi::{CStr, CString, OsString};
 
 impl Collate<String> for DefaultCollate {
     type Output = Vec<String>;
-    fn collate(batch: Vec<String>) -> Self::Output {
+    fn collate(&self, batch: Vec<String>) -> Self::Output {
         batch
     }
 }
 
 impl<'a> Collate<&'a str> for DefaultCollate {
     type Output = Vec<&'a str>;
-    fn collate(batch: Vec<&'a str>) -> Self::Output {
+    fn collate(&self, batch: Vec<&'a str>) -> Self::Output {
         batch
     }
 }
 
 impl Collate<CString> for DefaultCollate {
     type Output = Vec<CString>;
-    fn collate(batch: Vec<CString>) -> Self::Output {
+    fn collate(&self, batch: Vec<CString>) -> Self::Output {
         batch
     }
 }
 
 impl<'a> Collate<&'a CStr> for DefaultCollate {
     type Output = Vec<&'a CStr>;
-    fn collate(batch: Vec<&'a CStr>) -> Self::Output {
+    fn collate(&self, batch: Vec<&'a CStr>) -> Self::Output {
         batch
     }
 }
 
 impl Collate<OsString> for DefaultCollate {
     type Output = Vec<OsString>;
-    fn collate(batch: Vec<OsString>) -> Self::Output {
+    fn collate(&self, batch: Vec<OsString>) -> Self::Output {
         batch
     }
 }
@@ -44,10 +44,13 @@ mod tests {
     #[test]
     fn no_op() {
         assert_eq!(
-            DefaultCollate::collate(vec![String::from("a"), String::from("b")]),
+            DefaultCollate::default().collate(vec![String::from("a"), String::from("b")]),
             vec![String::from("a"), String::from("b")]
         );
 
-        assert_eq!(DefaultCollate::collate(vec!["a", "b"]), vec!["a", "b"]);
+        assert_eq!(
+            DefaultCollate::default().collate(vec!["a", "b"]),
+            vec!["a", "b"]
+        );
     }
 }

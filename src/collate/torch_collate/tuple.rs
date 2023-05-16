@@ -17,11 +17,11 @@ macro_rules! tuple_impl {
             type Output = ($(<TorchCollate as Collate<$name>>::Output,)+);
 
             #[allow(non_snake_case)]
-            fn collate(batch: Vec<($($name,)+)>) -> Self::Output {
+            fn collate(&self, batch: Vec<($($name,)+)>) -> Self::Output {
                 let copy = batch.to_vec();
                 let ($($name,)+) = copy.into_iter().multiunzip();
                 (
-                    $(TorchCollate::collate($name),)+
+                    $(TorchCollate::default().collate($name),)+
                 )
 
             }
@@ -51,23 +51,23 @@ mod tests {
     #[test]
     fn vec_of_tuple() {
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2)]),
+            TorchCollate::default().collate(vec![(1, 2)]),
             (Tensor::of_slice(&[1]), Tensor::of_slice(&[2]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1.0, 2.0), (3.0, 4.0)]),
+            TorchCollate::default().collate(vec![(1.0, 2.0), (3.0, 4.0)]),
             (Tensor::of_slice(&[1.0, 3.0]), Tensor::of_slice(&[2.0, 4.0]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2), (3, 4)]),
+            TorchCollate::default().collate(vec![(1, 2), (3, 4)]),
             (Tensor::of_slice(&[1, 3]), Tensor::of_slice(&[2, 4]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(-1, 2), (3, 4)]),
+            TorchCollate::default().collate(vec![(-1, 2), (3, 4)]),
             (Tensor::of_slice(&[-1, 3]), Tensor::of_slice(&[2, 4]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
+            TorchCollate::default().collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
             (
                 Tensor::of_slice(&[1.0, 3.0, 5.0]),
                 Tensor::of_slice(&[2.0, 4.0, 6.0])
@@ -76,32 +76,35 @@ mod tests {
     }
     #[test]
     fn vec_of_tuple_with_len_1() {
-        assert_eq!(TorchCollate::collate(vec![(1,)]), (Tensor::of_slice(&[1]),));
+        assert_eq!(
+            TorchCollate::default().collate(vec![(1,)]),
+            (Tensor::of_slice(&[1]),)
+        );
     }
 
     #[test]
     fn vec_of_tuple_with_len_2() {
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0)]),
+            TorchCollate::default().collate(vec![(1, 2.0)]),
             (Tensor::of_slice(&[1]), Tensor::of_slice(&[2.0]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0), (3, 4.0)]),
+            TorchCollate::default().collate(vec![(1, 2.0), (3, 4.0)]),
             (Tensor::of_slice(&[1, 3]), Tensor::of_slice(&[2.0, 4.0]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(-1, true), (-3, false)]),
+            TorchCollate::default().collate(vec![(-1, true), (-3, false)]),
             (
                 Tensor::of_slice(&[-1, -3]),
                 Tensor::of_slice(&[true, false])
             )
         );
         assert_eq!(
-            TorchCollate::collate(vec![(-1, true), (3, false)]),
+            TorchCollate::default().collate(vec![(-1, true), (3, false)]),
             (Tensor::of_slice(&[-1, 3]), Tensor::of_slice(&[true, false]))
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),
+            TorchCollate::default().collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),
             (
                 Tensor::of_slice(&[1, 3, 5]),
                 Tensor::of_slice(&[2.0, 4.0, 6.0])
@@ -111,7 +114,7 @@ mod tests {
     #[test]
     fn vec_of_tuple_with_len_3() {
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0, true)]),
+            TorchCollate::default().collate(vec![(1, 2.0, true)]),
             (
                 Tensor::of_slice(&[1]),
                 Tensor::of_slice(&[2.0]),
@@ -119,7 +122,7 @@ mod tests {
             )
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0, true), (3, 4.0, true)]),
+            TorchCollate::default().collate(vec![(1, 2.0, true), (3, 4.0, true)]),
             (
                 Tensor::of_slice(&[1, 3]),
                 Tensor::of_slice(&[2.0, 4.0]),
@@ -127,7 +130,7 @@ mod tests {
             )
         );
         assert_eq!(
-            TorchCollate::collate(vec![(1, 2.0, true), (3, 4.0, false), (5, 6.0, true)]),
+            TorchCollate::default().collate(vec![(1, 2.0, true), (3, 4.0, false), (5, 6.0, true)]),
             (
                 Tensor::of_slice(&[1, 3, 5]),
                 Tensor::of_slice(&[2.0, 4.0, 6.0]),

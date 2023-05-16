@@ -14,11 +14,11 @@ where
     H: BuildHasher,
 {
     type Output = HashMap<K, <Self as Collate<V>>::Output>;
-    fn collate(batch: Vec<HashMap<K, V, H>>) -> Self::Output {
+    fn collate(&self, batch: Vec<HashMap<K, V, H>>) -> Self::Output {
         let mut collated = HashMap::with_capacity(batch[0].keys().len());
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            collated.insert(key.clone(), Self::collate(vec));
+            collated.insert(key.clone(), self.collate(vec));
         }
         collated
     }
@@ -30,11 +30,11 @@ where
     Self: Collate<V>,
 {
     type Output = BTreeMap<K, <Self as Collate<V>>::Output>;
-    fn collate(batch: Vec<BTreeMap<K, V>>) -> Self::Output {
+    fn collate(&self, batch: Vec<BTreeMap<K, V>>) -> Self::Output {
         let mut collated = BTreeMap::new();
         for key in batch[0].keys() {
             let vec: Vec<_> = batch.iter().map(|hash_map| hash_map[key].clone()).collect();
-            collated.insert(key.clone(), Self::collate(vec));
+            collated.insert(key.clone(), self.collate(vec));
         }
         collated
     }
@@ -50,18 +50,27 @@ mod tests {
         let map1 = HashMap::from([("A", 0), ("B", 1)]);
         let map2 = HashMap::from([("A", 100), ("B", 100)]);
         let expected_result = HashMap::from([("A", array![0, 100]), ("B", array![1, 100])]);
-        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
+        assert_eq!(
+            DefaultCollate::default().collate(vec![map1, map2]),
+            expected_result
+        );
 
         // Same value type but different key
         let map1 = HashMap::from([(1, 0), (2, 1)]);
         let map2 = HashMap::from([(1, 100), (2, 100)]);
         let expected_result = HashMap::from([(1, array![0, 100]), (2, array![1, 100])]);
-        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
+        assert_eq!(
+            DefaultCollate::default().collate(vec![map1, map2]),
+            expected_result
+        );
 
         let map1 = HashMap::from([("A", 0.0), ("B", 1.0)]);
         let map2 = HashMap::from([("A", 100.0), ("B", 100.0)]);
         let expected_result = HashMap::from([("A", array![0.0, 100.0]), ("B", array![1.0, 100.0])]);
-        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
+        assert_eq!(
+            DefaultCollate::default().collate(vec![map1, map2]),
+            expected_result
+        );
     }
 
     #[test]
@@ -72,11 +81,17 @@ mod tests {
             ("A", vec![String::from("0"), String::from("100")]),
             ("B", vec![String::from("1"), String::from("100")]),
         ]);
-        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
+        assert_eq!(
+            DefaultCollate::default().collate(vec![map1, map2]),
+            expected_result
+        );
 
         let map1 = HashMap::from([("A", "0"), ("B", "1")]);
         let map2 = HashMap::from([("A", "100"), ("B", "100")]);
         let expected_result = HashMap::from([("A", vec!["0", "100"]), ("B", vec!["1", "100"])]);
-        assert_eq!(DefaultCollate::collate(vec![map1, map2]), expected_result);
+        assert_eq!(
+            DefaultCollate::default().collate(vec![map1, map2]),
+            expected_result
+        );
     }
 }

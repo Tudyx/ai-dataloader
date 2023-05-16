@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::{
     collate::{Collate, DefaultCollate},
     sampler::{BatchSampler, RandomSampler, Sampler, SequentialSampler},
@@ -107,7 +105,7 @@ where
         DataLoader {
             dataset: self.dataset,
             batch_sampler: self.batch_sampler,
-            collate_fn: PhantomData,
+            collate_fn: self.collate_fn,
         }
     }
 }
@@ -157,6 +155,11 @@ mod tests {
 
         let _loader = Builder::new(vec![1, 2, 3, 4])
             .collate_fn(NoOpCollate)
+            .batch_size(2)
+            .build();
+
+        let _loader = Builder::new(vec![1, 2, 3, 4])
+            .collate_fn(|x| x)
             .batch_size(2)
             .build();
     }

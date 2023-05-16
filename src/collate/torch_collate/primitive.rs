@@ -7,7 +7,7 @@ macro_rules! primitive_impl {
         $(
             impl Collate<$t> for TorchCollate {
                 type Output = Tensor;
-                fn collate(batch: Vec<$t>) -> Self::Output {
+                fn collate(&self, batch: Vec<$t>) -> Self::Output {
                     Tensor::of_slice(batch.as_slice())
                 }
             }
@@ -24,7 +24,7 @@ primitive_impl!(
 /// `NoOp` for binairy, as pytorch `default_collate` function.
 impl Collate<u8> for TorchCollate {
     type Output = Vec<u8>;
-    fn collate(batch: Vec<u8>) -> Self::Output {
+    fn collate(&self, batch: Vec<u8>) -> Self::Output {
         batch
     }
 }
@@ -36,11 +36,11 @@ mod tests {
     #[test]
     fn scalar_type() {
         assert_eq!(
-            TorchCollate::collate(vec![0, 1, 2, 3, 4, 5]),
+            TorchCollate::default().collate(vec![0, 1, 2, 3, 4, 5]),
             Tensor::of_slice(&[0, 1, 2, 3, 4, 5])
         );
         assert_eq!(
-            TorchCollate::collate(vec![0., 1., 2., 3., 4., 5.]),
+            TorchCollate::default().collate(vec![0., 1., 2., 3., 4., 5.]),
             Tensor::of_slice(&[0., 1., 2., 3., 4., 5.])
         );
     }

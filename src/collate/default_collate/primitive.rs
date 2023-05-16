@@ -8,7 +8,7 @@ macro_rules! primitive_impl {
         $(
             impl Collate<$t> for DefaultCollate {
                 type Output = Array1<$t>;
-                fn collate(batch: Vec<$t>) -> Self::Output {
+                fn collate(&self, batch: Vec<$t>) -> Self::Output {
                     Array::from_vec(batch)
                 }
             }
@@ -23,7 +23,7 @@ primitive_impl!(usize u16 u32 u64 u128
 /// `NoOp` for binairy, as pytorch `default_collate` function.
 impl Collate<u8> for DefaultCollate {
     type Output = Vec<u8>;
-    fn collate(batch: Vec<u8>) -> Self::Output {
+    fn collate(&self, batch: Vec<u8>) -> Self::Output {
         batch
     }
 }
@@ -36,11 +36,11 @@ mod tests {
     #[test]
     fn scalar_type() {
         assert_eq!(
-            DefaultCollate::collate(vec![0, 1, 2, 3, 4, 5]),
+            DefaultCollate::default().collate(vec![0, 1, 2, 3, 4, 5]),
             array![0, 1, 2, 3, 4, 5]
         );
         assert_eq!(
-            DefaultCollate::collate(vec![0., 1., 2., 3., 4., 5.]),
+            DefaultCollate::default().collate(vec![0., 1., 2., 3., 4., 5.]),
             array![0., 1., 2., 3., 4., 5.]
         );
     }

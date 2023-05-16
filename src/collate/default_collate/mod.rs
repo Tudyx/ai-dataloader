@@ -9,9 +9,9 @@
 ///
 /// - `Vec<Scalar>` -> `ndarray<scalar>`
 /// - `Vec<tuple>` -> `tuple(ndarray)`
-/// - `Vec<HashMap<Key, Value>>` -> `HasMap<Key, DefaultCollate::collate(Vec<Value>)`
+/// - `Vec<HashMap<Key, Value>>` -> `HasMap<Key, DefaultCollate::default().collate(Vec<Value>)`
 /// - `Vec<Array>` -> `Vec<Stack Array>`
-/// - `Vec[V1_i, V2_i, ...]` -> `Vec[DefaultCollate::collate([V1_1, V1_2, ...]), DefaultCollate::collate([V2_1, V2_2, ...]), ...]`
+/// - `Vec[V1_i, V2_i, ...]` -> `Vec[DefaultCollate::default().collate([V1_1, V1_2, ...]), DefaultCollate::default().collate([V2_1, V2_2, ...]), ...]`
 ///
 ///
 /// Like for `PyTorch` version, `String` and `u8` aren't changed by the collation (No Op).

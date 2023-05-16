@@ -17,11 +17,22 @@ pub use torch_collate::TorchCollate;
 ///
 ///
 /// This trait is used instead of `Fn` because [we cannot currently `impl Fn*` on struct on stable rust](https://github.com/rust-lang/rust/issues/29625).
-pub trait Collate<T>: Default {
+pub trait Collate<T> {
     /// The type of the collate function's output
     type Output;
     /// Take a batch of samples and collate them
-    fn collate(batch: Vec<T>) -> Self::Output;
+    fn collate(&self, batch: Vec<T>) -> Self::Output;
+}
+
+// Allow user to specify closure as collate function.
+impl<T, F, O> Collate<T> for F
+where
+    F: Fn(Vec<T>) -> O,
+{
+    type Output = O;
+    fn collate(&self, batch: Vec<T>) -> Self::Output {
+        (self)(batch)
+    }
 }
 
 /// Simple Collate that doesn't change the batch of samples.
@@ -30,7 +41,7 @@ pub struct NoOpCollate;
 
 impl<T> Collate<T> for NoOpCollate {
     type Output = Vec<T>;
-    fn collate(batch: Vec<T>) -> Self::Output {
+    fn collate(&self, batch: Vec<T>) -> Self::Output {
         batch
     }
 }
@@ -41,6 +52,12 @@ mod tests {
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollate::collate(vec![1, 2]), vec![1, 2]);
+        assert_eq!(NoOpCollate::default().collate(vec![1, 2]), vec![1, 2]);
+    }
+
+    #[test]
+    fn no_op_collate_closure() {
+        let collate = |x| x;
+        assert_eq!(collate.collate(vec![1, 2]), vec![1, 2]);
     }
 }
