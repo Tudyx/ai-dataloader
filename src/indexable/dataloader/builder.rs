@@ -27,6 +27,7 @@ where
     collate_fn: C,
 }
 
+// FIXME: kind of strange that we require DefaultCollatte even if in the end we may won't use it
 impl<D> Builder<D, SequentialSampler, DefaultCollate>
 where
     D: Dataset,
@@ -152,6 +153,11 @@ mod tests {
             .batch_size(2)
             .drop_last()
             .collate_fn(NoOpCollate)
+            .build();
+
+        let _loader = Builder::new(vec![1, 2, 3, 4])
+            .collate_fn(NoOpCollate)
+            .batch_size(2)
             .build();
     }
 }
