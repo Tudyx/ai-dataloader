@@ -12,6 +12,7 @@ A rust port of [`pytorch`](https://pytorch.org/) `dataloader` library.
 
 - Iterable or indexable (Map style) `DataLoader`.
 - Customizable `Sampler`, `BatchSampler` and `collate_fn`.
+- Parallel dataloader using [`rayon`] for indexable dataloader (experimental).
 - Integration with [`ndarray`](https://docs.rs/ndarray/latest/ndarray/) and [`tch-rs`](https://github.com/LaurentMazare/tch-rs), CPU and GPU support.
 - Default collate function that will automatically collate most of your type (supporting nesting).
 - Shuffling for iterable and indexable `DataLoader`.
@@ -46,3 +47,9 @@ This features could be added in the future:
 - parallel `dataloader` (using [rayon](https://docs.rs/rayon/latest/rayon/)?)
 - distributed `dataloader`
 
+
+### MSRV
+
+The current MSRV is 1.60.
+
+[`rayon`]: https://docs.rs/rayon/latest/rayon/
