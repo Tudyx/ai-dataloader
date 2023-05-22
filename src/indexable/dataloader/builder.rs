@@ -4,6 +4,9 @@ use crate::{
     Dataset,
 };
 
+#[cfg(feature = "rayon")]
+use crate::THREAD_POOL;
+
 use super::DataLoader;
 
 /// Basic builder for creating dataloader from a type that implement `IntoIterator`.
@@ -23,6 +26,9 @@ where
     batch_sampler: BatchSampler<S>,
     /// Used to collate the data together.
     collate_fn: C,
+    #[cfg(feature = "rayon")]
+    /// Number of threads to use.
+    num_threads: usize,
 }
 
 // FIXME: kind of strange that we require DefaultCollatte even if in the end we may won't use it
@@ -34,6 +40,11 @@ where
     /// Create a new [`Builder`], with default fields.
     /// By default the [`Builder`] is sequential and have a `batch_size` of one.
     pub fn new(dataset: D) -> Self {
+        #[cfg(feature = "rayon")]
+        let num_threads = std::thread::available_parallelism()
+            .unwrap_or(std::num::NonZeroUsize::new(1).unwrap())
+            .get();
+
         let dataset_len = dataset.len();
         Self {
             dataset,
@@ -43,6 +54,8 @@ where
                 drop_last: false,
             },
             collate_fn: DefaultCollate,
+            #[cfg(feature = "rayon")]
+            num_threads,
         }
     }
 }
@@ -63,6 +76,13 @@ where
         self
     }
 
+    /// Set the number of threads to use.
+    #[cfg(feature = "rayon")]
+    pub fn num_threads(mut self, num_threads: usize) -> Self {
+        self.num_threads = num_threads;
+        self
+    }
+
     /// Drop the lasts element if they don't feat into a batch. For instance if a dataset have 13
     /// samples and a `batch_size` of 5, the last 3 samples will be droped.
     pub fn drop_last(mut self) -> Self {
@@ -80,6 +100,8 @@ where
 
             batch_sampler: self.batch_sampler,
             collate_fn,
+            #[cfg(feature = "rayon")]
+            num_threads: self.num_threads,
         }
     }
 
@@ -98,10 +120,24 @@ where
             },
 
             collate_fn: self.collate_fn,
+            #[cfg(feature = "rayon")]
+            num_threads: self.num_threads,
         }
     }
     /// Create a `Dataloader` from a [`Builder`].
     pub fn build(self) -> DataLoader<D, S, C> {
+        // we set the threadpool each time because we can't modify the number of
+        // threads of an existing thread pool.
+        #[cfg(feature = "rayon")]
+        THREAD_POOL
+            .set(
+                rayon::ThreadPoolBuilder::new()
+                    .num_threads(self.num_threads)
+                    .build()
+                    .expect("could not spawn threads"),
+            )
+            .ok();
+
         DataLoader {
             dataset: self.dataset,
             batch_sampler: self.batch_sampler,

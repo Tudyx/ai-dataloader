@@ -3,6 +3,9 @@ use crate::{
     Dataset,
 };
 
+#[cfg(feature = "rayon")]
+use crate::THREAD_POOL;
+
 // FIXME: a fetcher trait doesn't make sens anymore.
 
 /// A Fetcher will fetch data from the dataset.
@@ -21,7 +24,7 @@ where
 #[derive(Debug)]
 pub(crate) struct MapDatasetFetcher<'dataset, D, C = DefaultCollate>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     C: Collate<D::Sample>,
 {
     /// The dataset data will be fetch from.
@@ -32,16 +35,30 @@ where
 
 impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     C: Collate<D::Sample>,
+    D::Sample: Send,
 {
     fn fetch(&mut self, possibly_batched_index: Vec<usize>) -> C::Output {
         // As the batch length can vary depending on if the last element is dropped or not, we can't use
         // a fix sized array.
         let mut data = Vec::with_capacity(possibly_batched_index.len());
+
+        #[cfg(feature = "rayon")]
+        THREAD_POOL
+            .get()
+            .expect("thread pool is initialized")
+            .install(|| {
+                for idx in possibly_batched_index {
+                    data.push(self.dataset.get_sample(idx));
+                }
+            });
+
+        #[cfg(not(feature = "rayon"))]
         for idx in possibly_batched_index {
             data.push(self.dataset.get_sample(idx));
         }
+
         self.collate_fn.collate(data)
     }
 }

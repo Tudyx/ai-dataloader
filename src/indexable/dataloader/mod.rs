@@ -52,9 +52,10 @@ where
 
 impl<D, S, C> DataLoader<D, S, C>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     S: Sampler,
     C: Collate<D::Sample>,
+    D::Sample: Send,
 {
     /// Return not owning iterator over the dataloader.
     pub fn iter(&self) -> SingleProcessDataLoaderIter<'_, D, S, C> {
@@ -78,7 +79,7 @@ where
 #[derive(Debug)]
 pub struct SingleProcessDataLoaderIter<'dataset, D, S = SequentialSampler, C = DefaultCollate>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     S: Sampler,
     C: Collate<D::Sample>,
 {
@@ -92,9 +93,10 @@ where
 
 impl<'dataset, D, S, C> SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     S: Sampler,
     C: Collate<D::Sample>,
+    D::Sample: Send,
 {
     fn new(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<'_, D, S, C> {
         SingleProcessDataLoaderIter {
@@ -120,9 +122,10 @@ where
 }
 impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     S: Sampler,
     C: Collate<D::Sample>,
+    D::Sample: Send,
 {
     type Item = C::Output;
     fn next(&mut self) -> Option<Self::Item> {
@@ -137,9 +140,10 @@ where
 }
 impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
-    D: Dataset,
+    D: Dataset + Sync,
     S: Sampler,
     C: Collate<D::Sample>,
+    D::Sample: Send,
 {
     type Item = C::Output;
     type IntoIter = SingleProcessDataLoaderIter<'dataset, D, S, C>;

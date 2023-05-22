@@ -86,3 +86,12 @@ pub mod indexable;
 pub mod iterable;
 
 pub use indexable::{sampler, Dataset, GetSample, Len, NdarrayDataset};
+
+#[cfg(feature = "rayon")]
+use once_cell::sync::OnceCell;
+#[cfg(feature = "rayon")]
+use rayon::ThreadPool;
+
+/// Thread pool used by the dataloader.
+#[cfg(feature = "rayon")]
+pub static THREAD_POOL: OnceCell<ThreadPool> = OnceCell::new();
