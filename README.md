@@ -44,7 +44,7 @@ This feature relies on the tch crate for bindings to the C++ `libTorch` API. The
 This features could be added in the future:
 
 - `RandomSampler` with replacement
-- parallel `dataloader` (using [rayon](https://docs.rs/rayon/latest/rayon/)?)
+- parallel `dataloader` for iterable dataset
 - distributed `dataloader`
 
 

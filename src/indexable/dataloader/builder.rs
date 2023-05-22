@@ -126,17 +126,31 @@ where
     }
     /// Create a `Dataloader` from a [`Builder`].
     pub fn build(self) -> DataLoader<D, S, C> {
-        // we set the threadpool each time because we can't modify the number of
-        // threads of an existing thread pool.
         #[cfg(feature = "rayon")]
-        THREAD_POOL
-            .set(
-                rayon::ThreadPoolBuilder::new()
-                    .num_threads(self.num_threads)
-                    .build()
-                    .expect("could not spawn threads"),
-            )
-            .ok();
+        if let Some(pool) = THREAD_POOL.get() {
+            if pool.current_num_threads() != self.num_threads {
+                // we reset the threadpool because we can't modify the number of
+                // threads of an existing thread pool.
+                #[cfg(feature = "rayon")]
+                THREAD_POOL
+                    .set(
+                        rayon::ThreadPoolBuilder::new()
+                            .num_threads(self.num_threads)
+                            .build()
+                            .expect("could not spawn threads"),
+                    )
+                    .ok();
+            }
+        } else {
+            THREAD_POOL
+                .set(
+                    rayon::ThreadPoolBuilder::new()
+                        .num_threads(self.num_threads)
+                        .build()
+                        .expect("could not spawn threads"),
+                )
+                .ok();
+        }
 
         DataLoader {
             dataset: self.dataset,
