@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.6.0] - 2023-22-05
 ### Added
-- add support for closure for collate function.
+- add support for closure as collate function.
+- add basic parallelalisation (feat @AzHicham) 
 
 ## [0.5.4] - 2023-29-04
 ### Fixed
@@ -63,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sequential and random `Sampler`
 
 
-[Unreleased]: https://github.com/Tudyx/ai-dataloader/compare/v0.5.4...HEAD
+[Unreleased]: https://github.com/Tudyx/ai-dataloader/compare/v0.6.0...HEAD
+[0.5.4]: https://github.com/Tudyx/ai-dataloader/compare/v0.5.4...v0.6.0
 [0.5.4]: https://github.com/Tudyx/ai-dataloader/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/Tudyx/ai-dataloader/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/Tudyx/ai-dataloader/compare/v0.5.1...v0.5.2
