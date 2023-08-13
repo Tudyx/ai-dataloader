@@ -6,6 +6,12 @@ use crate::{
 #[cfg(feature = "rayon")]
 use crate::THREAD_POOL;
 
+#[cfg(feature = "rayon")]
+use rayon::iter::ParallelIterator;
+
+#[cfg(feature = "rayon")]
+use rayon::prelude::IntoParallelIterator;
+
 // FIXME: a fetcher trait doesn't make sens anymore.
 
 /// A Fetcher will fetch data from the dataset.
@@ -40,24 +46,23 @@ where
     D::Sample: Send,
 {
     fn fetch(&mut self, possibly_batched_index: Vec<usize>) -> C::Output {
-        // As the batch length can vary depending on if the last element is dropped or not, we can't use
-        // a fix sized array.
-        let mut data = Vec::with_capacity(possibly_batched_index.len());
-
+        // As the batch length can vary depending on if the last element is dropped or not, we can't use a fix len array to
+        // collect the data.
         #[cfg(feature = "rayon")]
-        THREAD_POOL
+        let data = THREAD_POOL
             .get()
             .expect("thread pool is initialized")
             .install(|| {
-                for idx in possibly_batched_index {
-                    data.push(self.dataset.get_sample(idx));
-                }
+                possibly_batched_index
+                    .into_par_iter()
+                    .map(|idx| self.dataset.get_sample(idx))
+                    .collect()
             });
-
         #[cfg(not(feature = "rayon"))]
-        for idx in possibly_batched_index {
-            data.push(self.dataset.get_sample(idx));
-        }
+        let data = possibly_batched_index
+            .into_iter()
+            .map(|idx| self.dataset.get_sample(idx))
+            .collect();
 
         self.collate_fn.collate(data)
     }

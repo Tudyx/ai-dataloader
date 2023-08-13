@@ -129,7 +129,7 @@ where
         #[cfg(feature = "rayon")]
         if let Some(pool) = THREAD_POOL.get() {
             if pool.current_num_threads() != self.num_threads {
-                // we reset the threadpool because we can't modify the number of
+                // We reset the threadpool because we can't modify the number of
                 // threads of an existing thread pool.
                 #[cfg(feature = "rayon")]
                 THREAD_POOL
