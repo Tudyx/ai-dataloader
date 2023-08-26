@@ -57,7 +57,7 @@ where
     }
 
     /// Drop the lasts element if they don't feat into a batch. For instance if a dataset have 13
-    /// samples and a `batch_size` of 5, the last 3 samples will be droped.
+    /// samples and a `batch_size` of 5, the last 3 samples will be dropped.
     pub fn drop_last(mut self) -> Self {
         self.drop_last = true;
         self

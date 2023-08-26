@@ -21,7 +21,7 @@ primitive_impl!(
 
 // char i128 isize usize u16 u32 u64 u128 are not compatible with `tch::Tensor`.
 
-/// `NoOp` for binairy, as pytorch `default_collate` function.
+/// `NoOp` for binary, as pytorch `default_collate` function.
 impl Collate<u8> for TorchCollate {
     type Output = Vec<u8>;
     fn collate(&self, batch: Vec<u8>) -> Self::Output {

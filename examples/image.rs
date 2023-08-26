@@ -20,7 +20,7 @@ impl FaceLandmarksDataset {
     fn new(csv_file: &str, root_dir: PathBuf) -> FaceLandmarksDataset {
         let mut landmarks_frame = csv::Reader::from_path(csv_file).unwrap();
 
-        // We parse the reader beacause so we can easily manipulate the data
+        // We parse the reader because so we can easily manipulate the data
         let landmarks_frame: Vec<csv::StringRecord> =
             landmarks_frame.records().map(Result::unwrap).collect();
         FaceLandmarksDataset {
@@ -101,6 +101,9 @@ fn chose_device() -> tch::Device {
 }
 
 #[cfg(feature = "tch")]
+use rayon::prelude::*;
+
+#[cfg(feature = "tch")]
 fn main() {
     let dataset = FaceLandmarksDataset::new(
         "examples/image/dataset/face_landmarks.csv",
@@ -123,4 +126,17 @@ fn main() {
             landmarks.dim()
         );
     }
+
+    loader
+        .into_iter()
+        .enumerate()
+        .par_bridge()
+        .for_each(|(batch_id, (image, landmarks))| {
+            println!(
+                "Batch {}: image shape {:?}, landmark shape {:?}",
+                batch_id,
+                image.dim(),
+                landmarks.dim()
+            );
+        });
 }

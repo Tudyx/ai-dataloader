@@ -10,7 +10,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use crate::collate::{Collate, DefaultCollate};
 
 /// For iterable dataset, the `datalaoder` will yield until the underlying iterator is `None`.
-/// As the iteration over the dataset can be done mutliple time, depending if the underlying dataset iterator consume the dataset or not.
+/// As the iteration over the dataset can be done multiple time, depending if the underlying dataset iterator consume the dataset or not.
 #[derive(Debug)]
 pub struct DataLoader<D, C> {
     /// The dataset we will iterate over.

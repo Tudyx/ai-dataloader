@@ -1,6 +1,6 @@
 /// Default Collate function that mimic the [`default_collate` function](https://pytorch.org/docs/stable/data.html#automatic-batching-default) from ``PyTorch``.
 ///
-/// As they are no such lib with the same functionnality as `PyTorch` tensor in Rust,
+/// As they are no such lib with the same functionality as `PyTorch` tensor in Rust,
 /// data is collated inside `ndarray`. Ndarray is the rust equivalent of `numpy.ndarray` with
 /// almost the same capabilities. Nevertheless, they can't run on the GPU.
 ///

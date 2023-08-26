@@ -70,7 +70,7 @@ where
     sampler: I,
     /// The size of one batch.
     batch_size: usize,
-    /// Weither to drop the laste elements or not.
+    /// Whether to drop the laste elements or not.
     drop_last: bool,
 }
 
