@@ -61,11 +61,9 @@ jobs:
           RUSTDOCFLAGS: --cfg docsrs
   typos:
     runs-on: ubuntu-latest
-    name: ubuntu / typos
+    name: ubuntu / typos-actions
     steps:
-      - uses: actions/checkout@v3
-      - name: typos-actions
-        uses: crate-ci/typos@v1.0.4
+      - uses: crate-ci/typos@v1.0.4
 
   hack:
     runs-on: ubuntu-latest
