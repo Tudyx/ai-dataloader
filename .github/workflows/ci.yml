@@ -59,6 +59,13 @@ jobs:
         run: cargo doc --no-deps --all-features
         env:
           RUSTDOCFLAGS: --cfg docsrs
+  typos:
+    runs-on: ubuntu-latest
+    name: ubuntu / typos
+    steps:
+      - name: typos-actions
+        uses: actions/checkout@v3
+
   hack:
     runs-on: ubuntu-latest
     name: ubuntu / stable / features
