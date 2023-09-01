@@ -8,7 +8,7 @@ macro_rules! primitive_impl {
             impl Collate<$t> for TorchCollate {
                 type Output = Tensor;
                 fn collate(&self, batch: Vec<$t>) -> Self::Output {
-                    Tensor::of_slice(batch.as_slice())
+                    Tensor::from_slice(batch.as_slice())
                 }
             }
         )*
@@ -37,11 +37,11 @@ mod tests {
     fn scalar_type() {
         assert_eq!(
             TorchCollate::default().collate(vec![0, 1, 2, 3, 4, 5]),
-            Tensor::of_slice(&[0, 1, 2, 3, 4, 5])
+            Tensor::from_slice(&[0, 1, 2, 3, 4, 5])
         );
         assert_eq!(
             TorchCollate::default().collate(vec![0., 1., 2., 3., 4., 5.]),
-            Tensor::of_slice(&[0., 1., 2., 3., 4., 5.])
+            Tensor::from_slice(&[0., 1., 2., 3., 4., 5.])
         );
     }
 }

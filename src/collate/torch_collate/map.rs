@@ -50,8 +50,8 @@ mod tests {
         let map1 = HashMap::from([("A", 0), ("B", 1)]);
         let map2 = HashMap::from([("A", 100), ("B", 100)]);
         let expected_result = HashMap::from([
-            ("A", Tensor::of_slice(&[0, 100])),
-            ("B", Tensor::of_slice(&[1, 100])),
+            ("A", Tensor::from_slice(&[0, 100])),
+            ("B", Tensor::from_slice(&[1, 100])),
         ]);
         assert_eq!(
             TorchCollate::default().collate(vec![map1, map2]),
@@ -62,8 +62,8 @@ mod tests {
         let map1 = HashMap::from([(1, 0), (2, 1)]);
         let map2 = HashMap::from([(1, 100), (2, 100)]);
         let expected_result = HashMap::from([
-            (1, Tensor::of_slice(&[0, 100])),
-            (2, Tensor::of_slice(&[1, 100])),
+            (1, Tensor::from_slice(&[0, 100])),
+            (2, Tensor::from_slice(&[1, 100])),
         ]);
         assert_eq!(
             TorchCollate::default().collate(vec![map1, map2]),
@@ -73,8 +73,8 @@ mod tests {
         let map1 = HashMap::from([("A", 0.0), ("B", 1.0)]);
         let map2 = HashMap::from([("A", 100.0), ("B", 100.0)]);
         let expected_result = HashMap::from([
-            ("A", Tensor::of_slice(&[0.0, 100.0])),
-            ("B", Tensor::of_slice(&[1.0, 100.0])),
+            ("A", Tensor::from_slice(&[0.0, 100.0])),
+            ("B", Tensor::from_slice(&[1.0, 100.0])),
         ]);
         assert_eq!(
             TorchCollate::default().collate(vec![map1, map2]),
