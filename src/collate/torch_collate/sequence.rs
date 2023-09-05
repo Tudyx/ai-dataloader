@@ -71,33 +71,33 @@ mod tests {
     fn vec_of_vec() {
         assert_eq!(
             TorchCollate::default().collate(vec![vec![1]]),
-            vec![Tensor::of_slice(&[1])]
+            vec![Tensor::from_slice(&[1])]
         );
         assert_eq!(
             TorchCollate::default().collate(vec![vec![1, 2], vec![3, 4]]),
-            vec![Tensor::of_slice(&[1, 3]), Tensor::of_slice(&[2, 4])]
+            vec![Tensor::from_slice(&[1, 3]), Tensor::from_slice(&[2, 4])]
         );
         // different type
         assert_eq!(
             TorchCollate::default().collate(vec![vec![true, false], vec![true, false]]),
             vec![
-                Tensor::of_slice(&[true, true]),
-                Tensor::of_slice(&[false, false])
+                Tensor::from_slice(&[true, true]),
+                Tensor::from_slice(&[false, false])
             ]
         );
 
         assert_eq!(
             TorchCollate::default().collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
             vec![
-                Tensor::of_slice(&[1, 4]),
-                Tensor::of_slice(&[2, 5]),
-                Tensor::of_slice(&[3, 6])
+                Tensor::from_slice(&[1, 4]),
+                Tensor::from_slice(&[2, 5]),
+                Tensor::from_slice(&[3, 6])
             ]
         );
         // batch_size 3
         assert_eq!(
             TorchCollate::default().collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
-            vec![Tensor::of_slice(&[1, 3, 5]), Tensor::of_slice(&[2, 4, 6])]
+            vec![Tensor::from_slice(&[1, 3, 5]), Tensor::from_slice(&[2, 4, 6])]
         );
         // batch_size 10
         assert_eq!(
@@ -114,8 +114,8 @@ mod tests {
                 vec![19, 20]
             ]),
             vec![
-                Tensor::of_slice(&[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]),
-                Tensor::of_slice(&[2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
+                Tensor::from_slice(&[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]),
+                Tensor::from_slice(&[2, 4, 6, 8, 10, 12, 14, 16, 18, 20])
             ]
         );
     }

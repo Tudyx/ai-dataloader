@@ -17,7 +17,7 @@ where
         let array = stack(Axis(0), vec_of_view.as_slice())
             .expect("Make sure you're items from the dataset have the same shape.");
 
-        let tensor = Tensor::of_slice(array.as_slice().unwrap());
+        let tensor = Tensor::from_slice(array.as_slice().unwrap());
         let shape = array
             .shape()
             .into_iter()
