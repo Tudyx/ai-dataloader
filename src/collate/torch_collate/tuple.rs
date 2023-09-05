@@ -56,7 +56,10 @@ mod tests {
         );
         assert_eq!(
             TorchCollate::default().collate(vec![(1.0, 2.0), (3.0, 4.0)]),
-            (Tensor::from_slice(&[1.0, 3.0]), Tensor::from_slice(&[2.0, 4.0]))
+            (
+                Tensor::from_slice(&[1.0, 3.0]),
+                Tensor::from_slice(&[2.0, 4.0])
+            )
         );
         assert_eq!(
             TorchCollate::default().collate(vec![(1, 2), (3, 4)]),
@@ -101,7 +104,10 @@ mod tests {
         );
         assert_eq!(
             TorchCollate::default().collate(vec![(-1, true), (3, false)]),
-            (Tensor::from_slice(&[-1, 3]), Tensor::from_slice(&[true, false]))
+            (
+                Tensor::from_slice(&[-1, 3]),
+                Tensor::from_slice(&[true, false])
+            )
         );
         assert_eq!(
             TorchCollate::default().collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),

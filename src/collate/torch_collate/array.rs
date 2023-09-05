@@ -26,7 +26,10 @@ mod tests {
     fn vec_of_array() {
         assert_eq!(
             TorchCollate::default().collate(vec![[1, 2], [3, 4], [5, 6]]),
-            vec![Tensor::from_slice(&[1, 3, 5]), Tensor::from_slice(&[2, 4, 6])]
+            vec![
+                Tensor::from_slice(&[1, 3, 5]),
+                Tensor::from_slice(&[2, 4, 6])
+            ]
         );
     }
 }
