@@ -11,7 +11,7 @@ use super::DataLoader;
 
 /// Basic builder for creating dataloader from a type that implement `IntoIterator`.
 /// add a dataloader for all type that implement `IntoIterator`.
-/// If the iterator `Item` is not supported by default collate, you must provid your own collate function
+/// If the iterator `Item` is not supported by default collate, you must provide your own collate function
 #[must_use]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash, Ord)]
 pub struct Builder<D, S = SequentialSampler, C = DefaultCollate>
