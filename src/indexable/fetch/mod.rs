@@ -2,6 +2,7 @@ use crate::{
     collate::{Collate, DefaultCollate},
     Dataset,
 };
+use std::sync::Arc;
 
 #[cfg(feature = "rayon")]
 use crate::THREAD_POOL;
@@ -28,21 +29,21 @@ where
 
 /// Fetcher for map-style dataset. Simply call the collate function on all the batch of elements.
 #[derive(Debug)]
-pub(crate) struct MapDatasetFetcher<'dataset, D, C = DefaultCollate>
+pub(crate) struct MapDatasetFetcher<D, C = DefaultCollate>
 where
-    D: Dataset + Sync,
+    D: Dataset,
     C: Collate<D::Sample>,
 {
     /// The dataset data will be fetch from.
-    pub(crate) dataset: &'dataset D,
+    pub(crate) dataset: Arc<D>,
     /// The function (generic struct) used to collate data together.
-    pub(crate) collate_fn: &'dataset C,
+    pub(crate) collate_fn: Arc<C>,
 }
 
-impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
+impl<D, C> Fetcher<D, C> for MapDatasetFetcher<D, C>
 where
-    D: Dataset + Sync,
-    C: Collate<D::Sample>,
+    D: Dataset + Sync + Send,
+    C: Collate<D::Sample> + Sync + Send,
     D::Sample: Send,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
