@@ -6,8 +6,8 @@ use crate::{
     sampler::{BatchSampler, Sampler, SequentialSampler},
     Dataset, Len,
 };
+use std::sync::mpsc;
 use std::sync::mpsc::sync_channel;
-use std::sync::{mpsc, Arc};
 use std::thread::JoinHandle;
 
 mod builder;
@@ -35,11 +35,11 @@ use builder::Builder;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Hash, Eq, Ord)]
 pub struct DataLoader<D, S = SequentialSampler, C = DefaultCollate> {
     /// Dataset from which to load the data.
-    dataset: Arc<D>,
+    dataset: D,
     /// Return a batch of indices at a time.
     batch_sampler: BatchSampler<S>,
     /// Collate function.
-    collate_fn: Arc<C>,
+    collate_fn: C,
     /// Prefetch buffer size.
     prefetch_size: usize,
 }
@@ -58,13 +58,13 @@ where
 impl<D, S, C> DataLoader<D, S, C>
 where
     D: Dataset + Sync + Send + 'static,
-    S: Sampler + Send + Sync + 'static,
-    C: Collate<D::Sample> + Send + Sync + 'static,
+    S: Sampler + Send + 'static,
+    C: Collate<D::Sample> + Send + 'static,
     D::Sample: Send,
     C::Output: Send,
 {
     /// Return not owning iterator over the dataloader.
-    pub fn iter(&self) -> SingleProcessDataLoaderIter<C::Output> {
+    pub fn iter(self) -> SingleProcessDataLoaderIter<C::Output> {
         SingleProcessDataLoaderIter::<C::Output>::new(self)
     }
 }
@@ -90,30 +90,29 @@ where
     /// Number of sample yielded.
     num_yielded: u64,
     rx: mpsc::Receiver<CO>,
-    _thread_handle: JoinHandle<()>,
+    thread_handle: Option<JoinHandle<()>>,
 }
 
 impl<CO> SingleProcessDataLoaderIter<CO>
 where
     CO: Send,
 {
-    fn new<D, S, C>(loader: &DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<C::Output>
+    fn new<D, S, C>(loader: DataLoader<D, S, C>) -> SingleProcessDataLoaderIter<C::Output>
     where
         D: Dataset + Sync + Send + 'static,
-        S: Sampler + Send + Sync + 'static,
-        C: Collate<D::Sample> + Send + Sync + 'static,
+        S: Sampler + Send + 'static,
+        C: Collate<D::Sample> + Send + 'static,
         C::Output: Send,
         D::Sample: Send,
     {
         let (tx, rx) = sync_channel(loader.prefetch_size);
 
         let mut data_fetcher = MapDatasetFetcher {
-            dataset: loader.dataset.clone(),
-            collate_fn: loader.collate_fn.clone(),
+            dataset: loader.dataset,
+            collate_fn: loader.collate_fn,
         };
-        let batch_sampler = loader.batch_sampler.clone();
-        let _thread_handle = std::thread::spawn(move || {
-            let mut sampler_iter = batch_sampler.iter();
+        let thread_handle = std::thread::spawn(move || {
+            let mut sampler_iter = loader.batch_sampler.iter();
             // In this dedicated thread :
             // We fetch the data and push it into the channel TX
             // the loop will pause if there is no more space in the channel/buffer
@@ -131,7 +130,7 @@ where
         SingleProcessDataLoaderIter {
             num_yielded: 0,
             rx,
-            _thread_handle,
+            thread_handle: Some(thread_handle),
         }
     }
 
@@ -144,6 +143,19 @@ where
                 None
             }
         }
+    }
+}
+
+impl<CO> Drop for SingleProcessDataLoaderIter<CO>
+where
+    CO: Send,
+{
+    fn drop(&mut self) {
+        if let Some(thread_handle) = self.thread_handle.take() {
+            // This call may deadlock
+            // TODO: Find a way to stop the background thread before joining
+            //let _ = thread_handle.join();
+        };
     }
 }
 
@@ -170,8 +182,8 @@ where
 impl<D, S, C> IntoIterator for DataLoader<D, S, C>
 where
     D: Dataset + Send + Sync + 'static,
-    S: Sampler + Send + Sync + 'static,
-    C: Collate<D::Sample> + Send + Sync + 'static,
+    S: Sampler + Send + 'static,
+    C: Collate<D::Sample> + Send + 'static,
     D::Sample: Send,
     C::Output: Send,
 {
@@ -261,7 +273,7 @@ mod tests {
         let dataset = vec![1, 2, 3, 4];
         let dataloader = DataLoader::builder(dataset).batch_size(2).build();
 
-        let mut iter = dataloader.iter();
+        let mut iter = dataloader.clone().iter();
         assert_eq!(iter.next(), Some(array![1, 2]));
         assert_eq!(iter.next(), Some(array![3, 4]));
         assert_eq!(iter.next(), None);

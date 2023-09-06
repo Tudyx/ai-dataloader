@@ -4,7 +4,6 @@ use crate::{
     Dataset,
 };
 use std::cmp::max;
-use std::sync::Arc;
 
 #[cfg(feature = "rayon")]
 use crate::THREAD_POOL;
@@ -60,7 +59,7 @@ where
             collate_fn: DefaultCollate,
             #[cfg(feature = "rayon")]
             num_threads,
-            prefetch_size: 1,
+            prefetch_size: 0,
         }
     }
 }
@@ -90,7 +89,7 @@ where
 
     /// Set the size of the prefetch buffer.
     pub fn prefetch_size(mut self, prefetch_size: usize) -> Self {
-        self.prefetch_size = max(prefetch_size, 1);
+        self.prefetch_size = prefetch_size;
         self
     }
 
@@ -166,9 +165,9 @@ where
         }
 
         DataLoader {
-            dataset: Arc::new(self.dataset),
+            dataset: self.dataset,
             batch_sampler: self.batch_sampler,
-            collate_fn: Arc::new(self.collate_fn),
+            collate_fn: self.collate_fn,
             prefetch_size: self.prefetch_size,
         }
     }
