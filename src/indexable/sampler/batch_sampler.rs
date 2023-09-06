@@ -97,7 +97,22 @@ where
         }
         None
     }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (lower, upper) = self.sampler.size_hint();
+        if self.drop_last {
+            let lower = lower / self.batch_size;
+            let upper = upper.map(|upper| upper / self.batch_size);
+            (lower, upper)
+        } else {
+            let lower = (lower + self.batch_size - 1) / self.batch_size;
+            let upper = upper.map(|upper| (upper + self.batch_size - 1) / self.batch_size);
+            (lower, upper)
+        }
+    }
 }
+
+impl<I> ExactSizeIterator for BatchIterator<I> where I: Iterator<Item = usize> + ExactSizeIterator {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,6 +155,7 @@ mod tests {
             drop_last: false,
         };
         assert_eq!(batch_sampler.len(), 5);
+        assert_eq!(batch_sampler.iter().len(), 5);
 
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let batch_sampler = BatchSampler {
@@ -150,6 +166,7 @@ mod tests {
             drop_last: false,
         };
         assert_eq!(batch_sampler.len(), 6);
+        assert_eq!(batch_sampler.iter().len(), 6);
 
         let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let batch_sampler = BatchSampler {
@@ -160,5 +177,10 @@ mod tests {
             drop_last: true,
         };
         assert_eq!(batch_sampler.len(), 5);
+        let mut iter = batch_sampler.iter();
+        assert_eq!(iter.len(), 5);
+        iter.next();
+        iter.next();
+        assert_eq!(iter.len(), 3);
     }
 }

@@ -27,8 +27,8 @@ impl Len for RandomSampler {
     }
 }
 impl IntoIterator for RandomSampler {
-    type IntoIter = RandomSamplerIter;
     type Item = usize;
+    type IntoIter = RandomSamplerIter;
     fn into_iter(self) -> Self::IntoIter {
         RandomSamplerIter::new(self.data_source_len, self.replacement)
     }
@@ -36,8 +36,6 @@ impl IntoIterator for RandomSampler {
 /// Iterator that returns random index between zero and `data_source_len`.
 #[derive(Debug)]
 pub struct RandomSamplerIter {
-    /// The length of the data source.
-    data_source_len: usize,
     /// A permutation over the datasets indexes.
     indexes: Vec<usize>,
     /// The current index.
@@ -58,24 +56,31 @@ impl RandomSamplerIter {
             let mut vec: Vec<usize> = (0..data_source_len).collect();
             vec.shuffle(&mut thread_rng());
             Self {
-                data_source_len,
                 indexes: vec,
                 idx: 0,
             }
         }
     }
 }
+
 impl Iterator for RandomSamplerIter {
     type Item = usize;
     fn next(&mut self) -> Option<Self::Item> {
-        if self.idx < self.data_source_len {
+        if self.idx < self.indexes.len() {
             self.idx += 1;
             Some(self.indexes[self.idx - 1])
         } else {
             None
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.indexes.len() - self.idx;
+        (len, Some(len))
+    }
 }
+
+impl ExactSizeIterator for RandomSamplerIter {}
 
 #[cfg(test)]
 mod tests {
@@ -90,5 +95,22 @@ mod tests {
         for idx in random_sampler {
             println!("{idx}");
         }
+    }
+
+    #[test]
+    fn len() {
+        let random_sampler = RandomSampler {
+            data_source_len: 10,
+            replacement: false,
+        };
+
+        assert_eq!(random_sampler.len(), 10);
+        let mut iter = random_sampler.into_iter();
+        assert_eq!(iter.len(), 10);
+        let _ = iter.next();
+        assert_eq!(iter.len(), 9);
+        let _ = iter.next();
+        let _ = iter.next();
+        assert_eq!(iter.len(), 7);
     }
 }
