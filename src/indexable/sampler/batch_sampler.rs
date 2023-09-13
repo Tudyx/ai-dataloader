@@ -98,16 +98,13 @@ where
         None
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let (lower, upper) = self.sampler.size_hint();
-        if self.drop_last {
-            let lower = lower / self.batch_size;
-            let upper = upper.map(|upper| upper / self.batch_size);
-            (lower, upper)
+        let (lower, _) = self.sampler.size_hint();
+        let lower = if self.drop_last {
+            lower / self.batch_size
         } else {
-            let lower = (lower + self.batch_size - 1) / self.batch_size;
-            let upper = upper.map(|upper| (upper + self.batch_size - 1) / self.batch_size);
-            (lower, upper)
-        }
+            (lower + self.batch_size - 1) / self.batch_size
+        };
+        (lower, Some(lower))
     }
 }
 
