@@ -22,22 +22,27 @@ impl Len for SequentialSampler {
     }
 }
 impl IntoIterator for SequentialSampler {
-    type IntoIter = Range<usize>;
     type Item = usize;
+    type IntoIter = Range<usize>;
     fn into_iter(self) -> Self::IntoIter {
         0..self.data_source_len
     }
 }
 
-#[test]
-fn sequential_sampler() {
-    let dataset = vec![1, 2, 3];
-    let sampler = SequentialSampler {
-        data_source_len: dataset.len(),
-    };
-    let mut iter = sampler.into_iter();
-    assert_eq!(iter.next(), Some(0));
-    assert_eq!(iter.next(), Some(1));
-    assert_eq!(iter.next(), Some(2));
-    assert_eq!(iter.next(), None);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sequential_sampler() {
+        let dataset = vec![1, 2, 3];
+        let sampler = SequentialSampler {
+            data_source_len: dataset.len(),
+        };
+        let mut iter = sampler.into_iter();
+        assert_eq!(iter.next(), Some(0));
+        assert_eq!(iter.next(), Some(1));
+        assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), None);
+    }
 }

@@ -95,6 +95,22 @@ where
         }
         None
     }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (lower, _) = self.dataset_iter.size_hint();
+        let lower = if self.drop_last {
+            lower / self.batch_size
+        } else {
+            (lower + self.batch_size - 1) / self.batch_size
+        };
+        (lower, Some(lower))
+    }
+}
+
+impl<D, C> ExactSizeIterator for IntoIter<D, C>
+where
+    D: Iterator + ExactSizeIterator,
+    C: Collate<D::Item>,
+{
 }
 
 /// Iterator returned by `iter` function.
@@ -262,5 +278,25 @@ mod tests {
                 vec![array![1, 4], array![23, 0], array![4, 0], array![0, 0]]
             ))
         );
+    }
+
+    #[test]
+    fn len() {
+        let dataset = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let loader = DataLoader::builder(dataset)
+            .batch_size(2)
+            .drop_last()
+            .build();
+
+        let into_iter = loader.into_iter();
+        assert_eq!(into_iter.len(), 5);
+
+        let dataset = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let loader = DataLoader::builder(dataset).batch_size(2).build();
+
+        let mut into_iter = loader.into_iter();
+        assert_eq!(into_iter.len(), 6);
+        into_iter.next();
+        assert_eq!(into_iter.len(), 5);
     }
 }

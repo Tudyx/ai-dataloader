@@ -23,7 +23,7 @@ where
     C: Collate<D::Sample>,
 {
     /// Given a batch of index, return the result of the collate function on them.
-    fn fetch(&mut self, possibly_batched_index: Vec<usize>) -> C::Output;
+    fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output;
 }
 
 /// Fetcher for map-style dataset. Simply call the collate function on all the batch of elements.
@@ -45,7 +45,7 @@ where
     C: Collate<D::Sample>,
     D::Sample: Send,
 {
-    fn fetch(&mut self, possibly_batched_index: Vec<usize>) -> C::Output {
+    fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
         // As the batch length can vary depending on if the last element is dropped or not, we can't use a fix len array to
         // collect the data.
         #[cfg(feature = "rayon")]

@@ -120,6 +120,7 @@ where
         None
     }
 }
+
 impl<'dataset, D, S, C> Iterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
 where
     D: Dataset + Sync,
@@ -137,7 +138,12 @@ where
         }
         None
     }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (lower, upper) = self.sampler_iter.size_hint();
+        (lower, upper)
+    }
 }
+
 impl<'dataset, D, S, C> IntoIterator for &'dataset DataLoader<D, S, C>
 where
     D: Dataset + Sync,
@@ -151,6 +157,16 @@ where
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
     }
+}
+
+impl<'dataset, D, S, C> ExactSizeIterator for SingleProcessDataLoaderIter<'dataset, D, S, C>
+where
+    D: Dataset + Sync,
+    S: Sampler,
+    S::IntoIter: ExactSizeIterator,
+    C: Collate<D::Sample>,
+    D::Sample: Send,
+{
 }
 
 #[cfg(test)]
@@ -175,6 +191,10 @@ mod tests {
             .build();
         assert_eq!(dataloader.len(), dataloader.batch_sampler.len());
         assert_eq!(dataloader.len(), 5);
+        let mut iter = dataloader.iter();
+        assert_eq!(iter.len(), 5);
+        iter.next();
+        assert_eq!(iter.len(), 4);
     }
 
     #[test]
