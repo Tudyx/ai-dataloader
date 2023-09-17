@@ -48,6 +48,7 @@ where
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
         // As the batch length can vary depending on if the last element is dropped or not, we can't use a fix len array to
         // collect the data.
+        let dataset = &self.dataset;
         #[cfg(feature = "rayon")]
         let data = THREAD_POOL
             .get()
@@ -55,7 +56,7 @@ where
             .install(|| {
                 possibly_batched_index
                     .into_par_iter()
-                    .map(|idx| self.dataset.get_sample(idx))
+                    .map(|idx| dataset.get_sample(idx))
                     .collect()
             });
         #[cfg(not(feature = "rayon"))]
