@@ -30,7 +30,7 @@ ndarray = { version = "0.15.4", features = ["serde"] }
 ndarray-rand = "0.14.0"
 itertools = "0.11.0"
 rand = "0.8.5"
-tch = { version = "0.13.0", optional = true, features = ["download-libtorch"] }
+tch = { version = "0.14.0", optional = true, features = ["download-libtorch"] }
 rayon = { version = "1.7.0", optional = true }
 once_cell = { version = "1.17.1", optional = true }
 
