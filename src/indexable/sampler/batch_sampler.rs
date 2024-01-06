@@ -80,22 +80,12 @@ where
 {
     type Item = Vec<usize>;
     fn next(&mut self) -> Option<Self::Item> {
-        let mut batch = Vec::with_capacity(self.batch_size);
-
-        // We can't use a classic for loop here because it will
-        // try to move the `&mut`.
-        let mut current_idx = self.sampler.next();
-        while let Some(idx) = current_idx {
-            batch.push(idx);
-            if batch.len() == self.batch_size {
-                return Some(batch);
-            }
-            current_idx = self.sampler.next();
+        let (lower, _) = self.sampler.size_hint();
+        if lower == 0 || (self.drop_last && lower < self.batch_size) {
+            None
+        } else {
+            Some(self.sampler.by_ref().take(self.batch_size).collect())
         }
-        if !batch.is_empty() && !self.drop_last {
-            return Some(batch);
-        }
-        None
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         let (lower, _) = self.sampler.size_hint();
