@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: typos-actions
-        uses: crate-ci/typos@v1.16.11
+        uses: crate-ci/typos@v1.16.25
 
   hack:
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        msrv: [1.60.0]
+        msrv: [1.63.0]
     name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4

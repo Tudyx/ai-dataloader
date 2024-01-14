@@ -10,6 +10,7 @@ documentation = "https://docs.rs/ai-dataloader/"
 license = "MIT OR Apache-2.0"
 keywords = ["dataloader", "pytorch", "tensorflow", "AI", "machine_learning"]
 categories = ["science"]
+rust-version = "1.63"
 
 [lib]
 bench = false
@@ -30,7 +31,7 @@ ndarray = { version = "0.15.4", features = ["serde"] }
 ndarray-rand = "0.14.0"
 itertools = "0.11.0"
 rand = "0.8.5"
-tch = { version = "0.13.0", optional = true, features = ["download-libtorch"] }
+tch = { version = "0.14.0", optional = true, features = ["download-libtorch"] }
 rayon = { version = "1.7.0", optional = true }
 once_cell = { version = "1.17.1", optional = true }
 

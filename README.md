@@ -6,8 +6,6 @@
 
 A rust port of [`pytorch`](https://pytorch.org/) `dataloader` library.
 
-> Note: This project is still heavily in development and is at an early stage.
-
 ## Highlights
 
 - Iterable or indexable (Map style) `DataLoader`.
@@ -50,6 +48,6 @@ This features could be added in the future:
 
 ### MSRV
 
-The current MSRV is 1.60.
+The current MSRV is 1.63.
 
 [`rayon`]: https://docs.rs/rayon/latest/rayon/
