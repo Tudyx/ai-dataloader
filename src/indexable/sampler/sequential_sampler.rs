@@ -35,7 +35,7 @@ mod tests {
 
     #[test]
     fn sequential_sampler() {
-        let dataset = vec![1, 2, 3];
+        let dataset = [1, 2, 3];
         let sampler = SequentialSampler {
             data_source_len: dataset.len(),
         };

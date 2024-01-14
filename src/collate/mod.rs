@@ -52,7 +52,7 @@ mod tests {
 
     #[test]
     fn no_op_collate() {
-        assert_eq!(NoOpCollate::default().collate(vec![1, 2]), vec![1, 2]);
+        assert_eq!(NoOpCollate.collate(vec![1, 2]), vec![1, 2]);
     }
 
     #[test]

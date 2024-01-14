@@ -36,11 +36,11 @@ mod tests {
     #[test]
     fn scalar_type() {
         assert_eq!(
-            TorchCollate::default().collate(vec![0, 1, 2, 3, 4, 5]),
+            TorchCollate.collate(vec![0, 1, 2, 3, 4, 5]),
             Tensor::from_slice(&[0, 1, 2, 3, 4, 5])
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![0., 1., 2., 3., 4., 5.]),
+            TorchCollate.collate(vec![0., 1., 2., 3., 4., 5.]),
             Tensor::from_slice(&[0., 1., 2., 3., 4., 5.])
         );
     }

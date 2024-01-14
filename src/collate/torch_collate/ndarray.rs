@@ -18,12 +18,13 @@ where
             .expect("Make sure you're items from the dataset have the same shape.");
 
         let tensor = Tensor::from_slice(array.as_slice().unwrap());
+        #[allow(clippy::cast_possible_wrap)]
         let shape = array
             .shape()
-            .into_iter()
+            .iter()
             .map(|dim| *dim as i64)
             .collect::<Vec<_>>();
-        tensor.reshape(&shape)
+        tensor.reshape(shape)
     }
 }
 
@@ -34,7 +35,7 @@ mod tests {
 
     #[test]
     fn keep_dimension() {
-        let batch = TorchCollate::default().collate(vec![array![1, 2], array![3, 4]]);
+        let batch = TorchCollate.collate(vec![array![1, 2], array![3, 4]]);
         assert_eq!(batch.dim(), 2);
         batch.print();
     }

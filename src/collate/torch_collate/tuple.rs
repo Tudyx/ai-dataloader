@@ -51,26 +51,26 @@ mod tests {
     #[test]
     fn vec_of_tuple() {
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2)]),
+            TorchCollate.collate(vec![(1, 2)]),
             (Tensor::from_slice(&[1]), Tensor::from_slice(&[2]))
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1.0, 2.0), (3.0, 4.0)]),
+            TorchCollate.collate(vec![(1.0, 2.0), (3.0, 4.0)]),
             (
                 Tensor::from_slice(&[1.0, 3.0]),
                 Tensor::from_slice(&[2.0, 4.0])
             )
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2), (3, 4)]),
+            TorchCollate.collate(vec![(1, 2), (3, 4)]),
             (Tensor::from_slice(&[1, 3]), Tensor::from_slice(&[2, 4]))
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(-1, 2), (3, 4)]),
+            TorchCollate.collate(vec![(-1, 2), (3, 4)]),
             (Tensor::from_slice(&[-1, 3]), Tensor::from_slice(&[2, 4]))
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
+            TorchCollate.collate(vec![(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]),
             (
                 Tensor::from_slice(&[1.0, 3.0, 5.0]),
                 Tensor::from_slice(&[2.0, 4.0, 6.0])
@@ -80,7 +80,7 @@ mod tests {
     #[test]
     fn vec_of_tuple_with_len_1() {
         assert_eq!(
-            TorchCollate::default().collate(vec![(1,)]),
+            TorchCollate.collate(vec![(1,)]),
             (Tensor::from_slice(&[1]),)
         );
     }
@@ -88,29 +88,29 @@ mod tests {
     #[test]
     fn vec_of_tuple_with_len_2() {
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0)]),
+            TorchCollate.collate(vec![(1, 2.0)]),
             (Tensor::from_slice(&[1]), Tensor::from_slice(&[2.0]))
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0), (3, 4.0)]),
+            TorchCollate.collate(vec![(1, 2.0), (3, 4.0)]),
             (Tensor::from_slice(&[1, 3]), Tensor::from_slice(&[2.0, 4.0]))
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(-1, true), (-3, false)]),
+            TorchCollate.collate(vec![(-1, true), (-3, false)]),
             (
                 Tensor::from_slice(&[-1, -3]),
                 Tensor::from_slice(&[true, false])
             )
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(-1, true), (3, false)]),
+            TorchCollate.collate(vec![(-1, true), (3, false)]),
             (
                 Tensor::from_slice(&[-1, 3]),
                 Tensor::from_slice(&[true, false])
             )
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),
+            TorchCollate.collate(vec![(1, 2.0), (3, 4.0), (5, 6.0)]),
             (
                 Tensor::from_slice(&[1, 3, 5]),
                 Tensor::from_slice(&[2.0, 4.0, 6.0])
@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn vec_of_tuple_with_len_3() {
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0, true)]),
+            TorchCollate.collate(vec![(1, 2.0, true)]),
             (
                 Tensor::from_slice(&[1]),
                 Tensor::from_slice(&[2.0]),
@@ -128,7 +128,7 @@ mod tests {
             )
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0, true), (3, 4.0, true)]),
+            TorchCollate.collate(vec![(1, 2.0, true), (3, 4.0, true)]),
             (
                 Tensor::from_slice(&[1, 3]),
                 Tensor::from_slice(&[2.0, 4.0]),
@@ -136,7 +136,7 @@ mod tests {
             )
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![(1, 2.0, true), (3, 4.0, false), (5, 6.0, true)]),
+            TorchCollate.collate(vec![(1, 2.0, true), (3, 4.0, false), (5, 6.0, true)]),
             (
                 Tensor::from_slice(&[1, 3, 5]),
                 Tensor::from_slice(&[2.0, 4.0, 6.0]),

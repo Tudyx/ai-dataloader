@@ -11,6 +11,6 @@ where
 {
     type Output = <Self as Collate<T>>::Output;
     fn collate(&self, batch: Vec<&T>) -> Self::Output {
-        TorchCollate::default().collate(batch.into_iter().cloned().collect())
+        TorchCollate.collate(batch.into_iter().cloned().collect())
     }
 }

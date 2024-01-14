@@ -36,11 +36,11 @@ mod tests {
     #[test]
     fn scalar_type() {
         assert_eq!(
-            DefaultCollate::default().collate(vec![0, 1, 2, 3, 4, 5]),
+            DefaultCollate.collate(vec![0, 1, 2, 3, 4, 5]),
             array![0, 1, 2, 3, 4, 5]
         );
         assert_eq!(
-            DefaultCollate::default().collate(vec![0., 1., 2., 3., 4., 5.]),
+            DefaultCollate.collate(vec![0., 1., 2., 3., 4., 5.]),
             array![0., 1., 2., 3., 4., 5.]
         );
     }

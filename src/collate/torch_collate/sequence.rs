@@ -15,7 +15,7 @@ where
     type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(&self, batch: Vec<Vec<T>>) -> Self::Output {
         let elem_size = batch
-            .get(0)
+            .first()
             .expect("Batch should contain at least one element")
             .len();
 
@@ -42,7 +42,7 @@ where
     type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(&self, batch: Vec<VecDeque<T>>) -> Self::Output {
         let elem_size = batch
-            .get(0)
+            .first()
             .expect("Batch should contain at least one element")
             .len();
 
@@ -70,16 +70,16 @@ mod tests {
     #[test]
     fn vec_of_vec() {
         assert_eq!(
-            TorchCollate::default().collate(vec![vec![1]]),
+            TorchCollate.collate(vec![vec![1]]),
             vec![Tensor::from_slice(&[1])]
         );
         assert_eq!(
-            TorchCollate::default().collate(vec![vec![1, 2], vec![3, 4]]),
+            TorchCollate.collate(vec![vec![1, 2], vec![3, 4]]),
             vec![Tensor::from_slice(&[1, 3]), Tensor::from_slice(&[2, 4])]
         );
         // different type
         assert_eq!(
-            TorchCollate::default().collate(vec![vec![true, false], vec![true, false]]),
+            TorchCollate.collate(vec![vec![true, false], vec![true, false]]),
             vec![
                 Tensor::from_slice(&[true, true]),
                 Tensor::from_slice(&[false, false])
@@ -87,7 +87,7 @@ mod tests {
         );
 
         assert_eq!(
-            TorchCollate::default().collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
+            TorchCollate.collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
             vec![
                 Tensor::from_slice(&[1, 4]),
                 Tensor::from_slice(&[2, 5]),
@@ -96,7 +96,7 @@ mod tests {
         );
         // batch_size 3
         assert_eq!(
-            TorchCollate::default().collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
+            TorchCollate.collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
             vec![
                 Tensor::from_slice(&[1, 3, 5]),
                 Tensor::from_slice(&[2, 4, 6])
@@ -104,7 +104,7 @@ mod tests {
         );
         // batch_size 10
         assert_eq!(
-            TorchCollate::default().collate(vec![
+            TorchCollate.collate(vec![
                 vec![1, 2],
                 vec![3, 4],
                 vec![5, 6],
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn specialized() {
         assert_eq!(
-            TorchCollate::default().collate(vec![
+            TorchCollate.collate(vec![
                 vec![String::from("a"), String::from("b")],
                 vec![String::from("c"), String::from("d")]
             ]),

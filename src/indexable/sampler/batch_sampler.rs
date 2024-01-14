@@ -60,6 +60,14 @@ impl<S: Sampler> BatchSampler<S> {
     }
 }
 
+impl<S: Sampler> IntoIterator for &BatchSampler<S> {
+    type IntoIter = BatchIterator<<S as IntoIterator>::IntoIter>;
+    type Item = Vec<usize>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
 /// An iterator for the batch. Yield a sequence of index at each iteration.
 #[derive(Debug)]
 pub struct BatchIterator<I>
@@ -116,7 +124,7 @@ mod tests {
 
     #[test]
     fn basics() {
-        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let dataset = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let batch_sampler = BatchSampler {
             sampler: SequentialSampler {
                 data_source_len: dataset.len(),
@@ -143,7 +151,7 @@ mod tests {
     }
     #[test]
     fn len() {
-        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let dataset = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let batch_sampler = BatchSampler {
             sampler: SequentialSampler {
                 data_source_len: dataset.len(),
@@ -154,7 +162,7 @@ mod tests {
         assert_eq!(batch_sampler.len(), 5);
         assert_eq!(batch_sampler.iter().len(), 5);
 
-        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        let dataset = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let batch_sampler = BatchSampler {
             sampler: SequentialSampler {
                 data_source_len: dataset.len(),
@@ -165,7 +173,7 @@ mod tests {
         assert_eq!(batch_sampler.len(), 6);
         assert_eq!(batch_sampler.iter().len(), 6);
 
-        let dataset = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        let dataset = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         let batch_sampler = BatchSampler {
             sampler: SequentialSampler {
                 data_source_len: dataset.len(),

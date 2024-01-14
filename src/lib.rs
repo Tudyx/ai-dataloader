@@ -1,16 +1,3 @@
-#![warn(
-    clippy::all,
-    clippy::cargo,
-    clippy::pedantic,
-    clippy::clone_on_ref_ptr,
-    missing_docs,
-    missing_debug_implementations,
-    rust_2018_idioms
-)]
-// I've a false positive on this one.
-#![allow(clippy::derive_partial_eq_without_eq)]
-// Opinionated.
-#![allow(clippy::module_name_repetitions)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! The `ai-dataloader` crate provides a Rust implementation to the [`PyTorch`] `DataLoader`.

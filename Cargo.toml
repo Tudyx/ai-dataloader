@@ -52,3 +52,15 @@ path = "examples/iterable.rs"
 [[bench]]
 name = "throughput"
 harness = false
+
+[lints.rust]
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+rust_2018_idioms = "warn"
+
+[lints.clippy]
+all = "warn"
+cargo = "warn"
+pedantic = "warn"
+clone_on_ref_ptr = "warn"
+module_name_repetitions = "allow"

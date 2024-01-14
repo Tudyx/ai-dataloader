@@ -15,7 +15,7 @@ where
     type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(&self, batch: Vec<Vec<T>>) -> Self::Output {
         let elem_size = batch
-            .get(0)
+            .first()
             .expect("Batch should contain at least one element")
             .len();
 
@@ -42,7 +42,7 @@ where
     type Output = Vec<<Self as Collate<T>>::Output>;
     fn collate(&self, batch: Vec<VecDeque<T>>) -> Self::Output {
         let elem_size = batch
-            .get(0)
+            .first()
             .expect("Batch should contain at least one element")
             .len();
 
@@ -68,32 +68,29 @@ mod tests {
 
     #[test]
     fn vec_of_vec() {
+        assert_eq!(DefaultCollate.collate(vec![vec![1]]), vec![array![1]]);
         assert_eq!(
-            DefaultCollate::default().collate(vec![vec![1]]),
-            vec![array![1]]
-        );
-        assert_eq!(
-            DefaultCollate::default().collate(vec![vec![1, 2], vec![3, 4]]),
+            DefaultCollate.collate(vec![vec![1, 2], vec![3, 4]]),
             vec![array![1, 3], array![2, 4]]
         );
         // different type
         assert_eq!(
-            DefaultCollate::default().collate(vec![vec![true, false], vec![true, false]]),
+            DefaultCollate.collate(vec![vec![true, false], vec![true, false]]),
             vec![array![true, true], array![false, false]]
         );
 
         assert_eq!(
-            DefaultCollate::default().collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
+            DefaultCollate.collate(vec![vec![1, 2, 3], vec![4, 5, 6]]),
             vec![array![1, 4], array![2, 5], array![3, 6]]
         );
         // batch_size 3
         assert_eq!(
-            DefaultCollate::default().collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
+            DefaultCollate.collate(vec![vec![1, 2], vec![3, 4], vec![5, 6]]),
             vec![array![1, 3, 5], array![2, 4, 6]]
         );
         // batch_size 10
         assert_eq!(
-            DefaultCollate::default().collate(vec![
+            DefaultCollate.collate(vec![
                 vec![1, 2],
                 vec![3, 4],
                 vec![5, 6],
@@ -115,7 +112,7 @@ mod tests {
     #[test]
     fn specialized() {
         assert_eq!(
-            DefaultCollate::default().collate(vec![
+            DefaultCollate.collate(vec![
                 vec![String::from("a"), String::from("b")],
                 vec![String::from("c"), String::from("d")]
             ]),

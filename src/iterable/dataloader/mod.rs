@@ -117,6 +117,7 @@ where
 #[derive(Debug)]
 pub struct Iter<'dataset, D, C> {
     batch_size: usize,
+    #[allow(clippy::struct_field_names)]
     dataset_iter: D,
     drop_last: bool,
     collate_fn: &'dataset C,

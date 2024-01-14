@@ -44,13 +44,10 @@ mod tests {
     #[test]
     fn no_op() {
         assert_eq!(
-            TorchCollate::default().collate(vec![String::from("a"), String::from("b")]),
+            TorchCollate.collate(vec![String::from("a"), String::from("b")]),
             vec![String::from("a"), String::from("b")]
         );
 
-        assert_eq!(
-            TorchCollate::default().collate(vec!["a", "b"]),
-            vec!["a", "b"]
-        );
+        assert_eq!(TorchCollate.collate(vec!["a", "b"]), vec!["a", "b"]);
     }
 }
