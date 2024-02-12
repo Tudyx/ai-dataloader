@@ -127,6 +127,15 @@ fn main() {
         );
     }
 
+    let dataset = FaceLandmarksDataset::new(
+        "examples/image/dataset/face_landmarks.csv",
+        env::current_dir().unwrap().join("examples/image/dataset/"),
+    );
+    let loader = DataLoader::builder(dataset)
+        .batch_size(4)
+        .collate_fn(TorchCollate)
+        .build();
+
     loader
         .into_iter()
         .enumerate()

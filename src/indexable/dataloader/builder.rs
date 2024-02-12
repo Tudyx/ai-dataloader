@@ -3,6 +3,7 @@ use crate::{
     sampler::{BatchSampler, RandomSampler, Sampler, SequentialSampler},
     Dataset,
 };
+use std::cmp::max;
 
 #[cfg(feature = "rayon")]
 use crate::THREAD_POOL;
@@ -29,6 +30,8 @@ where
     #[cfg(feature = "rayon")]
     /// Number of threads to use.
     num_threads: usize,
+    /// Prefetch buffer size.
+    prefetch_size: usize,
 }
 
 // FIXME: kind of strange that we require DefaultCollatte even if in the end we may won't use it
@@ -56,6 +59,7 @@ where
             collate_fn: DefaultCollate,
             #[cfg(feature = "rayon")]
             num_threads,
+            prefetch_size: 0,
         }
     }
 }
@@ -72,7 +76,7 @@ where
     }
     /// Set the number of elements in a batch.
     pub fn batch_size(mut self, batch_size: usize) -> Self {
-        self.batch_sampler.batch_size = batch_size;
+        self.batch_sampler.batch_size = max(batch_size, 1);
         self
     }
 
@@ -80,6 +84,12 @@ where
     #[cfg(feature = "rayon")]
     pub fn num_threads(mut self, num_threads: usize) -> Self {
         self.num_threads = num_threads;
+        self
+    }
+
+    /// Set the size of the prefetch buffer.
+    pub fn prefetch_size(mut self, prefetch_size: usize) -> Self {
+        self.prefetch_size = prefetch_size;
         self
     }
 
@@ -102,6 +112,7 @@ where
             collate_fn,
             #[cfg(feature = "rayon")]
             num_threads: self.num_threads,
+            prefetch_size: self.prefetch_size,
         }
     }
 
@@ -122,6 +133,7 @@ where
             collate_fn: self.collate_fn,
             #[cfg(feature = "rayon")]
             num_threads: self.num_threads,
+            prefetch_size: self.prefetch_size,
         }
     }
     /// Create a `Dataloader` from a [`Builder`].
@@ -156,6 +168,7 @@ where
             dataset: self.dataset,
             batch_sampler: self.batch_sampler,
             collate_fn: self.collate_fn,
+            prefetch_size: self.prefetch_size,
         }
     }
 }

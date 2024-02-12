@@ -28,26 +28,27 @@ where
 
 /// Fetcher for map-style dataset. Simply call the collate function on all the batch of elements.
 #[derive(Debug)]
-pub(crate) struct MapDatasetFetcher<'dataset, D, C = DefaultCollate>
+pub(crate) struct MapDatasetFetcher<D, C = DefaultCollate>
 where
-    D: Dataset + Sync,
+    D: Dataset,
     C: Collate<D::Sample>,
 {
     /// The dataset data will be fetch from.
-    pub(crate) dataset: &'dataset D,
+    pub(crate) dataset: D,
     /// The function (generic struct) used to collate data together.
-    pub(crate) collate_fn: &'dataset C,
+    pub(crate) collate_fn: C,
 }
 
-impl<'dataset, D, C> Fetcher<D, C> for MapDatasetFetcher<'dataset, D, C>
+impl<D, C> Fetcher<D, C> for MapDatasetFetcher<D, C>
 where
-    D: Dataset + Sync,
-    C: Collate<D::Sample>,
+    D: Dataset + Sync + Send,
+    C: Collate<D::Sample> + Send,
     D::Sample: Send,
 {
     fn fetch(&self, possibly_batched_index: Vec<usize>) -> C::Output {
         // As the batch length can vary depending on if the last element is dropped or not, we can't use a fix len array to
         // collect the data.
+        let dataset = &self.dataset;
         #[cfg(feature = "rayon")]
         let data = THREAD_POOL
             .get()
@@ -55,7 +56,7 @@ where
             .install(|| {
                 possibly_batched_index
                     .into_par_iter()
-                    .map(|idx| self.dataset.get_sample(idx))
+                    .map(|idx| dataset.get_sample(idx))
                     .collect()
             });
         #[cfg(not(feature = "rayon"))]
