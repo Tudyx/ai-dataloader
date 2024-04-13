@@ -55,13 +55,15 @@ name = "throughput"
 harness = false
 
 [lints.rust]
+rust_2018_idioms = { level = "warn", priority = -1 }
+rust_2024_compatibility = { level = "warn", priority = -1 }
 missing_docs = "warn"
 missing_debug_implementations = "warn"
-rust_2018_idioms = "warn"
 
 [lints.clippy]
-all = "warn"
-cargo = "warn"
-pedantic = "warn"
+all = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
 clone_on_ref_ptr = "warn"
+fn_params_excessive_bools = "warn"
 module_name_repetitions = "allow"

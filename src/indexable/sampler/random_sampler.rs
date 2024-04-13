@@ -49,6 +49,8 @@ impl RandomSamplerIter {
     ///
     /// * `data_source_len` - The length of the dataset.
     /// * `replacement` - Whether we can have the same sample twice over one iteration or not.
+    // FIXME: change this parameters in the next breaking release
+    #[allow(clippy::fn_params_excessive_bools)]
     fn new(data_source_len: usize, replacement: bool) -> Self {
         if replacement {
             todo!()
