@@ -114,4 +114,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: EmbarkStudios/cargo-deny-action@v1
         with:
-          command: check ${{ matrix.checks }}
+          command: check -D warnings ${{ matrix.checks }}
