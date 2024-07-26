@@ -65,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: typos-actions
-        uses: crate-ci/typos@v1.22.9
+        uses: crate-ci/typos@v1.23.5
 
   hack:
     runs-on: ubuntu-latest
