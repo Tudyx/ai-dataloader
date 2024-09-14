@@ -43,10 +43,6 @@ image = "0.25.1"
 nshare = { version = "0.9.0", features = ["ndarray", "image"] }
 
 [[example]]
-name = "image"
-path = "examples/image.rs"
-
-[[example]]
 name = "iterable"
 path = "examples/iterable.rs"
 
