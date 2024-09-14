@@ -27,7 +27,7 @@ default = ["rayon"]
 rayon = ["dep:rayon", "dep:once_cell"]
 
 [dependencies]
-ndarray = { version = "0.15.4", features = ["serde"] }
+ndarray = { version = "0.16.1", features = ["serde"] }
 ndarray-rand = "0.14.0"
 itertools = "0.13.0"
 rand = "0.8.5"
